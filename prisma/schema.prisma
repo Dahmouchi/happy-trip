@@ -3,74 +3,52 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "postgresql"  // Change to "mysql" or "sqlite" if needed
   url      = env("DATABASE_URL")
 }
 
 enum Role {
   USER
   ADMIN
-}
-enum TravelType {
-  NATIONAL
-  INTERNATIONAL
-  EN_MESURE
-}
-model Tour {
-  id                 String   @id @default(cuid())
-  title              String
-  description        String?
-  type               TravelType @default(NATIONAL)
-  location           String?
-  priceOriginal      Int?
-  priceDiscounted    Int?
-  startDate          DateTime?
-  endDate            DateTime?
-  durationDays       Int?
-  durationNights     Int?
-  accommodation      String?
-  imageUrl           String?
-
-  groupType          String?     // e.g., "Petit groupe"
-  groupSizeMax       Int?        // e.g., 12
-
-  showReviews        Boolean  @default(true)
-  showDifficulty     Boolean  @default(true)
-  showDiscount       Boolean  @default(true)
-
-  difficultyLevel    Int?     // 1 to 5
-  totalReviews       Int      @default(0)
-  averageRating      Float    @default(0.0)
-  discountPercent    Int?     // e.g. 10 for 10%
-  weekendsOnly       Boolean  @default(false)
-
-  dates              TourDate[]
-
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
-  VacationStyle VacationStyle[] @relation("TourVacationStyles")
+  ANALYSTE
+  RESPONSABLE
+  ADMIN_RESPONSABLE
 }
 
-model VacationStyle {
-  id      String    @id @default(cuid())
-  name    String    @unique        // e.g., "Voyage en groupe", "Voyage sur mesure"
-  tours   Tour[]    @relation("TourVacationStyles")
+enum AlertStatus {
+  EN_COURS_TRAITEMENT
+  TRAITE
+  REJETE
+  INFORMATIONS_MANQUANTES
 }
-model TourDate {
-  id        String   @id @default(cuid())
-  tour      Tour     @relation(fields: [tourId], references: [id])
-  tourId    String
-
-  startDate DateTime
-  endDate   DateTime
+enum UserAlertStatus {
+  PENDING
+  APPROVED
+  DECLINED
+  INFORMATIONS_MANQUANTES
+}
+enum AdminAlertStatus {
+  PENDING
+  ASSIGNED
+  APPROVED
+  DECLINED
+  ESCALATED
+}
+enum RecevalbeStatus {
+  RECEVALBE
+  NON_RECEVABLE
+  NON_RECEVABLE_VALIDER
+  NON_DECIDE
+}
+enum ContactPreference {
+  YES
+  NO
+  ANONYMOUS
 }
 model User {
   id              String    @id @default(cuid())
@@ -90,11 +68,19 @@ model User {
   statut          Boolean   @default(true)
   role            Role      @default(USER)
   verified_email  String?
+  profile         Profile?
   qrSecret        String?
   twoFactorEnabled Boolean  @default(true)
   twoFactorSecret  String?  // Secret for TOTP
-
+  conlusions    Conclusion[]   
+  Alert Alert[] @relation(name: "AlertCreator")
+  AlertAnalyst Alert[] @relation(name: "AlertAssignmentAnalyste")
+  AlertResponsable Alert[] @relation(name: "AlertAssignmentResponsable")
+  AlertHistory AlertHistory[]
+  ChatMessage ChatMessage[]
+  notification Notification[]
 }
+
 model Account {
   userId            String
   type              String
@@ -115,7 +101,7 @@ model Account {
  
   @@id([provider, providerAccountId])
 }
-
+ 
 model Session {
   sessionToken String   @unique
   userId       String
@@ -149,3 +135,142 @@ model Authenticator {
  
   @@id([userId, credentialID])
 }
+
+model AlertHistory {
+  id        String   @id @default(uuid())
+  alertId   String
+  alert     Alert    @relation(fields: [alertId], references: [id], onDelete: Cascade)
+
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  action    String   // e.g. "ASSIGN_ANALYST", "SET_STATUS", "VALIDATE"
+  details   String?  // optional text or JSON with context
+  createdAt DateTime @default(now())
+}
+
+model Alert {
+  id            String       @id @default(uuid())
+  code          String       @unique
+  category      String?
+  title         String?
+  description   String?      @db.Text
+  type          String?      @default("text")
+  recevable     RecevalbeStatus @default(NON_DECIDE)
+  audioUrl      String?
+  dateLieu      DateTime?    // Date of the incident
+  location      String?      // Location description
+  involvedPersons String?    // Names of involved persons (can be "Inconnu")
+  criticite     Int    @default(0)
+  step          Int            @default(1)  // Track progress step
+  status        AlertStatus  @default(EN_COURS_TRAITEMENT)
+  adminStatus   AdminAlertStatus @default(PENDING)
+  involved      Boolean   @default(false)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  conclusion    String?
+  analysteValidation UserAlertStatus @default(PENDING)
+  responsableValidation UserAlertStatus @default(PENDING)
+  globalValidation UserAlertStatus @default(PENDING)
+  createdById   String
+  createdBy     User @relation(name: "AlertCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  // Relationship to the User (Analyst) assigned to the alert
+  assignedAnalystId String?
+  assignedAnalyst   User? @relation(name: "AlertAssignmentAnalyste", fields: [assignedAnalystId], references: [id], onDelete: SetNull)
+  assignedResponsableId String?
+  assignedResponsable   User? @relation(name: "AlertAssignmentResponsable", fields: [assignedResponsableId], references: [id], onDelete: SetNull)
+  contactPreference ContactPreference @default(ANONYMOUS) // Contact option
+  nom           String?
+  prenom        String?
+  fonction        String?
+  // Relationship to store attached files
+  files         File[] 
+  persons       Persons[]   
+  conlusions    Conclusion[]   
+  AlertHistory AlertHistory[]
+  AlertChat AlertChat[]
+}
+
+model AlertChat {
+  id          String    @id @default(uuid())
+  alertId     String    @unique
+  alert       Alert     @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  messages    ChatMessage[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String   // User who should receive the notification
+  title       String   // Short title of the notification
+  message     String   // Detailed message
+  type        String   // e.g., "ALERT", "SYSTEM", "MESSAGE"
+  relatedId   String?  // ID of related entity (e.g., alert ID)
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  readAt      DateTime?
+  // Relation to user (assuming you have a User model)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes for better query performance
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+}
+model ChatMessage {
+  id          String    @id @default(uuid())
+  chatId      String
+  chat        AlertChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  senderId    String
+  sender      User      @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content     String    @db.Text
+  attachments String[]  // URLs to attached files
+  createdAt   DateTime  @default(now())
+  isRead      Boolean   @default(false)
+}
+model Conclusion {
+  id        String    @id @default(uuid())
+  content1  String?
+  content   String    @db.Text
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  createdById   String
+  valider    Boolean @default(false)
+  createdBy     User @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  // Foreign key linking to Alert
+  alertId   String
+  alert     Alert    @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  analysteValidation UserAlertStatus @default(PENDING)
+  files         FileJustif[] 
+}
+model FileJustif {
+  id        Int      @id @default(autoincrement())
+  justifId   String
+  url       String   // The URL of the file stored in Cloudflare or another storage
+  justif     Conclusion    @relation(fields: [justifId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+model Persons {
+  id            String       @id @default(uuid())
+  codeAlert     String  
+  nom           String?
+  prenom        String?
+  fonction        String?
+  createdBy     Alert         @relation(fields: [codeAlert], references: [id], onDelete: Cascade)
+}
+model File {
+  id        Int      @id @default(autoincrement())
+  alertId   String
+  url       String   // The URL of the file stored in Cloudflare or another storage
+  alert     Alert    @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Profile {
+  id        String  @id @default(uuid())
+  userId    String  @unique
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone     String?
+  address   String?
+}
+
