@@ -6,6 +6,7 @@ import International from './_components/International'
 import Mesure from './_components/Mesure'
 import ReviewsSection from './_components/Reviews'
 import Meeting from './_components/Meeting'
+import Expert from './_components/Expert'
 
 const LandigPage = () => {
   return (
@@ -22,6 +23,7 @@ const LandigPage = () => {
         <Mesure />
         <ReviewsSection />
         <Meeting />
+        <Expert />
         LandigPage</div>
   )
 }
