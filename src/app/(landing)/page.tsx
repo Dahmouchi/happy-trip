@@ -8,6 +8,7 @@ import ReviewsSection from './_components/Reviews'
 import Meeting from './_components/Meeting'
 import Expert from './_components/Expert'
 import Trust from './_components/Trust'
+import Footer from './_components/Footer'
 
 const LandigPage = () => {
   return (
@@ -26,7 +27,8 @@ const LandigPage = () => {
         <Meeting />
         <Expert />
         <Trust />
-        LandigPage</div>
+        <Footer />
+        </div>
   )
 }
 
