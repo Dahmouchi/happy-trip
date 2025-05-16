@@ -7,6 +7,7 @@ import Mesure from './_components/Mesure'
 import ReviewsSection from './_components/Reviews'
 import Meeting from './_components/Meeting'
 import Expert from './_components/Expert'
+import Trust from './_components/Trust'
 
 const LandigPage = () => {
   return (
@@ -24,6 +25,7 @@ const LandigPage = () => {
         <ReviewsSection />
         <Meeting />
         <Expert />
+        <Trust />
         LandigPage</div>
   )
 }
