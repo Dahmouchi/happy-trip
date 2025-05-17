@@ -8,6 +8,9 @@ import International from './_components/International'
 import Mesure from './_components/Mesure'
 import ReviewsSection from './_components/Reviews'
 import Meeting from './_components/Meeting'
+import Expert from './_components/Expert'
+import Trust from './_components/Trust'
+import Footer from './_components/Footer'
 
 const LandigPage = () => {
   const [hide,setHide] = useState(true)
@@ -25,7 +28,10 @@ const LandigPage = () => {
         <Mesure />
         <ReviewsSection />
         <Meeting />
-    </div>
+        <Expert />
+        <Trust />
+        <Footer />
+        </div>
   )
 }
 

@@ -11,12 +11,12 @@ import {
 import { PromotionCard } from "./ProductCard";
 const National = () => {
   return (
-    <div className="relative">
+    <div className="relative pt-8">
     <img src="/mountaine.png" className="w-full h-auto absolute bottom-0 z-0 opacity-30" alt="" />
      <div className="z-20">
      <div className="w-full text-center flex items-center justify-center flex-col gap-2">
         <h1 className="lg:text-4xl text-xl font-bold">Voyages Nationaux</h1>
-        <h1 className="lg:w-1/2 text-sm lg:text-lg text-gray-500">
+        <h1 className="lg:w-1/2 text-sm lg:text-lg text-gray-700">
           Que vous soyez en quête d&apos;évasion, d&apos;aventure ou de détente,
           nous concevons des escapades inoubliables, accessibles et pleines de
           charme, au cœur du Maroc authentique
