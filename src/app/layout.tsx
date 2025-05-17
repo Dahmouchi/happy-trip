@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-
+import { ToastContainer } from 'react-toastify';
 export const metadata: Metadata = {
   icons:{
     icon:"/logo.png"
@@ -19,6 +19,18 @@ export default function RootLayout({
       <body
       >
         {children}
+        <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick={false}
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+              />
       </body>
     </html>
   );
