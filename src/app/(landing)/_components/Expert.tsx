@@ -1,4 +1,3 @@
-import { Gem } from "lucide-react";
 import React from "react";
 
 const Expert = () => {
@@ -7,8 +6,8 @@ const Expert = () => {
       <div className="text-center mb-24">
         <h1 className="text-4xl font-bold mb-6">Partir avec HAPPY TRIP</h1>
         <p className="max-w-3xl mx-auto text-gray-700">
-          Nous sommes à votre écoute pour transformer vos idées d'évasion en réalité. Parlez-nous de votre projet, même
-          s'il n'en est qu'au stade de rêve — nous vous aiderons à lui donner vie.
+          Nous sommes à votre écoute pour transformer vos idées d&apos;évasion en réalité. Parlez-nous de votre projet, même
+          s&apos;il n&apos;en est qu&apos;au stade de rêve — nous vous aiderons à lui donner vie.
         </p>
       </div>
 
@@ -32,7 +31,7 @@ const Expert = () => {
           </div>
           <h3 className="font-bold mb-3">Séjours sur mesure</h3>
           <p className="text-sm text-gray-700">
-            Que vous rêviez d'une escapade romantique, d'un circuit culturel ou d'un séjour en famille, nous concevons
+            Que vous rêviez d&apos;une escapade romantique, d&apos;un circuit culturel ou d&apos;un séjour en famille, nous concevons
             des voyages entièrement personnalisés, selon vos envies et votre budget.
           </p>
         </div>
@@ -45,7 +44,7 @@ const Expert = () => {
           <h3 className="font-bold mb-3">Accompagnement complet</h3>
           <p className="text-sm text-gray-700">
             De la réservation à votre retour, nous vous accompagnons à chaque étape avec un service client réactif, à
-            l'écoute et disponible 7j/7.
+            l&apos;écoute et disponible 7j/7.
           </p>
         </div>
 

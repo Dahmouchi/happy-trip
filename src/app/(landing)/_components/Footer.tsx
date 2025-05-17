@@ -74,7 +74,7 @@ const Footer = () => {
                     <li className="py-1"><a href="" className=" text-2xl text-lime-950 font-thin">Activites</a></li>
                     <li className="py-1"><a href="" className="underline text-lime-900 font-medium my-1">Randonnee</a></li>
                     <li className="py-1"><a href="" className="underline text-lime-900 font-medium my-1">Montagne</a></li>
-                    <li className="py-1"><a href="" className="underline text-lime-900 font-medium my-1">Bapteme de l'air</a></li>
+                    <li className="py-1"><a href="" className="underline text-lime-900 font-medium my-1">Bapteme de l&apos;air</a></li>
                     <li className="py-1"><a href="" className="underline text-lime-900 font-medium my-1">Bivouac</a></li>
                 </ul>
             </div>
