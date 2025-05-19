@@ -24,77 +24,6 @@ const Footer = () => {
                 </div>
             </div>
           </div>
-        {/* <div className="bg-[#8EBD22] w-full pt-16 md:pt-24 lg:pt-32 pb-8 md:pb-12 px-4 sm:px-6 md:px-8 lg:px-12">
-           <div className="container mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
-                    <img src="/footer/happy-trip-logo.png" alt="logo" className="w-40 h-34"/>
-                    <div className="flex justify-center md:justify-start lg:col-span-1">
-                        <div>
-                            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
-                                <Instagram />
-                            </a>
-                        </div>
-                        <div>
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-                                <Youtube/>
-                            </a>
-                        </div>
-                        <div>
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-                                <Instagram/>
-                            </a>
-                        </div>
-                        <div>
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-                                <Youtube/>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div className="grid grid-flow-col gap-10 pr-44">
-                <div className="">
-                <ul>
-                    <li className="py-1"><a href="" className=" text-2xl text-lime-950 font-thin">Accueil</a></li>
-                    <li className="py-1"><a href="" className="underline text-lime-900 font-medium my-1">Qui sommes-nous?</a></li>
-                    <li className="py-1"><a href="" className="underline text-lime-900 font-medium my-1">Contactez-nous</a></li>
-                    <li className="py-1"><a href="" className="underline text-lime-900 font-medium my-1">Conditions générales de vente</a></li>
-                </ul>
-            </div>
-            <div className="">
-                <ul>
-                    <li className="py-1"><a href="" className=" text-2xl text-lime-950 font-thin">Destionations</a></li>
-                    <li className="py-1"><a href="" className="underline text-lime-900 font-medium my-1">Haut Atlas</a></li>
-                    <li className="py-1"><a href="" className="underline text-lime-900 font-medium my-1">Anti Atlas et Sous</a></li>
-                    <li className="py-1"><a href="" className="underline text-lime-900 font-medium my-1">Moyen Atlas</a></li>
-                    <li className="py-1"><a href="" className="underline text-lime-900 font-medium my-1">Parc Toubkal</a></li>
-                </ul>
-            </div>
-            <div className="">
-                <ul>
-                    <li className="py-1"><a href="" className=" text-2xl text-lime-950 font-thin">Activites</a></li>
-                    <li className="py-1"><a href="" className="underline text-lime-900 font-medium my-1">Randonnee</a></li>
-                    <li className="py-1"><a href="" className="underline text-lime-900 font-medium my-1">Montagne</a></li>
-                    <li className="py-1"><a href="" className="underline text-lime-900 font-medium my-1">Bapteme de l&apos;air</a></li>
-                    <li className="py-1"><a href="" className="underline text-lime-900 font-medium my-1">Bivouac</a></li>
-                </ul>
-            </div>
-            <div className="">
-                <ul>
-                    <li className="py-1"><a href="" className=" text-2xl text-lime-950 font-thin">About us</a></li>
-                    <li className="py-1"><a href="" className="underline text-lime-900 font-medium my-1">Our story</a></li>
-                    <li className="py-1"><a href="" className="underline text-lime-900 font-medium my-1">Work with us</a></li>
-                </ul>
-            </div>
-            <div className="">
-                <ul>
-                    <li className="py-1"><a href="" className=" text-2xl text-lime-950 font-thin">Contact Us</a></li>
-                    <li className="py-1"><a href="tel:+212628324880" className="underline  text-lime-900 font-medium my-1">(212) 628324880</a></li>
-                    <li className="py-1"><a href="mailto:happy.trip.voyage@gmail.com" className="underline text-lime-900 font-medium my-1">happy.trip.voyage@gmail.com</a></li>
-                </ul>
-            </div>
-            </div>
-        </div> */}
 
 
 <div className="bg-[#8EBD22] w-full pt-50 md:pt-60 lg:pt-60 pb-16 md:pb-12 px-4 sm:px-6 md:px-8 lg:px-12 ">
@@ -114,7 +43,6 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Navigation links - will be in a scrollable container on mobile */}
           <div className="col-span-1 md:col-span-2 lg:col-span-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
               {/* First column */}
