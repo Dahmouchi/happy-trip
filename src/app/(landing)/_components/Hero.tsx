@@ -9,7 +9,9 @@ const Hero = () => {
           <h1 className='lg:text-5xl text-2xl font-medium tracking-widest'>L&apos;AVENTURE</h1>
           <h1 className='lg:text-7xl text-5xl font-black'>COMMENCE ICI</h1>
           <h1 className='lg:text-lg tracking-wide font-semibold'>Découvrez nos programmes HAPPY TRIP</h1>
-          <SearchInput/>
+          <div className='flex items-center justify-center lg:px-0 w-full p-4'>
+            <SearchInput/>
+          </div>
         </div>
         <div className='w-full h-full rounded-xl bg-black/20 absolute top-0 z-0'></div>
         {/* <a href="#next-section" className='absolute bottom-[-25px] left-1/2 transform -translate-x-1/2 w-22 h-22 bg-gradient-to-r from-[#A8D653] to-[#94C93A] rounded-full border-[#A8D653] flex items-center justify-center shadow-xl/20'>

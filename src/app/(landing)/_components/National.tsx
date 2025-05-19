@@ -22,7 +22,7 @@ const National = () => {
           charme, au cœur du Maroc authentique
         </h1>
       </div>
-      <div className=" relative container lg:px-28 py-8 px-3 ">
+      <div className=" relative container lg:px-28 py-8  ">
         <Carousel opts={{ align: "center" }} className=" ">
           <CarouselContent className="px-8">
             <CarouselItem className="sm:basis-1/3 pb-2 lg:pt-4 py-4">

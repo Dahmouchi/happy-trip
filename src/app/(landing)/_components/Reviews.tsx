@@ -32,7 +32,7 @@ const reviews = [
 
 export default function ReviewsSection() {
   return (
-    <section className="py-16 bg-white text-center ">
+    <section className="lg:py-16 py-6 bg-white text-center px-4">
       <h2 className="text-3xl font-bold mb-2">Reviews</h2>
       <p className="text-muted-foreground max-w-2xl mx-auto mb-10">
         Que vous soyez en quête d&apos;évasion, d&apos;aventure ou de détente, nous concevons

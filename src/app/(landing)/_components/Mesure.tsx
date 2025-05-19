@@ -12,16 +12,16 @@ const Mesure = () => {
           charme, au cœur du Maroc authentique
         </h1>
       </div>
-      <div className="grid lg:grid-cols-2 grid-cols-1 place-content-center mt-8">
-        <div className="place-items-center">
+      <div className="grid lg:grid-cols-2 grid-cols-1 place-content-center lg:mt-8">
+        <div className="place-items-center my-2">
           <img
             src="/mesure.png"
             alt=""
-            className="w-2/3 h-auto  place-content-center"
+            className="lg:w-2/3 h-auto  place-content-center"
           />
         </div>
-        <div className="flex flex-col justify-center w-4/5 space-y-4">
-          <h1 className="text-5xl font-bold">
+        <div className="flex flex-col justify-center lg:w-4/5 w-full space-y-4 text-center lg:text-left mt-6">
+          <h1 className="lg:text-5xl text-3xl font-bold">
             Programmez votre voyage En toutes liberté
           </h1>
           <h1 className="text-sm text-gray-400">
@@ -31,20 +31,20 @@ const Mesure = () => {
             détente en bord de mer, ou de découvertes culturelles, notre équipe
             conçoit votre itinéraire sur mesure, avec vous et pour vous.
           </h1>
-          <div>
-            <button className="bg-[#8EBD22] rounded-full shadow-lg px-6  flex items-center justify-center text-white gap-2 ">
+            <div className="w-full lg:w-auto flex items-center justify-center lg:justify-start">
+              <button className="bg-[#8EBD22] rounded-full shadow-lg px-6 my-4  flex items-center justify-center text-white gap-2 ">
                         <p className='py-4'>Composez votre voyage</p>
                         <MoveRight />
                         </button>
+            </div>
            
-        </div>
         </div>
        
       </div>
       <img
             src="/muse.jpg"
             alt=""
-            className="w-full h-auto h-auto  place-content-center"
+            className="w-full h-auto h-auto  place-content-center mt-4"
           />
     </div>
   );

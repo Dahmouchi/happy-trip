@@ -19,7 +19,7 @@ export function ReviewCard({
   image,
 }: ReviewCardProps) {
   return (
-    <Card className="rounded-xl shadow-[19px_18px_4px_1px_rgba(34,_197,_94,_0.5)] relative overflow-hidden">
+    <Card className="rounded-xl lg:shadow-[19px_18px_4px_1px_rgba(34,_197,_94,_0.5)] shadow-[8px_8px_4px_1px_rgba(34,_197,_94,_0.5)] relative overflow-hidden">
       <div className="absolute w-full h-full bg-green-100 left-3 top-3 -z-10 rounded-2xl"></div>
       <CardContent className="p-6 space-y-4">
         <h3 className="text-xl font-semibold">“{title}”</h3>

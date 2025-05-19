@@ -18,7 +18,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
       >
-        {children}
+        <div className="overflow-x-hidden">
+          {children}
+        </div>
         <ToastContainer
                 position="top-right"
                 autoClose={5000}
