@@ -45,7 +45,7 @@ export function Navbar() {
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
+            <NavigationMenuTrigger>Destinations</NavigationMenuTrigger>
             <NavigationMenuContent>
               <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
                 <li className="row-span-3">
@@ -78,7 +78,23 @@ export function Navbar() {
             </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuTrigger>Components</NavigationMenuTrigger>
+            <NavigationMenuTrigger>Voyages</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                {components.map((component) => (
+                  <ListItem
+                    key={component.title}
+                    title={component.title}
+                    href={component.href}
+                  >
+                    {component.description}
+                  </ListItem>
+                ))}
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>Activités</NavigationMenuTrigger>
             <NavigationMenuContent>
               <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                 {components.map((component) => (
@@ -96,7 +112,14 @@ export function Navbar() {
           <NavigationMenuItem>
             <Link href="#" >
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                Documentation
+              Bolgs
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link href="#" >
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+              Contact
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
@@ -106,6 +129,11 @@ export function Navbar() {
       {/* Mobile Menu Button */}
       <div className="flex items-center gap-4"> 
         {/* CTA Button */}
+          <Link href="/login">
+            <Button className="bg-white text-black hover:bg-white hover:text-black hover:cursor-pointer shadow-none">
+              Login
+            </Button>
+          </Link>
         <Button className="bg-[#8EBD22] text-white shadow-md rounded-full px-5">
           Appelez-nous
         </Button>
