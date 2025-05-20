@@ -37,9 +37,13 @@ const International = () => {
               <PromotionCard />{" "}
             </CarouselItem>
           </CarouselContent>
-          <div className="w-full flex items-center justify-end gap-2 pt-8">
+          {/* <div className="w-full flex items-center justify-end gap-2 pt-8">
             <CarouselPrevious className="custom-next text-center w-8 h-8 flex items-center justify-center bg-orange-800 text-white rounded-full shadow-lg hover:bg-orange-600 transition" />
             <CarouselNext className="custom-prev text-center w-8 h-8 flex items-center justify-center bg-white text-slate-800 hover:text-white border border-slate-600 rounded-full shadow-lg hover:bg-orange-600 transition" />
+          </div> */}
+          <div className="w-full flex justify-center items-center gap-4 mt-4 sm:justify-end sm:absolute sm:top-1/2 sm:left-auto sm:right-4 sm:translate-y-[-50%]">
+            <CarouselPrevious className="static sm:absolute sm:left-0 sm:top-1/2 sm:-translate-y-1/2 w-8 h-8 bg-lime-900 text-white rounded-full hover:bg-lime-900 hover:cursor-pointer transition" />
+            <CarouselNext className="static sm:absolute sm:right-0 sm:top-1/2 sm:-translate-y-1/2 w-8 h-8 bg-white text-slate-800 border border-slate-600 rounded-full hover:bg-lime-900 hover:text-white hover:cursor-pointer transition" />
           </div>
         </Carousel>
 

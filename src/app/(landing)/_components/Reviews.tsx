@@ -1,3 +1,4 @@
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { ReviewCard } from "./ReviewCard";
 
 const reviews = [
@@ -38,11 +39,20 @@ export default function ReviewsSection() {
         Que vous soyez en quête d&apos;évasion, d&apos;aventure ou de détente, nous concevons
         des escapades inoubliables, accessibles et pleines de charme, au cœur du Maroc authentique
       </p>
-
-      <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:px-20">
+      <div className="relative container lg:px-28 py-8">
+      <Carousel opts={{ align: "center" }} className="">
+        <CarouselContent className="px-8">
         {reviews.map((review, index) => (
-          <ReviewCard key={index} {...review} />
+          <CarouselItem key={index} className="sm:basis-1/3 pb-2 lg:pt-4 py-4">
+            <ReviewCard key={index} {...review} />
+          </CarouselItem>
         ))}
+        </CarouselContent>
+        <div className="w-full flex justify-center items-center gap-4 mt-4 sm:justify-end sm:absolute sm:top-1/2 sm:left-auto sm:right-4 sm:translate-y-[-50%]">
+            <CarouselPrevious className="static sm:absolute sm:left-0 sm:top-1/2 sm:-translate-y-1/2 w-8 h-8 bg-lime-900 text-white rounded-full hover:bg-lime-900 hover:cursor-pointer transition" />
+            <CarouselNext className="static sm:absolute sm:right-0 sm:top-1/2 sm:-translate-y-1/2 w-8 h-8 bg-white text-slate-800 border border-slate-600 rounded-full hover:bg-lime-900 hover:text-white hover:cursor-pointer transition" />
+        </div>
+      </Carousel>
       </div>
     </section>
   );
