@@ -19,3 +19,16 @@ export async function saveLandingConfig(sections: Record<string, boolean>) {
     })
   }
 }
+
+// lib/landing.ts or wherever you define helpers
+import { Landing } from '@prisma/client' // Optional, if you want type support
+
+export async function getLanding(): Promise<Landing | null> {
+  try {
+    const current = await prisma.landing.findFirst()
+    return current
+  } catch (error) {
+    console.error('Error fetching landing config:', error)
+    return null
+  }
+}
