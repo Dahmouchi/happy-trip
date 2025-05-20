@@ -22,6 +22,21 @@ enum TravelType {
   INTERNATIONAL
   EN_MESURE
 }
+model Landing {
+  id           String @id @default(cuid())
+  navbar       Boolean @default(true)
+  search       Boolean @default(true)
+  hero         Boolean @default(true)
+  national     Boolean @default(true)
+  international Boolean @default(true)
+  mesure       Boolean @default(true)
+  reviews      Boolean @default(true)
+  meeting      Boolean @default(true)
+  expert       Boolean @default(true)
+  trust        Boolean @default(true)
+  footer       Boolean @default(true)
+}
+
 model Tour {
   id                 String   @id @default(cuid())
   title              String

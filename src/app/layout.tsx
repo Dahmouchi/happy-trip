@@ -1,6 +1,16 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ToastContainer } from 'react-toastify';
+import { Poppins } from "next/font/google";
+import NextAuthProvider from "../../providers/NextAuthProvider";
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--poppins-font",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  style: ["normal"],
+});
 export const metadata: Metadata = {
   icons:{
     icon:"/logo.png"
@@ -17,10 +27,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
+        className={`${poppins.className} relative`}
       >
-        <div className="overflow-x-hidden">
+        <NextAuthProvider>
+          <div className="overflow-x-hidden">
           {children}
         </div>
+        </NextAuthProvider>
         <ToastContainer
                 position="top-right"
                 autoClose={5000}
