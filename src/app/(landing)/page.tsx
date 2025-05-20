@@ -38,7 +38,7 @@ const [sections, setSections] = useState<any>(null)
         </div>
       }
       <Navbar />
-      {(sections?.hero ?? true) && <Hero />}
+      {(sections?.hero ?? true) && <Hero inp={sections?.search}/>}
       {(sections?.national ?? true) && <National />}
       {(sections?.international ?? true) && <International />}
       {(sections?.mesure ?? true) && <Mesure />}
