@@ -31,7 +31,7 @@ const National = () => {
             <CarouselItem className="sm:basis-1/3 pb-2 lg:pt-4 py-4">
               <PromotionCard />{" "}
             </CarouselItem>
-            <CarouselItem className="sm:basis-1/3 pb-2 lg:pt-4 py-4">
+            <CarouselItem className="sm:basis-1/3 pb-2 lg:pt-4 py-4 px-6">
               <PromotionCard />{" "}
             </CarouselItem>
           </CarouselContent>

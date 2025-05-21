@@ -19,6 +19,8 @@ import {
   
 } from "@/components/ui/sidebar";
 import Image from "next/image";
+import { title } from "process";
+import { url } from "inspector";
 
 
 // This is sample data.
@@ -45,6 +47,11 @@ const datas = {
     {
       title: "Landing Page",
       url: "/admin/dashboard/landing",
+      icon: SwatchBook,
+    },
+    {
+      title: "Ajouter Tour",
+      url: "/admin/dashboard/tours/add",
       icon: SwatchBook,
     },
     {
