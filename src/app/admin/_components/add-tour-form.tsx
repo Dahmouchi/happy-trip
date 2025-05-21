@@ -588,7 +588,7 @@ export function AddTourForm() {
         </Card>
 
         <div className="flex justify-end">
-            <Button type="submit" size="lg">
+            <Button type="submit" size="lg" className="bg-[#6EC207] text-white hover:bg-[#5BA906] hover:cursor-pointer">
             Créer le circuit
             </Button>
         </div>
