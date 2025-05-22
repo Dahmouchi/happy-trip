@@ -20,6 +20,8 @@ import { useToast } from "@/components/ui/use-toast"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 
+import { addTour } from "@/actions/toursActions"
+import { useState } from "react"
 // Mock vacation styles for the demo
 // In a real app, you would fetch these from your database
 const vacationStyles = [
@@ -62,6 +64,7 @@ const formSchema = z.object({
 
 export function AddTourForm() {
   const { toast } = useToast()
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -79,19 +82,40 @@ export function AddTourForm() {
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Dans une vraie application, vous enverriez ces données à votre API
-    console.log(values)
+    try {
+      setIsSubmitting(true)
 
-    // Simulation d'un appel API
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+      // Call the server action to add the tour
+      const result = await addTour(values)
 
-    toast({
-      title: "Circuit créé avec succès",
-      description: `Circuit ${values.type.toLowerCase() === "national" ? "national" : "international"} créé : ${values.title}`,
-    })
+      if (result.success) {
+        toast({
+          title: "Circuit créé avec succès",
+          description: `Circuit ${values.type.toLowerCase() === "NATIONAL" ? "national" : "international"} créé : ${values.title}`,
+        })
 
-    form.reset()
+        // Reset the form after successful submission
+        form.reset()
+      } else {
+        // Show error message
+        toast({
+          title: "Erreur lors de la création du circuit",
+          description: result.error || "Une erreur s'est produite lors de la création du circuit",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error)
+      toast({
+        title: "Erreur lors de la création du circuit",
+        description: "Une erreur inattendue s'est produite",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
+ 
 
   return (
     <Form {...form}>
