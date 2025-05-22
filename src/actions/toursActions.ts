@@ -1,7 +1,6 @@
 "use server"
 
 import { PrismaClient, type TravelType } from "@prisma/client"
-import { revalidatePath } from "next/cache"
 import { z } from "zod"
 
 const prisma = new PrismaClient()
@@ -43,7 +42,8 @@ export async function addTour(formData: TourFormData) {
     // Validate the form data
     const validatedData = tourSchema.parse(formData)
 
-    // Create the tour in the database
+    console.log(validatedData)
+ // Create the tour in the database
     const tour = await prisma.tour.create({
       data: {
         title: validatedData.title,
@@ -67,19 +67,15 @@ export async function addTour(formData: TourFormData) {
         discountPercent: validatedData.discountPercent,
         weekendsOnly: validatedData.weekendsOnly,
         // Connect the vacation styles
-        VacationStyle: {
-          connect: validatedData.vacationStyles.map((styleId) => ({ id: styleId })),
-        },
       },
     })
-
     // Revalidate the tours page to show the new tour
     // revalidatePath("/tours")
 
     return { success: true, data: tour }
   } catch (error) {
+    
     console.error("Error adding tour:", error)
-
     if (error instanceof z.ZodError) {
       return {
         success: false,

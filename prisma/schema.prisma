@@ -45,13 +45,17 @@ model Tour {
   location           String?
   priceOriginal      Int?
   priceDiscounted    Int?
+  dateCard           String? //this date for card view
   startDate          DateTime?
   endDate            DateTime?
   durationDays       Int?
   durationNights     Int?
   accommodation      String?
   imageUrl           String?
-
+  destination        String?
+  activite           String?
+  inclu              String?
+  exclu              String?
   groupType          String?     // e.g., "Petit groupe"
   groupSizeMax       Int?        // e.g., 12
 
@@ -69,8 +73,16 @@ model Tour {
 
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
-
+  images             File[]
   VacationStyle VacationStyle[] @relation("TourVacationStyles")
+}
+
+model File {
+  id        Int      @id @default(autoincrement())
+  tourId    String
+  url       String   // The URL of the file stored in Cloudflare or another storage
+  tour      Tour    @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }
 
 model VacationStyle {
@@ -82,9 +94,9 @@ model TourDate {
   id        String   @id @default(cuid())
   tour      Tour     @relation(fields: [tourId], references: [id])
   tourId    String
-
-  startDate DateTime
-  endDate   DateTime
+  description String?
+  startDate DateTime?
+  endDate   DateTime?
 }
 model User {
   id              String    @id @default(cuid())
