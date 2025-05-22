@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
-import { format } from "date-fns";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -45,10 +44,12 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-
+import { format } from "date-fns";
 import { addTour } from "@/actions/toursActions";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { DatetimePicker } from "@/components/ui/datetime-picker";
+import Loading from "@/components/Loading";
 // Mock vacation styles for the demo
 // In a real app, you would fetch these from your database
 const vacationStyles = [
@@ -72,8 +73,8 @@ const formSchema = z.object({
   location: z.string().optional(),
   priceOriginal: z.coerce.number().int().positive().optional(),
   priceDiscounted: z.coerce.number().int().positive().optional(),
-  startDate: z.date().optional(),
-  endDate: z.date().optional(),
+  startDate: z.coerce.date().optional(),
+  endDate: z.coerce.date().optional(),
   durationDays: z.coerce.number().int().positive().optional(),
   durationNights: z.coerce.number().int().positive().optional(),
   accommodation: z.string().optional(),
@@ -91,7 +92,6 @@ const formSchema = z.object({
 
 export function AddTourForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -99,6 +99,8 @@ export function AddTourForm() {
       description: "",
       type: "NATIONAL",
       location: "",
+      startDate: new Date(),
+      endDate: new Date(),
       showReviews: true,
       showDifficulty: true,
       showDiscount: true,
@@ -116,12 +118,13 @@ export function AddTourForm() {
 
       if (result.success) {
         toast.success("Circuit créé avec succès");
-
+        setIsSubmitting(false);
         // Reset the form after successful submission
         form.reset();
       } else {
         // Show error message
         toast.error("Erreur lors de la création du circuit");
+        setIsSubmitting(false);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -131,6 +134,9 @@ export function AddTourForm() {
     }
   }
 
+  if (isSubmitting) {
+    return <Loading />;
+  }
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -345,7 +351,7 @@ export function AddTourForm() {
                                 <Button
                                   variant={"outline"}
                                   className={cn(
-                                    "w-full pl-3 text-left font-normal",
+                                    "w-[240px] pl-3 text-left font-normal",
                                     !field.value && "text-muted-foreground"
                                   )}
                                 >
@@ -366,10 +372,17 @@ export function AddTourForm() {
                                 mode="single"
                                 selected={field.value}
                                 onSelect={field.onChange}
+                                disabled={(date: any) =>
+                                  date > new Date() ||
+                                  date < new Date("1900-01-01")
+                                }
                                 initialFocus
                               />
                             </PopoverContent>
                           </Popover>
+                          <FormDescription>
+                            Your date of birth is used to calculate your age.
+                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -387,7 +400,7 @@ export function AddTourForm() {
                                 <Button
                                   variant={"outline"}
                                   className={cn(
-                                    "w-full pl-3 text-left font-normal",
+                                    "w-[240px] pl-3 text-left font-normal",
                                     !field.value && "text-muted-foreground"
                                   )}
                                 >
@@ -408,10 +421,17 @@ export function AddTourForm() {
                                 mode="single"
                                 selected={field.value}
                                 onSelect={field.onChange}
+                                disabled={(date: any) =>
+                                  date > new Date() ||
+                                  date < new Date("1900-01-01")
+                                }
                                 initialFocus
                               />
                             </PopoverContent>
                           </Popover>
+                          <FormDescription>
+                            Your date of birth is used to calculate your age.
+                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
