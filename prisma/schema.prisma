@@ -50,7 +50,7 @@ model Tour {
   durationDays       Int?
   durationNights     Int?
   accommodation      String?
-  imageUrl           String?
+  imageUrls           String[]
 
   groupType          String?     // e.g., "Petit groupe"
   groupSizeMax       Int?        // e.g., 12

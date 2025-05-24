@@ -72,7 +72,7 @@ const formSchema = z.object({
   durationDays: z.coerce.number().int().positive().optional(),
   durationNights: z.coerce.number().int().positive().optional(),
   accommodation: z.string().optional(),
-  imageUrl: z.string().url().optional(),
+  imageURLs: z.array(z.string().url()).length(8),
   groupType: z.string().optional(),
   groupSizeMax: z.coerce.number().int().positive().optional(),
   showReviews: z.boolean(),
@@ -96,6 +96,7 @@ export function AddTourForm() {
       type: "NATIONAL",
       location: "",
       activities: [],
+      imageURLs: Array(8).fill(""),
       showReviews: true,
       showDifficulty: true,
       showDiscount: true,
@@ -317,20 +318,37 @@ export function AddTourForm() {
                       />
 
                       {/* images of the tour */}
-                          <FormField
-                            control={form.control}
-                            name="imageUrl"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>URL de l&apos;image</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Entrez l'URL de l'image" {...field} value={field.value || ""} />
-                                </FormControl>
-                                <FormDescription>URL de l&apos;image principale pour ce circuit</FormDescription>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                         <FormField
+  control={form.control}
+  name="imageURLs"
+  render={() => (
+    <FormItem>
+      <FormLabel>Images du circuit</FormLabel>
+      <FormDescription>Ajoutez les URLs de 8 images pour ce circuit</FormDescription>
+      {Array.from({ length: 8 }).map((_, index) => (
+        <FormField
+          key={index}
+          control={form.control}
+          name={`imageURLs.${index}`}
+          render={({ field }) => (
+            <FormItem className="mt-2">
+              <FormLabel>Image {index + 1}</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder={`Entrez l'URL de l'image ${index + 1}`}
+                  {...field}
+                  value={field.value || ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      ))}
+    </FormItem>
+  )}
+/>
+
                     
                     
                 </div>
