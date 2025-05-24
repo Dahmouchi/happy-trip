@@ -121,3 +121,11 @@
   }
 }
 
+.ProseMirror {
+  min-height: 400px;
+  outline: none;
+}
+
+.ProseMirror p {
+  margin: 0 0 1rem 0;
+}
