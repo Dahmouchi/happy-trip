@@ -20,17 +20,40 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import React from "react";
-const components: { title: string; href: string; description: string }[] = [
-  {
-    title: "Alert Dialog",
-    href: "/docs/primitives/alert-dialog",
-    description:
-      "A modal dialog that interrupts the user with important content.",
-  },
-];
+// const components: { title: string; href: string; description: string }[] = [
+//   {
+//     title: "Alert Dialog",
+//     href: "/docs/primitives/alert-dialog",
+//     description:
+//       "A modal dialog that interrupts the user with important content.",
+//   },
+// ];
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [selectedDestinationType, setSelectedDestinationType] = React.useState<"national" | "international">("national");
+
+  // Example destination data, replace with your actual data
+ const nationalDestinations = [
+  { id: "1", name: "Tous Maroc" },
+  { id: "2", name: "Parc Toubkal" },
+  { id: "3", name: "Haut Atlas" },
+  { id: "4", name: "Méditerranée" },
+  { id: "5", name: "Atlantique" },
+  { id: "6", name: "Moyen Atlas" },
+  { id: "7", name: "Dakhla et Région"},
+  { id: "8", name: "Rif" },
+  { id: "9", name: "Anti Atlas et Souss" },
+  { id: "10", name: "Sahara-Draa & Tafilalet" },
+  { id: "11", name: "Oriental" },
+  { id: "12", name: "Autres" },
+]
+
+const internationalDestinations = [
+  { id: "1", name: "Tous Monde" },
+  { id: "2", name: "Turquie" },
+  { id: "3", name: "Azerbaïdjan" },
+]
 
   return (
     <header className="relative flex items-center justify-between px-6 py-4 shadow-md bg-white">
@@ -50,71 +73,150 @@ export function Navbar() {
               Accueil
             </NavigationMenuLink>
           </NavigationMenuItem>
-          <NavigationMenuItem>
+            <NavigationMenuItem>
             <NavigationMenuTrigger>Destinations</NavigationMenuTrigger>
             <NavigationMenuContent>
-              <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                <li className="row-span-3">
+              <div className="flex flex-col w-[300px] p-4">
+              <div className="flex gap-2 mb-4">
+                <Button
+                variant="outline"
+                size="sm"
+                className={cn(
+                  "flex-1",
+                  selectedDestinationType === "national" && "bg-[#8EBD22] text-white"
+                )}
+                onClick={() => setSelectedDestinationType("national")}
+                >
+                National
+                </Button>
+                <Button
+                variant="outline"
+                size="sm"
+                className={cn(
+                  "flex-1",
+                  selectedDestinationType === "international" && "bg-[#8EBD22] text-white"
+                )}
+                onClick={() => setSelectedDestinationType("international")}
+                >
+                International
+                </Button>
+              </div>
+              <ul className="flex flex-col gap-2">
+                {(selectedDestinationType === "national"
+                ? nationalDestinations
+                : internationalDestinations
+                ).map((destination) => (
+                <li key={destination.id}>
+                  <NavigationMenuLink asChild>
                   <Link
-                    href="/"
-                    className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
+                    href={`/destinations/${selectedDestinationType}/${destination.id}`}
+                    className={cn(
+                    "block select-none rounded-md p-2 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                    )}
                   >
-                    <img
-                      src="/logo.png"
-                      alt="Happy Trip"
-                      className="h-full w-auto"
-                    />
-                    <div className="mb-2 mt-4 text-lg font-medium">
-                      shadcn/ui
-                    </div>
-                    <p className="text-sm leading-tight text-muted-foreground">
-                      Beautifully designed components built with Radix UI and
-                      Tailwind CSS.
-                    </p>
+                    <div className="text-sm font-medium leading-none">{destination.name}</div>
                   </Link>
+                  </NavigationMenuLink>
                 </li>
-                <ListItem href="#" title="Introduction">
-                  Re-usable components built using Radix UI and Tailwind CSS.
-                </ListItem>
-                <ListItem href="/docs/installation" title="Installation">
-                  How to install dependencies and structure your app.
-                </ListItem>
-                <ListItem href="/docs/primitives/typography" title="Typography">
-                  Styles for headings, paragraphs, lists...etc
-                </ListItem>
+                ))}
               </ul>
+              </div>
             </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuTrigger>Voyages</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                {components.map((component) => (
-                  <ListItem
-                    key={component.title}
-                    title={component.title}
-                    href={component.href}
+            <NavigationMenuTrigger >Voyages</NavigationMenuTrigger>
+            <NavigationMenuContent className="w-[500px] md:w-[600px] lg:w-[800px]">
+              <div className="flex justify-center">
+              <div className="grid grid-cols-4 gap-4 p-4 w-[500px] md:w-[500px] lg:w-[800px]">
+                {[
+                {
+                  type: "Voyages en Groupe",
+                  href: "/voyages/groupe",
+                  image: "/voyages/groupe.jpg",
+                },
+                {
+                  type: "Comité d'entreprise",
+                  href: "/voyages/Comité-dentreprise",
+                  image: "/voyages/comite d'entreprise.jpg",
+                },
+                {
+                  type: "Voyage sur mesure",
+                  href: "/voyages/mesure",
+                  image: "/voyages/mesure.jpg",
+                },
+                {
+                  type: "Voyage Team Building",
+                  href: "/voyages/team-building",
+                  image: "/voyages/team-building.jpg",
+                },
+                ].map((voyage) => (
+                <NavigationMenuLink asChild key={voyage.type}>
+                  <Link
+                  href={voyage.href}
+                  className="flex flex-col items-center rounded-md p-3 hover:bg-accent transition-colors"
                   >
-                    {component.description}
-                  </ListItem>
+                  <img
+                    src={voyage.image}
+                    alt={voyage.type}
+                    className="w-56 h-40 object-cover rounded mb-2"
+                  />
+                  <span className="text-sm font-medium text-center">{voyage.type}</span>
+                  <p className="line-clamp-2 text-xs text-muted-foreground">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus vel vitae vero!
+                  </p>
+                  </Link>
+                </NavigationMenuLink>
                 ))}
-              </ul>
+              </div>
+              </div>
             </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuTrigger>Activités</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                {components.map((component) => (
-                  <ListItem
-                    key={component.title}
-                    title={component.title}
-                    href={component.href}
+            <NavigationMenuContent className="w-[500px] md:w-[600px] lg:w-[800px]">
+              <div className="flex justify-center">
+              <div className="grid grid-cols-4 gap-4 p-4 w-[500px] md:w-[500px] lg:w-[800px]">
+                {[
+                {
+                  type: "Randonnée",
+                  href: "/activités/randonnée",
+                  image: "/voyages/randonnee.jpg",
+                },
+                {
+                  type: "Montagne",
+                  href: "/activités/montagne",
+                  image: "/voyages/montagne.jpg",
+                },
+                {
+                  type: "Baignade",
+                  href: "/activités/baignade",
+                  image: "/voyages/baignade.jpg",
+                },
+                {
+                  type: "Bivouac",
+                  href: "/activités/bivouac",
+                  image: "/voyages/bivouac.jpg",
+                },
+                ].map((voyage) => (
+                <NavigationMenuLink asChild key={voyage.type}>
+                  <Link
+                  href={voyage.href}
+                  className="flex flex-col items-center rounded-md p-3 hover:bg-accent transition-colors"
                   >
-                    {component.description}
-                  </ListItem>
+                  <img
+                    src={voyage.image}
+                    alt={voyage.type}
+                    className="w-56 h-40 object-cover rounded mb-2"
+                  />
+                  <span className="text-sm font-medium text-center">{voyage.type}</span>
+                  <p className="line-clamp-2 text-xs text-muted-foreground">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus vel vitae vero!
+                  </p>
+                  </Link>
+                </NavigationMenuLink>
                 ))}
-              </ul>
+              </div>
+              </div>
             </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
@@ -174,71 +276,162 @@ export function Navbar() {
             </Link>
 
             <Accordion type="single" collapsible className="w-full">
+              {/* Destinations */}
               <AccordionItem value="destinations">
                 <AccordionTrigger className="text-lg font-medium py-2">
                   Destinations
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="pl-4 flex flex-col space-y-2 py-2">
-                    <Link
-                      href="#"
-                      className="text-base py-1"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Introduction
-                    </Link>
-                    <Link
-                      href="/docs/installation"
-                      className="text-base py-1"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Installation
-                    </Link>
-                    <Link
-                      href="/docs/primitives/typography"
-                      className="text-base py-1"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Typography
-                    </Link>
+                    <div className="flex gap-2 mb-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={cn(
+                          "flex-1",
+                          selectedDestinationType === "national" && "bg-[#8EBD22] text-white"
+                        )}
+                        onClick={() => setSelectedDestinationType("national")}
+                      >
+                        National
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={cn(
+                          "flex-1",
+                          selectedDestinationType === "international" && "bg-[#8EBD22] text-white"
+                        )}
+                        onClick={() => setSelectedDestinationType("international")}
+                      >
+                        International
+                      </Button>
+                    </div>
+                    <ul className="flex flex-col gap-2">
+                      {(selectedDestinationType === "national"
+                        ? nationalDestinations
+                        : internationalDestinations
+                      ).map((destination) => (
+                        <li key={destination.id}>
+                          <Link
+                            href={`/destinations/${selectedDestinationType}/${destination.id}`}
+                            className="text-base py-1 flex items-center gap-3"
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            {/* You can add an image for each destination if available */}
+                            {/* <img src={destination.image} alt={destination.name} className="w-16 h-12 object-cover rounded" /> */}
+                            <div>
+                              <div>{destination.name}</div>
+                              <p className="line-clamp-2 text-xs text-muted-foreground">
+                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus vel vitae vero!
+                              </p>
+                            </div>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </AccordionContent>
               </AccordionItem>
 
+              {/* Voyages */}
               <AccordionItem value="voyages">
                 <AccordionTrigger className="text-lg font-medium py-2">
                   Voyages
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="pl-4 flex flex-col space-y-2 py-2">
-                    {components.map((component) => (
+                    {[
+                      {
+                        type: "Voyages en Groupe",
+                        href: "/voyages/groupe",
+                        image: "/voyages/groupe.jpg",
+                      },
+                      {
+                        type: "Comité d'entreprise",
+                        href: "/voyages/Comité-dentreprise",
+                        image: "/voyages/comite d'entreprise.jpg",
+                      },
+                      {
+                        type: "Voyage sur mesure",
+                        href: "/voyages/mesure",
+                        image: "/voyages/mesure.jpg",
+                      },
+                      {
+                        type: "Voyage Team Building",
+                        href: "/voyages/team-building",
+                        image: "/voyages/team-building.jpg",
+                      },
+                    ].map((voyage) => (
                       <Link
-                        key={component.title}
-                        href={component.href}
-                        className="text-base py-1"
+                        key={voyage.type}
+                        href={voyage.href}
+                        className="flex items-center gap-3 py-2"
                         onClick={() => setMobileMenuOpen(false)}
                       >
-                        {component.title}
+                        <img
+                          src={voyage.image}
+                          alt={voyage.type}
+                          className="w-16 h-12 object-cover rounded"
+                        />
+                        <div>
+                          <div className="text-base">{voyage.type}</div>
+                          <p className="line-clamp-2 text-xs text-muted-foreground">
+                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus vel vitae vero!
+                          </p>
+                        </div>
                       </Link>
                     ))}
                   </div>
                 </AccordionContent>
               </AccordionItem>
 
+              {/* Activités */}
               <AccordionItem value="activites">
                 <AccordionTrigger className="text-lg font-medium py-2">
                   Activités
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="pl-4 flex flex-col space-y-2 py-2">
-                    {components.map((component) => (
+                    {[
+                      {
+                        type: "Randonnée",
+                        href: "/activités/randonnée",
+                        image: "/voyages/randonnee.jpg",
+                      },
+                      {
+                        type: "Montagne",
+                        href: "/activités/montagne",
+                        image: "/voyages/montagne.jpg",
+                      },
+                      {
+                        type: "Baignade",
+                        href: "/activités/baignade",
+                        image: "/voyages/baignade.jpg",
+                      },
+                      {
+                        type: "Bivouac",
+                        href: "/activités/bivouac",
+                        image: "/voyages/bivouac.jpg",
+                      },
+                    ].map((activity) => (
                       <Link
-                        key={component.title}
-                        href={component.href}
-                        className="text-base py-1"
+                        key={activity.type}
+                        href={activity.href}
+                        className="flex items-center gap-3 py-2"
                         onClick={() => setMobileMenuOpen(false)}
                       >
-                        {component.title}
+                        <img
+                          src={activity.image}
+                          alt={activity.type}
+                          className="w-16 h-12 object-cover rounded"
+                        />
+                        <div>
+                          <div className="text-base">{activity.type}</div>
+                          <p className="line-clamp-2 text-xs text-muted-foreground">
+                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus vel vitae vero!
+                          </p>
+                        </div>
                       </Link>
                     ))}
                   </div>
