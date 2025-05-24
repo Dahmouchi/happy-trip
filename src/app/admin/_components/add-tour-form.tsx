@@ -36,6 +36,27 @@ const vacationStyles = [
   { id: "9", name: "Wildlife" },
 ]
 
+const nationalDestinations = [
+  { id: "1", name: "Tous Maroc" },
+  { id: "2", name: "Parc Toubkal" },
+  { id: "3", name: "Haut Atlas" },
+  { id: "4", name: "Méditerranée" },
+  { id: "5", name: "Atlantique" },
+  { id: "6", name: "Moyen Atlas" },
+  { id: "7", name: "Dakhla et Région"},
+  { id: "8", name: "Rif" },
+  { id: "9", name: "Anti Atlas et Souss" },
+  { id: "10", name: "Sahara-Draa & Tafilalet" },
+  { id: "11", name: "Oriental" },
+  { id: "12", name: "Autres" },
+]
+
+const internationalDestinations = [
+  { id: "1", name: "Tous Monde" },
+  { id: "2", name: "Turquie" },
+  { id: "3", name: "Azerbaïdjan" },
+]
+
 const formSchema = z.object({
   title: z.string().min(3, {
     message: "Title must be at least 3 characters.",
@@ -64,7 +85,7 @@ const formSchema = z.object({
 
 export function AddTourForm() {
   const { toast } = useToast()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [, setIsSubmitting] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -183,32 +204,64 @@ export function AddTourForm() {
                         <FormMessage />
                       </FormItem>
                     )}
-                  />
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name="location"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Lieu</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Entrez le lieu du circuit" {...field} value={field.value || ""} />
-                        </FormControl>
+
+
+
+                    <FormField
+                      control={form.control}
+                      name="location"
+                      render={({ field }) => {
+                      const selectedType = form.watch("type")
+                      const destinations =
+                        selectedType === "INTERNATIONAL"
+                        ? internationalDestinations
+                        : nationalDestinations
+  
+                      return (
+                        <FormItem>
+                        <FormLabel>
+                          {selectedType === "INTERNATIONAL"
+                          ? "Destination internationale"
+                          : "Destination nationale"}
+                        </FormLabel>
+                        <Select onValueChange={field.onChange} value={typeof field.value === "string" ? field.value : ""} >
+                          <FormControl>
+                          <SelectTrigger>
+                            <SelectValue
+                            placeholder={
+                              selectedType === "INTERNATIONAL"
+                              ? "Sélectionnez la destination internationale"
+                              : "Sélectionnez la destination nationale"
+                            }
+                            />
+                          </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                          {destinations.map((dest) => (
+                            <SelectItem key={dest.id} value={dest.name}>
+                            {dest.name}
+                            </SelectItem>
+                          ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                        </FormItem>
+                      )
+                      }}
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name="imageUrl"
-                    render={({ field }) => (
+                    <FormField
+                      control={form.control}
+                      name="imageUrl"
+                      render={({ field }) => (
                       <FormItem>
-                        <FormLabel>URL de l'image</FormLabel>
+                        <FormLabel>URL de l&apos;image</FormLabel>
                         <FormControl>
                           <Input placeholder="Entrez l'URL de l'image" {...field} value={field.value || ""} />
                         </FormControl>
-                        <FormDescription>URL de l'image principale pour ce circuit</FormDescription>
+                        <FormDescription>URL de l&apos;image principale pour ce circuit</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -443,7 +496,7 @@ export function AddTourForm() {
                         <FormControl>
                           <Input placeholder="Entrez les détails de l'hébergement" {...field} value={field.value || ""} />
                         </FormControl>
-                        <FormDescription>Décrivez l'hébergement fourni pendant le circuit</FormDescription>
+                        <FormDescription>Décrivez l&apos;hébergement fourni pendant le circuit</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -481,7 +534,7 @@ export function AddTourForm() {
 
               {/* Display Options */}
               <div>
-                <h3 className="text-lg font-medium">Options d'affichage</h3>
+                <h3 className="text-lg font-medium">Options d&apos;affichage</h3>
                 <p className="text-sm text-muted-foreground mb-4">Configurez la façon dont le circuit est affiché.</p>
                 <Separator className="mb-6" />
 
@@ -542,7 +595,7 @@ export function AddTourForm() {
                 <div>
                 <h3 className="text-lg font-medium">Styles de vacances</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Sélectionnez les styles de vacances qui s'appliquent à ce circuit.
+                  Sélectionnez les styles de vacances qui s&apos;appliquent à ce circuit.
                 </p>
                 <Separator className="mb-6" />
 
@@ -600,7 +653,7 @@ export function AddTourForm() {
                       </PopoverContent>
                       </Popover>
                     </FormControl>
-                    <FormDescription>Sélectionnez tous les styles de vacances qui s'appliquent à ce circuit</FormDescription>
+                    <FormDescription>Sélectionnez tous les styles de vacances qui s&apos;appliquent à ce circuit</FormDescription>
                     <FormMessage />
                     </FormItem>
                     )}
