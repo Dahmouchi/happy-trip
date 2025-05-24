@@ -1,27 +1,55 @@
-"use client"
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react"
-import { format } from "date-fns"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/components/ui/use-toast"
-import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-
-import { addTour } from "@/actions/toursActions"
-import { useState } from "react"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { format } from "date-fns";
+import { addTour } from "@/actions/toursActions";
+import { useState } from "react";
+import { toast } from "react-toastify";
+import { DatetimePicker } from "@/components/ui/datetime-picker";
+import Loading from "@/components/Loading";
 // Mock vacation styles for the demo
 // In a real app, you would fetch these from your database
 const vacationStyles = [
@@ -34,7 +62,7 @@ const vacationStyles = [
   { id: "7", name: "Luxury" },
   { id: "8", name: "Romantic" },
   { id: "9", name: "Wildlife" },
-]
+];
 
 const nationalDestinations = [
   { id: "1", name: "Tous Maroc" },
@@ -67,8 +95,8 @@ const formSchema = z.object({
   activities: z.array(z.string()).optional(),
   priceOriginal: z.coerce.number().int().positive().optional(),
   priceDiscounted: z.coerce.number().int().positive().optional(),
-  startDate: z.date().optional(),
-  endDate: z.date().optional(),
+  startDate: z.coerce.date().optional(),
+  endDate: z.coerce.date().optional(),
   durationDays: z.coerce.number().int().positive().optional(),
   durationNights: z.coerce.number().int().positive().optional(),
   accommodation: z.string().optional(),
@@ -82,11 +110,10 @@ const formSchema = z.object({
   discountPercent: z.coerce.number().int().min(0).max(100).optional(),
   weekendsOnly: z.boolean(),
   vacationStyles: z.array(z.string()),
-})
+});
 
 export function AddTourForm() {
-  const { toast } = useToast()
-  const [, setIsSubmitting] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -103,47 +130,39 @@ export function AddTourForm() {
       weekendsOnly: false,
       vacationStyles: [],
     },
-  })
+  });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      setIsSubmitting(true)
+      setIsSubmitting(true);
 
       // Call the server action to add the tour
-      const result = await addTour(values)
+      const result = await addTour(values);
 
       if (result.success) {
-        toast({
-          title: "Circuit créé avec succès",
-          description: `Circuit ${values.type.toLowerCase() === "NATIONAL" ? "national" : "international"} créé : ${values.title}`,
-        })
-
+        toast.success("Circuit créé avec succès");
+        setIsSubmitting(false);
         // Reset the form after successful submission
-        form.reset()
+        form.reset();
       } else {
         // Show error message
-        toast({
-          title: "Erreur lors de la création du circuit",
-          description: result.error || "Une erreur s'est produite lors de la création du circuit",
-          variant: "destructive",
-        })
+        toast.error("Erreur lors de la création du circuit");
+        setIsSubmitting(false);
       }
     } catch (error) {
-      console.error("Error submitting form:", error)
-      toast({
-        title: "Erreur lors de la création du circuit",
-        description: "Une erreur inattendue s'est produite",
-        variant: "destructive",
-      })
+      console.error("Error submitting form:", error);
+      toast.error("Erreur lors de la création du circuit");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
   }
- 
 
+  if (isSubmitting) {
+    return <Loading />;
+  }
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}  className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <Card>
           <CardContent className="pt-6">
             <div className="space-y-8">
@@ -159,9 +178,13 @@ export function AddTourForm() {
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel >Titre</FormLabel>
+                        <FormLabel>Titre</FormLabel>
                         <FormControl>
-                          <Input placeholder="Entrez le titre du circuit" required {...field} />
+                          <Input
+                            placeholder="Entrez le titre du circuit"
+                            required
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -195,7 +218,10 @@ export function AddTourForm() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Type de circuit</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="selectionnez le type de circuit" />
@@ -203,7 +229,9 @@ export function AddTourForm() {
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="NATIONAL">National</SelectItem>
-                            <SelectItem value="INTERNATIONAL">International</SelectItem>
+                            <SelectItem value="INTERNATIONAL">
+                              International
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -369,7 +397,11 @@ export function AddTourForm() {
                         <FormItem>
                           <FormLabel>Prix original</FormLabel>
                           <FormControl>
-                            <Input type="number" placeholder="Entrez le prix original" {...field} />
+                            <Input
+                              type="number"
+                              placeholder="Entrez le prix original"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -383,7 +415,11 @@ export function AddTourForm() {
                         <FormItem>
                           <FormLabel>Prix réduit</FormLabel>
                           <FormControl>
-                            <Input type="number" placeholder="Entrez le prix réduit" {...field} />
+                            <Input
+                              type="number"
+                              placeholder="Entrez le prix réduit"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -397,9 +433,15 @@ export function AddTourForm() {
                         <FormItem>
                           <FormLabel>Pourcentage de réduction</FormLabel>
                           <FormControl>
-                            <Input type="number" placeholder="Entrez le pourcentage de réduction" {...field} />
+                            <Input
+                              type="number"
+                              placeholder="Entrez le pourcentage de réduction"
+                              {...field}
+                            />
                           </FormControl>
-                          <FormDescription>Entrez une valeur entre 0 et 100</FormDescription>
+                          <FormDescription>
+                            Entrez une valeur entre 0 et 100
+                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -421,7 +463,7 @@ export function AddTourForm() {
                       name="startDate"
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
-                            <FormLabel>Date de début</FormLabel>
+                          <FormLabel>Date de début</FormLabel>
                           <Popover>
                             <PopoverTrigger asChild>
                               <FormControl>
@@ -432,15 +474,34 @@ export function AddTourForm() {
                                     !field.value && "",
                                   )}
                                 >
-                                  {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                                  {field.value ? (
+                                    format(field.value, "PPP")
+                                  ) : (
+                                    <span>Pick a date</span>
+                                  )}
                                   <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                 </Button>
                               </FormControl>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                            <PopoverContent
+                              className="w-auto p-0"
+                              align="start"
+                            >
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                disabled={(date: any) =>
+                                  date > new Date() ||
+                                  date < new Date("1900-01-01")
+                                }
+                                initialFocus
+                              />
                             </PopoverContent>
                           </Popover>
+                          <FormDescription>
+                            Your date of birth is used to calculate your age.
+                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -451,7 +512,7 @@ export function AddTourForm() {
                       name="endDate"
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
-                            <FormLabel>Date de fin</FormLabel>
+                          <FormLabel>Date de fin</FormLabel>
                           <Popover>
                             <PopoverTrigger asChild>
                               <FormControl>
@@ -462,15 +523,34 @@ export function AddTourForm() {
                                     !field.value && "",
                                   )}
                                 >
-                                  {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                                  {field.value ? (
+                                    format(field.value, "PPP")
+                                  ) : (
+                                    <span>Pick a date</span>
+                                  )}
                                   <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                 </Button>
                               </FormControl>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                            <PopoverContent
+                              className="w-auto p-0"
+                              align="start"
+                            >
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                disabled={(date: any) =>
+                                  date > new Date() ||
+                                  date < new Date("1900-01-01")
+                                }
+                                initialFocus
+                              />
                             </PopoverContent>
                           </Popover>
+                          <FormDescription>
+                            Your date of birth is used to calculate your age.
+                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -483,10 +563,14 @@ export function AddTourForm() {
                       name="durationDays"
                       render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Durée (Jours)</FormLabel>
-                            <FormControl>
-                            <Input type="number" placeholder="Entrez le nombre de jours" {...field} />
-                            </FormControl>
+                          <FormLabel>Durée (Jours)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="Entrez le nombre de jours"
+                              {...field}
+                            />
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -497,10 +581,14 @@ export function AddTourForm() {
                       name="durationNights"
                       render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Durée (Nuits)</FormLabel>
-                            <FormControl>
-                            <Input type="number" placeholder="Entrez le nombre de nuits" {...field} />
-                            </FormControl>
+                          <FormLabel>Durée (Nuits)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="Entrez le nombre de nuits"
+                              {...field}
+                            />
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -513,11 +601,17 @@ export function AddTourForm() {
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                         <FormControl>
-                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
                         </FormControl>
                         <div className="space-y-1 leading-none">
-                            <FormLabel>Week-ends seulement</FormLabel>
-                            <FormDescription>Cochez ceci si le circuit est disponible uniquement les week-ends</FormDescription>
+                          <FormLabel>Week-ends seulement</FormLabel>
+                          <FormDescription>
+                            Cochez ceci si le circuit est disponible uniquement
+                            les week-ends
+                          </FormDescription>
                         </div>
                       </FormItem>
                     )}
@@ -589,7 +683,11 @@ export function AddTourForm() {
                       <FormItem>
                         <FormLabel>Hébergement</FormLabel>
                         <FormControl>
-                          <Input placeholder="Entrez les détails de l'hébergement" {...field} value={field.value || ""} />
+                          <Input
+                            placeholder="Entrez les détails de l'hébergement"
+                            {...field}
+                            value={field.value || ""}
+                          />
                         </FormControl>
                         <FormDescription>Décrivez l&apos;hébergement fourni pendant le circuit</FormDescription>
                         <FormMessage />
@@ -601,23 +699,27 @@ export function AddTourForm() {
                     control={form.control}
                     name="difficultyLevel"
                     render={({ field }) => (
-                        <FormItem>
+                      <FormItem>
                         <FormLabel>Niveau de difficulté (1-5)</FormLabel>
                         <Select
-                          onValueChange={(value) => field.onChange(Number.parseInt(value))}
+                          onValueChange={(value: any) =>
+                            field.onChange(Number.parseInt(value))
+                          }
                           defaultValue={field.value?.toString()}
                         >
                           <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Sélectionnez le niveau de difficulté" />
-                          </SelectTrigger>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Sélectionnez le niveau de difficulté" />
+                            </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                          <SelectItem value="1">1 - Très facile</SelectItem>
-                          <SelectItem value="2">2 - Facile</SelectItem>
-                          <SelectItem value="3">3 - Modéré</SelectItem>
-                          <SelectItem value="4">4 - Difficile</SelectItem>
-                          <SelectItem value="5">5 - Très difficile</SelectItem>
+                            <SelectItem value="1">1 - Très facile</SelectItem>
+                            <SelectItem value="2">2 - Facile</SelectItem>
+                            <SelectItem value="3">3 - Modéré</SelectItem>
+                            <SelectItem value="4">4 - Difficile</SelectItem>
+                            <SelectItem value="5">
+                              5 - Très difficile
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -635,17 +737,22 @@ export function AddTourForm() {
 
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="showReviews"
-                    render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                      <FormControl>
-                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                      <FormLabel>Afficher les avis</FormLabel>
-                      <FormDescription>Afficher les avis pour ce circuit</FormDescription>
+                    <FormField
+                      control={form.control}
+                      name="showReviews"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>Afficher les avis</FormLabel>
+                            <FormDescription>
+                              Afficher les avis pour ce circuit
+                            </FormDescription>
                           </div>
                         </FormItem>
                       )}
@@ -656,13 +763,18 @@ export function AddTourForm() {
                       name="showDifficulty"
                       render={({ field }) => (
                         <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                            <FormControl>
-                            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                            </FormControl>
-                            <div className="space-y-1 leading-none">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
                             <FormLabel>Afficher la difficulté</FormLabel>
-                            <FormDescription>Afficher le niveau de difficulté pour ce circuit</FormDescription>
-                            </div>
+                            <FormDescription>
+                              Afficher le niveau de difficulté pour ce circuit
+                            </FormDescription>
+                          </div>
                         </FormItem>
                       )}
                     />
@@ -673,11 +785,16 @@ export function AddTourForm() {
                       render={({ field }) => (
                         <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                           <FormControl>
-                            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
                           </FormControl>
                           <div className="space-y-1 leading-none">
                             <FormLabel>Show Discount</FormLabel>
-                            <FormDescription>Display discount information for this tour</FormDescription>
+                            <FormDescription>
+                              Display discount information for this tour
+                            </FormDescription>
                           </div>
                         </FormItem>
                       )}
@@ -765,9 +882,9 @@ export function AddTourForm() {
         <div className="flex justify-end">
             <Button type="submit" size="lg" className="bg-[#6EC207] text-white hover:bg-[#5BA906] hover:cursor-pointer mr-8">
             Créer le circuit
-            </Button>
+          </Button>
         </div>
       </form>
     </Form>
-  )
+  );
 }
