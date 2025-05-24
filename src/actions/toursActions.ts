@@ -1,7 +1,6 @@
 "use server"
 
 import { PrismaClient, type TravelType } from "@prisma/client"
-import { revalidatePath } from "next/cache"
 import { z } from "zod"
 
 const prisma = new PrismaClient()

@@ -19,8 +19,6 @@ import {
   
 } from "@/components/ui/sidebar";
 import Image from "next/image";
-import { title } from "process";
-import { url } from "inspector";
 
 
 // This is sample data.

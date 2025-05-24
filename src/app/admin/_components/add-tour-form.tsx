@@ -64,6 +64,7 @@ const formSchema = z.object({
   description: z.string().optional(),
   type: z.enum(["NATIONAL", "INTERNATIONAL"]),
   location: z.string().optional(),
+  activities: z.array(z.string()).optional(),
   priceOriginal: z.coerce.number().int().positive().optional(),
   priceDiscounted: z.coerce.number().int().positive().optional(),
   startDate: z.date().optional(),
@@ -94,6 +95,7 @@ export function AddTourForm() {
       description: "",
       type: "NATIONAL",
       location: "",
+      activities: [],
       showReviews: true,
       showDifficulty: true,
       showDiscount: true,
@@ -146,8 +148,8 @@ export function AddTourForm() {
             <div className="space-y-8">
               {/* Basic Information */}
               <div>
-                <h3 className="text-lg font-medium">Informations de base</h3>
-                <p className="text-sm text-muted-foreground mb-4">Entrez les détails de base du circuit.</p>
+                <h3 className="text-lime-600 text-lg font-medium">Informations de base</h3>
+                <p className="text-lime-800 text-sm  mb-4">Entrez les détails de base du circuit.</p>
                 <Separator className="mb-6" />
 
                 <div className="space-y-4">
@@ -184,6 +186,8 @@ export function AddTourForm() {
                     )}
                   />
 
+
+                    {/* Tour type (national or international) */}
                   <FormField
                     control={form.control}
                     name="type"
@@ -207,7 +211,7 @@ export function AddTourForm() {
                     />
 
 
-
+                    {/* national and international destinations */}
 
                     <FormField
                       control={form.control}
@@ -249,30 +253,93 @@ export function AddTourForm() {
                         <FormMessage />
                         </FormItem>
                       )
-                      }}
-                    />
+                        }}
+                      />
 
-                    <FormField
-                      control={form.control}
-                      name="imageUrl"
-                      render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>URL de l&apos;image</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Entrez l'URL de l'image" {...field} value={field.value || ""} />
-                        </FormControl>
-                        <FormDescription>URL de l&apos;image principale pour ce circuit</FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      {/* activities  */}
+
+                      <FormField
+                        control={form.control}
+                        name="activities"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Activités</FormLabel>
+                            <FormControl>
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button variant="outline" role="combobox" className="w-full justify-between">
+                                    {field.value && field.value.length > 0
+                                      ? field.value.join(", ")
+                                      : "Sélectionnez les activités"}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-full p-0">
+                                  <Command>
+                                    <CommandInput placeholder="Rechercher des activités..." />
+                                    <CommandList>
+                                      <CommandEmpty>Aucune activité trouvée.</CommandEmpty>
+                                      <CommandGroup>
+                                        {["Randonnée", "Montagne", "Baignade", "Bivouac"].map((activity) => (
+                                          <CommandItem
+                                            key={activity}
+                                            value={activity}
+                                            onSelect={() => {
+                                              const currentValue = Array.isArray(field.value) ? [...field.value] : []
+                                              const index = currentValue.indexOf(activity)
+                                              if (index === -1) {
+                                                field.onChange([...currentValue, activity])
+                                              } else {
+                                                currentValue.splice(index, 1)
+                                                field.onChange(currentValue)
+                                              }
+                                            }}
+                                          >
+                                            <Check
+                                              className={cn(
+                                                "mr-2 h-4 w-4",
+                                                field.value && field.value.includes(activity) ? "opacity-100" : "opacity-0",
+                                              )}
+                                            />
+                                            {activity}
+                                          </CommandItem>
+                                        ))}
+                                      </CommandGroup>
+                                    </CommandList>
+                                  </Command>
+                                </PopoverContent>
+                              </Popover>
+                            </FormControl>
+                            <FormDescription>Sélectionnez toutes les activités proposées dans ce circuit</FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {/* images of the tour */}
+                          <FormField
+                            control={form.control}
+                            name="imageUrl"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>URL de l&apos;image</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Entrez l'URL de l'image" {...field} value={field.value || ""} />
+                                </FormControl>
+                                <FormDescription>URL de l&apos;image principale pour ce circuit</FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                    
+                    
                 </div>
               </div>
 
               {/* Pricing Information */}
               <div>
-                <h3 className="text-lg font-medium">Informations sur les prix</h3>
-                <p className="text-sm text-muted-foreground mb-4">Définissez les détails de prix pour le circuit.</p>
+                <h3 className="text-lime-600 text-lg font-medium">Informations sur les prix</h3>
+                <p className="text-lime-800 text-sm  mb-4">Définissez les détails de prix pour le circuit.</p>
                 <Separator className="mb-6" />
 
                 <div className="space-y-4">
@@ -325,8 +392,8 @@ export function AddTourForm() {
 
               {/* Dates and Duration */}
               <div>
-                <h3 className="text-lg font-medium">Dates et durée</h3>
-                <p className="text-sm text-muted-foreground mb-4">Définissez les dates et la durée du circuit.</p>
+                <h3 className="text-lime-600 text-lg font-medium">Dates et durée</h3>
+                <p className="text-lime-800 text-sm  mb-4">Définissez les dates et la durée du circuit.</p>
                 <Separator className="mb-6" />
 
                 <div className="space-y-4">
@@ -344,7 +411,7 @@ export function AddTourForm() {
                                   variant={"outline"}
                                   className={cn(
                                     "w-full pl-3 text-left font-normal",
-                                    !field.value && "text-muted-foreground",
+                                    !field.value && "",
                                   )}
                                 >
                                   {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
@@ -374,7 +441,7 @@ export function AddTourForm() {
                                   variant={"outline"}
                                   className={cn(
                                     "w-full pl-3 text-left font-normal",
-                                    !field.value && "text-muted-foreground",
+                                    !field.value && "",
                                   )}
                                 >
                                   {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
@@ -442,8 +509,8 @@ export function AddTourForm() {
 
               {/* Group Information */}
               <div>
-                <h3 className="text-lg font-medium">Informations sur le groupe</h3>
-                <p className="text-sm text-muted-foreground mb-4">Définissez les détails du groupe pour le circuit.</p>
+                <h3 className="text-lime-600 text-lg font-medium">Informations sur le groupe</h3>
+                <p className="text-lime-800 text-sm  mb-4">Définissez les détails du groupe pour le circuit.</p>
                 <Separator className="mb-6" />
 
                 <div className="space-y-4">
@@ -453,11 +520,21 @@ export function AddTourForm() {
                       name="groupType"
                       render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Type de groupe</FormLabel>
+                          <FormLabel>Type de groupe</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value || ""}>
                             <FormControl>
-                            <Input placeholder="ex: Petit groupe, Famille" {...field} value={field.value || ""} />
+                              <SelectTrigger>
+                                <SelectValue placeholder="Sélectionnez le type de groupe" />
+                              </SelectTrigger>
                             </FormControl>
-                            <FormDescription>Décrivez le type de groupe pour lequel ce circuit est conçu</FormDescription>
+                            <SelectContent>
+                              <SelectItem value="Voyage en groupe">Voyage en groupe</SelectItem>
+                              <SelectItem value="Comité d'entreprise">Comité d&apos;entreprise</SelectItem>
+                              <SelectItem value="Voyage sur mesure">Voyage sur mesure</SelectItem>
+                              <SelectItem value="Voyage Team ">Voyage Team Building</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormDescription>Décrivez le type de groupe pour lequel ce circuit est conçu</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -468,10 +545,10 @@ export function AddTourForm() {
                       name="groupSizeMax"
                       render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Taille maximale du groupe</FormLabel>
-                            <FormControl>
+                          <FormLabel>Taille maximale du groupe</FormLabel>
+                          <FormControl>
                             <Input type="number" placeholder="Entrez la taille maximale du groupe" {...field} />
-                            </FormControl>
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -482,8 +559,8 @@ export function AddTourForm() {
 
               {/* Additional Details */}
               <div>
-                <h3 className="text-lg font-medium">Détails supplémentaires</h3>
-                <p className="text-sm text-muted-foreground mb-4">Définissez des détails supplémentaires pour le circuit.</p>
+                <h3 className="text-lime-600 text-lg font-medium">Détails supplémentaires</h3>
+                <p className="text-lime-800 text-sm  mb-4">Définissez des détails supplémentaires pour le circuit.</p>
                 <Separator className="mb-6" />
 
                 <div className="space-y-4">
@@ -534,8 +611,8 @@ export function AddTourForm() {
 
               {/* Display Options */}
               <div>
-                <h3 className="text-lg font-medium">Options d&apos;affichage</h3>
-                <p className="text-sm text-muted-foreground mb-4">Configurez la façon dont le circuit est affiché.</p>
+                <h3 className="text-lime-600 text-lg font-medium">Options d&apos;affichage</h3>
+                <p className="text-lime-800 text-sm  mb-4">Configurez la façon dont le circuit est affiché.</p>
                 <Separator className="mb-6" />
 
                 <div className="space-y-4">
@@ -593,8 +670,8 @@ export function AddTourForm() {
 
               {/* Vacation Styles */}
                 <div>
-                <h3 className="text-lg font-medium">Styles de vacances</h3>
-                <p className="text-sm text-muted-foreground mb-4">
+                <h3 className="text-lime-600 text-lg font-medium">Styles de vacances</h3>
+                <p className="text-lime-800 text-sm  mb-4">
                   Sélectionnez les styles de vacances qui s&apos;appliquent à ce circuit.
                 </p>
                 <Separator className="mb-6" />
@@ -611,7 +688,10 @@ export function AddTourForm() {
                       <PopoverTrigger asChild>
                         <Button variant="outline" role="combobox" className="w-full justify-between">
                         {field.value.length > 0
-                          ? `${field.value.length} style${field.value.length > 1 ? "s" : ""} sélectionné${field.value.length > 1 ? "s" : ""}`
+                          ? vacationStyles
+                            .filter((style) => field.value.includes(style.id))
+                            .map((style) => style.name)
+                            .join(", ")
                           : "Sélectionnez les styles de vacances"}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
@@ -665,7 +745,7 @@ export function AddTourForm() {
         </Card>
 
         <div className="flex justify-end">
-            <Button type="submit" size="lg" className="bg-[#6EC207] text-white hover:bg-[#5BA906] hover:cursor-pointer">
+            <Button type="submit" size="lg" className="bg-[#6EC207] text-white hover:bg-[#5BA906] hover:cursor-pointer mr-8">
             Créer le circuit
             </Button>
         </div>
