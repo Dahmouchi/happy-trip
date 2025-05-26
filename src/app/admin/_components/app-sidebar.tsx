@@ -54,6 +54,11 @@ const datas = {
       icon: SwatchBook,
     },
     {
+      title: "Voyages",
+      url: "/admin/dashboard/voyages",
+      icon: SwatchBook,
+    },
+    {
       title: "Utilisateurs",
       url: "/admin/dashboard/users",
       icon: Users,

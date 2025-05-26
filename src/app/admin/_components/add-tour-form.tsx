@@ -48,6 +48,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { DatetimePicker } from "@/components/ui/datetime-picker";
 import Loading from "@/components/Loading";
+import RichTextEditor from "@/components/ui/rich-text-editor";
 // Mock vacation styles for the demo
 // In a real app, you would fetch these from your database
 const vacationStyles = [
@@ -187,9 +188,30 @@ export function AddTourForm() {
                         <FormMessage />
                       </FormItem>
                     )}
-                  />
-
-                  <FormField
+                    />
+                    <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col items-start w-full">
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <div className="w-full flex justify-start">
+                        <div className="w-full md:w-[50%]">
+                          <RichTextEditor
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          className="max-h-60 w-full overflow-auto"
+                          />
+                        </div>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                      </FormItem>
+                    )}
+                    />
+                        
+                  {/* <FormField
                     control={form.control}
                     name="description"
                     render={({ field }) => (
@@ -206,7 +228,7 @@ export function AddTourForm() {
                         <FormMessage />
                       </FormItem>
                     )}
-                  />
+                  /> */}
 
 
                     {/* Tour type (national or international) */}

@@ -22,6 +22,37 @@ enum TravelType {
   INTERNATIONAL
   EN_MESURE
 }
+
+enum DestinaionType {
+  NATIONAL
+  INTERNATIONAL
+  EN_MESURE
+}
+
+model Destination {
+  id          String @id @default(cuid())
+  name        String @unique
+  type        DestinaionType @default(NATIONAL)
+  imageUrl    String?
+  tours       Tour[] // Relation field for many-to-many with Tour
+}
+
+model Category {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String?
+  imageUrl    String?
+  tours       Tour[] @relation("CategoryTours") // Relation field for many-to-many with Tour
+}
+
+model Nature {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String?
+  imageUrl    String?
+  tours       Tour[] @relation("NatureTours") // Relation field for many-to-many with Tour
+}
+
 model Landing {
   id           String @id @default(cuid())
   navbar       Boolean @default(true)
@@ -70,11 +101,13 @@ model Tour {
   weekendsOnly       Boolean  @default(false)
 
   dates              TourDate[]
-
+  destinations        Destination[]
+  categories         Category[] @relation("CategoryTours")
+  natures            Nature[] @relation("NatureTours")
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
   images             File[]
-  VacationStyle VacationStyle[] @relation("TourVacationStyles")
+  // VacationStyle VacationStyle[] @relation("TourVacationStyles")
 }
 
 model File {
@@ -85,11 +118,11 @@ model File {
   createdAt DateTime @default(now())
 }
 
-model VacationStyle {
-  id      String    @id @default(cuid())
-  name    String    @unique        // e.g., "Voyage en groupe", "Voyage sur mesure"
-  tours   Tour[]    @relation("TourVacationStyles")
-}
+// model VacationStyle {
+//   id      String    @id @default(cuid())
+//   name    String    @unique        // e.g., "Voyage en groupe", "Voyage sur mesure"
+//   tours   Tour[]    @relation("TourVacationStyles")
+// }
 model TourDate {
   id        String   @id @default(cuid())
   tour      Tour     @relation(fields: [tourId], references: [id])
