@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache"
 export async function createDestination(formData: FormData) {
   try {
     const name = formData.get("name") as string
-    const type = formData.get("type") as "NATIONAL" | "INTERNATIONAL" | "EN_MESURE"
+    const type = formData.get("type") as "NATIONAL" | "INTERNATIONAL"
     const imageUrl = formData.get("imageUrl") as string
 
     const destination = await prisma.destination.create({
@@ -28,7 +28,7 @@ export async function createDestination(formData: FormData) {
 export async function updateDestination(id: string, formData: FormData) {
   try {
     const name = formData.get("name") as string
-    const type = formData.get("type") as "NATIONAL" | "INTERNATIONAL" | "EN_MESURE"
+    const type = formData.get("type") as "NATIONAL" | "INTERNATIONAL"
     const imageUrl = formData.get("imageUrl") as string
 
     const destination = await prisma.destination.update({

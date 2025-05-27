@@ -1,5 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 "use client"
 
 import type React from "react"
@@ -17,16 +18,22 @@ import { Badge } from "@/components/ui/badge"
 import { Upload, MapPin, Tag, Leaf, Edit, Trash2, Plus, Save, X } from "lucide-react"
 
 // Server Actions
-import { createDestination, updateDestination, deleteDestination } from "@/actions/destinations"
-import { createCategory, updateCategory, deleteCategory } from "@/actions/categories"
-import { createNature, updateNature, deleteNature } from "@/actions/natures"
+import { createDestination, updateDestination, deleteDestination, getDestinations } from "@/actions/destinations"
+import { createCategory, updateCategory, deleteCategory, getCategories } from "@/actions/categories"
+import { createNature, updateNature, deleteNature, getNatures } from "@/actions/natures"
 import { toast } from "react-toastify"
+import type { DestinaionType } from "@prisma/client"
 
+// Enum for destination types
+const DESTINATION_TYPES = [
+  { value: "NATIONAL", label: "National" },
+  { value: "INTERNATIONAL", label: "International" },
+]
 // Types
 interface Destination {
   id: string
   name: string
-  type: "NATIONAL" | "INTERNATIONAL" | "EN_MESURE"
+  type: DestinaionType
   imageUrl?: string | null
 }
 
@@ -44,18 +51,14 @@ interface Nature {
   imageUrl?: string | null
 }
 
-// Enum for destination types
-const DESTINATION_TYPES = [
-  { value: "NATIONAL", label: "National" },
-  { value: "INTERNATIONAL", label: "International" },
-  { value: "EN_MESURE", label: "En Mesure" },
-]
-
 interface AdminFormsProps {
   initialDestinations: Destination[]
   initialCategories: Category[]
   initialNatures: Nature[]
 }
+
+
+
 
 export default function VoyagesComponent({ initialDestinations, initialCategories, initialNatures }: AdminFormsProps) {
   const [isPending, startTransition] = useTransition()
@@ -64,17 +67,15 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
   const [destinations, setDestinations] = useState<Destination[]>(initialDestinations)
   const [categories, setCategories] = useState<Category[]>(initialCategories)
   const [natures, setNatures] = useState<Nature[]>(initialNatures)
+  
+ 
+
 
   // Form states
-  const [destinationForm, setDestinationForm] = useState<{
-    id: string
-    name: string
-    type: "NATIONAL" | "INTERNATIONAL" | "EN_MESURE"
-    imageUrl: string
-  }>({
+  const [destinationForm, setDestinationForm] = useState({
     id: "",
     name: "",
-    type: "NATIONAL",
+    type: "NATIONAL" as DestinaionType,
     imageUrl: "",
   })
 
@@ -119,9 +120,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
         if (isEditMode.destination) {
           result = await updateDestination(destinationForm.id, formData)
           if (result.success) {
-            setDestinations((prev) =>
-              prev.map((dest) => (dest.id === destinationForm.id ? { ...dest, ...result.data } : dest)),
-            )
+            setDestinations((prev) => prev.map((dest) => (dest.id === destinationForm.id ? result.data : dest)))
             toast.success("Destination mise à jour avec succès")
           }
         } else {
@@ -195,7 +194,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
         if (isEditMode.category) {
           result = await updateCategory(categoryForm.id, formData)
           if (result.success) {
-            setCategories((prev) => prev.map((cat) => (cat.id === categoryForm.id ? { ...cat, ...result.data } : cat)))
+            setCategories((prev) => prev.map((cat) => (cat.id === categoryForm.id ? result.data : cat)))
             toast.success("Catégorie mise à jour avec succès")
           }
         } else {
@@ -269,18 +268,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
         if (isEditMode.nature) {
           result = await updateNature(natureForm.id, formData)
           if (result.success) {
-            setNatures((prev) =>
-              prev.map((nat) =>
-                nat.id === natureForm.id
-                  ? {
-                      ...nat,
-                      name: natureForm.name,
-                      description: natureForm.description,
-                      imageUrl: natureForm.imageUrl,
-                    }
-                  : nat,
-              ),
-            )
+            setNatures((prev) => prev.map((nat) => (nat.id === natureForm.id ? result.data : nat)))
             toast.success("Type de nature mis à jour avec succès")
           }
         } else {
@@ -363,26 +351,26 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
 
       <Tabs defaultValue="destinations" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger
+          <TabsTrigger
             value="destinations"
             className={`flex items-center gap-2${typeof destinations === "undefined" ? " opacity-50 pointer-events-none" : ""}`}
             disabled={typeof destinations === "undefined"}
-            >
+          >
             <MapPin className="h-4 w-4" />
             Destinations ({Array.isArray(destinations) ? destinations.length : 0})
-            </TabsTrigger>
+          </TabsTrigger>
           <TabsTrigger value="categories" className="flex items-center gap-2">
             <Tag className="h-4 w-4" />
             Catégories ({Array.isArray(categories) ? categories.length : 0})
           </TabsTrigger>
-            <TabsTrigger
+          <TabsTrigger
             value="nature"
             className={`flex items-center gap-2${typeof natures === "undefined" ? " opacity-50 pointer-events-none" : ""}`}
             disabled={typeof natures === "undefined"}
-            >
+          >
             <Leaf className="h-4 w-4" />
             Nature ({Array.isArray(natures) ? natures.length : 0})
-            </TabsTrigger>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="destinations" className="space-y-6">
@@ -608,9 +596,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
                   <Label htmlFor="dest-type">Type</Label>
                   <Select
                     value={destinationForm.type}
-                    onValueChange={(value: "NATIONAL" | "INTERNATIONAL" | "EN_MESURE") =>
-                      setDestinationForm((prev) => ({ ...prev, type: value }))
-                    }
+                    onValueChange={(value: DestinaionType) => setDestinationForm((prev) => ({ ...prev, type: value }))}
                     disabled={isPending}
                   >
                     <SelectTrigger>
