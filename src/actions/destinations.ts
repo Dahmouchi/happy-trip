@@ -29,7 +29,7 @@ export async function createDestination(formData: FormData) {
       data: {
         name,
         type,
-        imageUrl: imageUrl || null,
+        imageUrl: imageUrl || "",
       },
     });
 
@@ -68,7 +68,7 @@ export async function updateDestination(id: string, formData: FormData) {
       data: {
         name,
         type,
-        imageUrl: imageUrl || null, // Use the new image URL if provided, otherwise keep it null
+        imageUrl: imageUrl || "", // Use the new image URL if provided, otherwise keep it null
       },
     })
     revalidatePath("/");

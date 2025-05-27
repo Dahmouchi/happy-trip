@@ -29,7 +29,7 @@ export async function createNature(formData: FormData) {
       data: {
         name,
         description: description || null,
-        imageUrl: imageUrl || null,
+        imageUrl: imageUrl || "",
       },
     })
 
@@ -70,7 +70,7 @@ export async function updateNature(id: string, formData: FormData) {
       data: {
         name,
         description: description || null,
-        imageUrl: imageUrl ,
+        imageUrl: imageUrl || "",
       },
     })
 

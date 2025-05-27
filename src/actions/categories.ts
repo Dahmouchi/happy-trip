@@ -29,7 +29,7 @@ export async function createCategory(formData: FormData) {
       data: {
         name,
         description: description || null,
-        imageUrl: imageUrl || null,
+        imageUrl: imageUrl || "",
       },
     })
 
@@ -69,7 +69,7 @@ export async function updateCategory(id: string, formData: FormData) {
       data: {
         name,
         description: description || null,
-        imageUrl: imageUrl || null,
+        imageUrl: imageUrl || "",
       },
     })
 

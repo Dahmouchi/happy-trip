@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -52,16 +53,7 @@ interface Nature {
   imageUrl?: File | null
 }
 
-interface AdminFormsProps {
-  initialDestinations: Destination[]
-  initialCategories: Category[]
-  initialNatures: Nature[]
-}
-
-
-
-
-export default function VoyagesComponent({ initialDestinations, initialCategories, initialNatures }: AdminFormsProps) {
+export default function VoyagesComponent({ initialDestinations, initialCategories, initialNatures }: any) {
   const [isPending, startTransition] = useTransition()
 
   // Data states
