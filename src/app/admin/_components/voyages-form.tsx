@@ -23,6 +23,7 @@ import { createCategory, updateCategory, deleteCategory, getCategories } from "@
 import { createNature, updateNature, deleteNature, getNatures } from "@/actions/natures"
 import { toast } from "react-toastify"
 import type { DestinaionType } from "@prisma/client"
+import { Categories } from "aws-sdk/clients/connectcontactlens"
 
 // Enum for destination types
 const DESTINATION_TYPES = [
@@ -34,21 +35,21 @@ interface Destination {
   id: string
   name: string
   type: DestinaionType
-  imageUrl?: string | null
+  imageUrl?: File | null
 }
 
 interface Category {
   id: string
   name: string
-  description?: string | null
-  imageUrl?: string | null
+  description?: string 
+  imageUrl?: File | null
 }
 
 interface Nature {
   id: string
   name: string
-  description?: string | null
-  imageUrl?: string | null
+  description?: string 
+  imageUrl?: File | null
 }
 
 interface AdminFormsProps {
@@ -72,25 +73,25 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
 
 
   // Form states
-  const [destinationForm, setDestinationForm] = useState({
+  const [destinationForm, setDestinationForm] = useState<Destination>({
     id: "",
     name: "",
     type: "NATIONAL" as DestinaionType,
-    imageUrl: "",
+    imageUrl: null,
   })
 
-  const [categoryForm, setCategoryForm] = useState({
+  const [categoryForm, setCategoryForm] = useState<Category>({
     id: "",
     name: "",
     description: "",
-    imageUrl: "",
+    imageUrl: null,
   })
 
-  const [natureForm, setNatureForm] = useState({
+  const [natureForm, setNatureForm] = useState<Nature>({
     id: "",
     name: "",
     description: "",
-    imageUrl: "",
+    imageUrl: null,
   })
 
   // Modal states
@@ -112,7 +113,12 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
     const formData = new FormData()
     formData.append("name", destinationForm.name)
     formData.append("type", destinationForm.type)
-    formData.append("imageUrl", destinationForm.imageUrl)
+    if (destinationForm.imageUrl) {
+      formData.append("imageUrl", destinationForm.imageUrl)
+    } else {
+      toast.error("L'image est requise");
+      return
+    }
 
     startTransition(async () => {
       try {
@@ -132,7 +138,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
         }
 
         if (result.success) {
-          setDestinationForm({ id: "", name: "", type: "NATIONAL", imageUrl: "" })
+          setDestinationForm({ id: "", name: "", type: "NATIONAL", imageUrl: null })
           setIsEditMode((prev) => ({ ...prev, destination: false }))
           setShowDestinationModal(false)
         } else {
@@ -145,7 +151,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
   }
 
   const openAddDestinationModal = () => {
-    setDestinationForm({ id: "", name: "", type: "NATIONAL", imageUrl: "" })
+    setDestinationForm({ id: "", name: "", type: "NATIONAL", imageUrl: null })
     setIsEditMode((prev) => ({ ...prev, destination: false }))
     setShowDestinationModal(true)
   }
@@ -155,7 +161,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
       id: destination.id,
       name: destination.name,
       type: destination.type,
-      imageUrl: destination.imageUrl || "",
+      imageUrl: destination.imageUrl || null,
     })
     setIsEditMode((prev) => ({ ...prev, destination: true }))
     setShowDestinationModal(true)
@@ -174,7 +180,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
   }
 
   const cancelDestinationEdit = () => {
-    setDestinationForm({ id: "", name: "", type: "NATIONAL", imageUrl: "" })
+    setDestinationForm({ id: "", name: "", type: "NATIONAL", imageUrl: null })
     setIsEditMode((prev) => ({ ...prev, destination: false }))
     setShowDestinationModal(false)
   }
@@ -184,9 +190,14 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
     e.preventDefault()
 
     const formData = new FormData()
-    formData.append("name", categoryForm.name)
-    formData.append("description", categoryForm.description)
-    formData.append("imageUrl", categoryForm.imageUrl)
+formData.append("name", categoryForm.name)
+formData.append("description", categoryForm.description ?? "")
+if (categoryForm.imageUrl) {
+  formData.append("imageUrl", categoryForm.imageUrl)
+} else {
+  toast.error("L'image est requise")
+  return
+}
 
     startTransition(async () => {
       try {
@@ -206,7 +217,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
         }
 
         if (result.success) {
-          setCategoryForm({ id: "", name: "", description: "", imageUrl: "" })
+          setCategoryForm({ id: "", name: "", description: "", imageUrl: null })
           setIsEditMode((prev) => ({ ...prev, category: false }))
           setShowCategoryModal(false)
         } else {
@@ -219,7 +230,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
   }
 
   const openAddCategoryModal = () => {
-    setCategoryForm({ id: "", name: "", description: "", imageUrl: "" })
+    setCategoryForm({ id: "", name: "", description: "", imageUrl: null })
     setIsEditMode((prev) => ({ ...prev, category: false }))
     setShowCategoryModal(true)
   }
@@ -229,7 +240,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
       id: category.id,
       name: category.name,
       description: category.description || "",
-      imageUrl: category.imageUrl || "",
+      imageUrl: category.imageUrl || null,
     })
     setIsEditMode((prev) => ({ ...prev, category: true }))
     setShowCategoryModal(true)
@@ -248,7 +259,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
   }
 
   const cancelCategoryEdit = () => {
-    setCategoryForm({ id: "", name: "", description: "", imageUrl: "" })
+    setCategoryForm({ id: "", name: "", description: "", imageUrl: null })
     setIsEditMode((prev) => ({ ...prev, category: false }))
     setShowCategoryModal(false)
   }
@@ -259,8 +270,15 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
 
     const formData = new FormData()
     formData.append("name", natureForm.name)
-    formData.append("description", natureForm.description)
-    formData.append("imageUrl", natureForm.imageUrl)
+    formData.append("description", natureForm.description || "")
+    if (natureForm.imageUrl) {
+      formData.append("imageUrl", natureForm.imageUrl)
+    }
+    else 
+    {
+      toast.error("L'image est requise");
+      return
+    }
 
     startTransition(async () => {
       try {
@@ -280,7 +298,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
         }
 
         if (result.success) {
-          setNatureForm({ id: "", name: "", description: "", imageUrl: "" })
+          setNatureForm({ id: "", name: "", description: "", imageUrl: null })
           setIsEditMode((prev) => ({ ...prev, nature: false }))
           setShowNatureModal(false)
         } else {
@@ -293,7 +311,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
   }
 
   const openAddNatureModal = () => {
-    setNatureForm({ id: "", name: "", description: "", imageUrl: "" })
+    setNatureForm({ id: "", name: "", description: "", imageUrl: null })
     setIsEditMode((prev) => ({ ...prev, nature: false }))
     setShowNatureModal(true)
   }
@@ -303,7 +321,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
       id: nature.id,
       name: nature.name,
       description: nature.description || "",
-      imageUrl: nature.imageUrl || "",
+      imageUrl: nature.imageUrl || null,
     })
     setIsEditMode((prev) => ({ ...prev, nature: true }))
     setShowNatureModal(true)
@@ -322,7 +340,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
   }
 
   const cancelNatureEdit = () => {
-    setNatureForm({ id: "", name: "", description: "", imageUrl: "" })
+    setNatureForm({ id: "", name: "", description: "", imageUrl: null })
     setIsEditMode((prev) => ({ ...prev, nature: false }))
     setShowNatureModal(false)
   }
@@ -330,14 +348,14 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, formType: string) => {
     const file = e.target.files?.[0]
     if (file) {
-      const imageUrl = URL.createObjectURL(file)
+      // const imageUrl = URL.createObjectURL(file)
 
       if (formType === "destination") {
-        setDestinationForm((prev) => ({ ...prev, imageUrl }))
+        setDestinationForm((prev) => ({ ...prev, imageUrl: file }))
       } else if (formType === "category") {
-        setCategoryForm((prev) => ({ ...prev, imageUrl }))
+        setCategoryForm((prev) => ({ ...prev, imageUrl: file }))
       } else if (formType === "nature") {
-        setNatureForm((prev) => ({ ...prev, imageUrl }))
+        setNatureForm((prev) => ({ ...prev, imageUrl: file }))
       }
     }
   }
@@ -345,15 +363,15 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
   return (
     <div className="container mx-auto p-6 max-w-6xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Tableau de Bord Admin</h1>
+        {/* <h1 className="text-3xl font-bold"></h1> */}
         <p className="text-muted-foreground">Gérer les destinations, catégories et types de nature</p>
       </div>
 
       <Tabs defaultValue="destinations" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full h-fit lg:grid-cols-3 gap-4 mb-6 ">
           <TabsTrigger
             value="destinations"
-            className={`flex items-center gap-2${typeof destinations === "undefined" ? " opacity-50 pointer-events-none" : ""}`}
+            className={`flex items-center gap-2 ${typeof destinations === "undefined" ? " opacity-50 pointer-events-none" : ""}`}
             disabled={typeof destinations === "undefined"}
           >
             <MapPin className="h-4 w-4" />
@@ -375,15 +393,18 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
 
         <TabsContent value="destinations" className="space-y-6">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
               <div>
                 <CardTitle>Destinations Existantes</CardTitle>
                 <CardDescription>Gérer vos enregistrements de destinations</CardDescription>
               </div>
-              <Button onClick={openAddDestinationModal} className="flex items-center gap-2">
+              <div>
+
+              <Button onClick={openAddDestinationModal} className="flex items-center gap-2 bg-lime-600 hover:bg-lime-700 text-white">
                 <Plus className="h-4 w-4" />
                 Ajouter une Destination
               </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <Table>
@@ -441,12 +462,12 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
 
         <TabsContent value="categories" className="space-y-6">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
               <div>
                 <CardTitle>Catégories Existantes</CardTitle>
                 <CardDescription>Gérer vos enregistrements de catégories</CardDescription>
               </div>
-              <Button onClick={openAddCategoryModal} className="flex items-center gap-2">
+              <Button onClick={openAddCategoryModal} className="flex items-center gap-2 bg-lime-600 hover:bg-lime-700 text-white">
                 <Plus className="h-4 w-4" />
                 Ajouter une Catégorie
               </Button>
@@ -505,12 +526,12 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
 
         <TabsContent value="nature" className="space-y-6">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
               <div>
                 <CardTitle>Types de Nature Existants</CardTitle>
                 <CardDescription>Gérer vos enregistrements de types de nature</CardDescription>
               </div>
-              <Button onClick={openAddNatureModal} className="flex items-center gap-2">
+              <Button onClick={openAddNatureModal} className="flex items-center gap-2 bg-lime-600 hover:bg-lime-700 text-white">
                 <Plus className="h-4 w-4" />
                 Ajouter un Type de Nature
               </Button>
@@ -587,13 +608,13 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
                     value={destinationForm.name}
                     onChange={(e) => setDestinationForm((prev) => ({ ...prev, name: e.target.value }))}
                     placeholder="Entrer le nom de la destination"
-                    required
                     disabled={isPending}
+                    required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="dest-type">Type</Label>
+                  <Label htmlFor="dest-type">Type *</Label>
                   <Select
                     value={destinationForm.type}
                     onValueChange={(value: DestinaionType) => setDestinationForm((prev) => ({ ...prev, type: value }))}
@@ -613,7 +634,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="dest-image">Image</Label>
+                  <Label htmlFor="dest-image">Image *</Label>
                   <div className="flex items-center gap-4">
                     <Input
                       id="dest-image"
@@ -622,6 +643,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
                       onChange={(e) => handleImageUpload(e, "destination")}
                       className="flex-1"
                       disabled={isPending}
+                      
                     />
                     <Button type="button" variant="outline" size="icon" disabled={isPending}>
                       <Upload className="h-4 w-4" />
@@ -639,7 +661,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
                 </div>
 
                 <div className="flex gap-2">
-                  <Button type="submit" className="flex-1" disabled={isPending}>
+                  <Button type="submit" className="flex-1 bg-lime-600 hover:bg-lime-700 text-white" disabled={isPending}>
                     <Save className="h-4 w-4 mr-2" />
                     {isPending ? "En cours..." : isEditMode.destination ? "Mettre à Jour" : "Créer"}
                   </Button>
@@ -684,19 +706,20 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="cat-description">Description</Label>
+                  <Label htmlFor="cat-description">Description *</Label>
                   <Textarea
                     id="cat-description"
-                    value={categoryForm.description}
+                    value={categoryForm.description ?? ""}
                     onChange={(e) => setCategoryForm((prev) => ({ ...prev, description: e.target.value }))}
                     placeholder="Entrer la description de la catégorie"
                     rows={3}
                     disabled={isPending}
+                    required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="cat-image">Image</Label>
+                  <Label htmlFor="cat-image">Image *</Label>
                   <div className="flex items-center gap-4">
                     <Input
                       id="cat-image"
@@ -722,7 +745,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
                 </div>
 
                 <div className="flex gap-2">
-                  <Button type="submit" className="flex-1" disabled={isPending}>
+                  <Button type="submit" className="flex-1 bg-lime-600 hover:bg-lime-700 text-white" disabled={isPending}>
                     <Save className="h-4 w-4 mr-2" />
                     {isPending ? "En cours..." : isEditMode.category ? "Mettre à Jour" : "Créer"}
                   </Button>
@@ -767,19 +790,20 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="nature-description">Description</Label>
+                  <Label htmlFor="nature-description">Description *</Label>
                   <Textarea
                     id="nature-description"
-                    value={natureForm.description}
+                    value={natureForm.description ?? ""}
                     onChange={(e) => setNatureForm((prev) => ({ ...prev, description: e.target.value }))}
                     placeholder="Entrer la description du type de nature"
                     rows={3}
                     disabled={isPending}
+                    required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="nature-image">Image</Label>
+                  <Label htmlFor="nature-image">Image *</Label>
                   <div className="flex items-center gap-4">
                     <Input
                       id="nature-image"
@@ -788,6 +812,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
                       onChange={(e) => handleImageUpload(e, "nature")}
                       className="flex-1"
                       disabled={isPending}
+
                     />
                     <Button type="button" variant="outline" size="icon" disabled={isPending}>
                       <Upload className="h-4 w-4" />
@@ -805,7 +830,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
                 </div>
 
                 <div className="flex gap-2">
-                  <Button type="submit" className="flex-1" disabled={isPending}>
+                  <Button type="submit" className="flex-1 bg-lime-600 hover:bg-lime-700 text-white" disabled={isPending}>
                     <Save className="h-4 w-4 mr-2" />
                     {isPending ? "En cours..." : isEditMode.nature ? "Mettre à Jour" : "Créer"}
                   </Button>
@@ -820,5 +845,232 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
         </div>
       )}
     </div>
+//     <div className="container mx-auto px-4 sm:px-6 py-6 max-w-6xl">
+//   <div className="mb-8">
+//     <p className="text-muted-foreground">Manage destinations, categories and nature types</p>
+//   </div>
+
+//   <Tabs defaultValue="destinations" className="w-full">
+//     <TabsList className="grid grid-cols-1 sm:grid-cols-3 w-full gap-4 mb-28">
+//       <TabsTrigger
+//         value="destinations"
+//         className={`flex items-center gap-2${typeof destinations === "undefined" ? " opacity-50 pointer-events-none" : ""}`}
+//         disabled={typeof destinations === "undefined"}
+//       >
+//         <MapPin className="h-4 w-4" />
+//         Destinations ({Array.isArray(destinations) ? destinations.length : 0})
+//       </TabsTrigger>
+//       <TabsTrigger value="categories" className="flex items-center gap-2">
+//         <Tag className="h-4 w-4" />
+//         Categories ({Array.isArray(categories) ? categories.length : 0})
+//       </TabsTrigger>
+//       <TabsTrigger
+//         value="nature"
+//         className={`flex items-center gap-2${typeof natures === "undefined" ? " opacity-50 pointer-events-none" : ""}`}
+//         disabled={typeof natures === "undefined"}
+//       >
+//         <Leaf className="h-4 w-4" />
+//         Nature ({Array.isArray(natures) ? natures.length : 0})
+//       </TabsTrigger>
+//     </TabsList>
+
+//     <TabsContent value="destinations" className="space-y-6 mt-8 ">
+//       <Card>
+//         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+//           <div>
+//             <CardTitle>Existing Destinations</CardTitle>
+//             <CardDescription>Manage your destination records</CardDescription>
+//           </div>
+//           <Button onClick={openAddDestinationModal} className="flex items-center gap-2 bg-lime-600 hover:bg-lime-700 text-white">
+//             <Plus className="h-4 w-4" />
+//             Add Destination
+//           </Button>
+//         </CardHeader>
+//         <CardContent className="overflow-x-auto">
+//           <Table className="min-w-[600px]">
+//             <TableHeader>
+//               <TableRow>
+//                 <TableHead>Image</TableHead>
+//                 <TableHead>Name</TableHead>
+//                 <TableHead>Type</TableHead>
+//                 <TableHead className="text-right">Actions</TableHead>
+//               </TableRow>
+//             </TableHeader>
+//             <TableBody>
+//               {destinations.map((destination) => (
+//                 <TableRow key={destination.id}>
+//                   <TableCell>
+//                     {destination.imageUrl && (
+//                       <img
+//                         src={destination.imageUrl || "/placeholder.svg"}
+//                         alt={destination.name}
+//                         className="h-10 w-10 object-cover rounded-md"
+//                       />
+//                     )}
+//                   </TableCell>
+//                   <TableCell className="font-medium">{destination.name}</TableCell>
+//                   <TableCell>
+//                     <Badge variant="outline">{destination.type}</Badge>
+//                   </TableCell>
+//                   <TableCell className="text-right">
+//                     <div className="flex justify-end gap-2">
+//                       <Button
+//                         variant="outline"
+//                         size="sm"
+//                         onClick={() => editDestination(destination)}
+//                         disabled={isPending}
+//                       >
+//                         <Edit className="h-4 w-4" />
+//                       </Button>
+//                       <Button
+//                         variant="outline"
+//                         size="sm"
+//                         onClick={() => handleDeleteDestination(destination.id)}
+//                         disabled={isPending}
+//                       >
+//                         <Trash2 className="h-4 w-4" />
+//                       </Button>
+//                     </div>
+//                   </TableCell>
+//                 </TableRow>
+//               ))}
+//             </TableBody>
+//           </Table>
+//         </CardContent>
+//       </Card>
+//     </TabsContent>
+
+//     {/* Repeat same responsive changes for categories and nature tabs below */}
+
+//     <TabsContent value="categories" className="space-y-6">
+//       <Card>
+//         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+//           <div>
+//             <CardTitle>Existing Categories</CardTitle>
+//             <CardDescription>Manage your category records</CardDescription>
+//           </div>
+//           <Button onClick={openAddCategoryModal} className="flex items-center gap-2 bg-lime-600 hover:bg-lime-700 text-white">
+//             <Plus className="h-4 w-4" />
+//             Add Category
+//           </Button>
+//         </CardHeader>
+//         <CardContent className="overflow-x-auto">
+//           <Table className="min-w-[600px]">
+//             <TableHeader>
+//               <TableRow>
+//                 <TableHead>Image</TableHead>
+//                 <TableHead>Name</TableHead>
+//                 <TableHead>Description</TableHead>
+//                 <TableHead className="text-right">Actions</TableHead>
+//               </TableRow>
+//             </TableHeader>
+//             <TableBody>
+//               {categories.map((category) => (
+//                 <TableRow key={category.id}>
+//                   <TableCell>
+//                     {category.imageUrl && (
+//                       <img
+//                         src={category.imageUrl || "/placeholder.svg"}
+//                         alt={category.name}
+//                         className="h-10 w-10 object-cover rounded-md"
+//                       />
+//                     )}
+//                   </TableCell>
+//                   <TableCell className="font-medium">{category.name}</TableCell>
+//                   <TableCell className="max-w-xs truncate">{category.description}</TableCell>
+//                   <TableCell className="text-right">
+//                     <div className="flex justify-end gap-2">
+//                       <Button
+//                         variant="outline"
+//                         size="sm"
+//                         onClick={() => editCategory(category)}
+//                         disabled={isPending}
+//                       >
+//                         <Edit className="h-4 w-4" />
+//                       </Button>
+//                       <Button
+//                         variant="outline"
+//                         size="sm"
+//                         onClick={() => handleDeleteCategory(category.id)}
+//                         disabled={isPending}
+//                       >
+//                         <Trash2 className="h-4 w-4" />
+//                       </Button>
+//                     </div>
+//                   </TableCell>
+//                 </TableRow>
+//               ))}
+//             </TableBody>
+//           </Table>
+//         </CardContent>
+//       </Card>
+//     </TabsContent>
+
+//     <TabsContent value="nature" className="space-y-6">
+//       <Card>
+//         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+//           <div>
+//             <CardTitle>Existing Nature Types</CardTitle>
+//             <CardDescription>Manage your nature type records</CardDescription>
+//           </div>
+//           <Button onClick={openAddNatureModal} className="flex items-center gap-2 bg-lime-600 hover:bg-lime-700 text-white">
+//             <Plus className="h-4 w-4" />
+//             Add Nature Type
+//           </Button>
+//         </CardHeader>
+//         <CardContent className="overflow-x-auto">
+//           <Table className="min-w-[600px]">
+//             <TableHeader>
+//               <TableRow>
+//                 <TableHead>Image</TableHead>
+//                 <TableHead>Name</TableHead>
+//                 <TableHead>Description</TableHead>
+//                 <TableHead className="text-right">Actions</TableHead>
+//               </TableRow>
+//             </TableHeader>
+//             <TableBody>
+//               {natures.map((nature) => (
+//                 <TableRow key={nature.id}>
+//                   <TableCell>
+//                     {nature.imageUrl && (
+//                       <img
+//                         src={nature.imageUrl || "/placeholder.svg"}
+//                         alt={nature.name}
+//                         className="h-10 w-10 object-cover rounded-md"
+//                       />
+//                     )}
+//                   </TableCell>
+//                   <TableCell className="font-medium">{nature.name}</TableCell>
+//                   <TableCell className="max-w-xs truncate">{nature.description}</TableCell>
+//                   <TableCell className="text-right">
+//                     <div className="flex justify-end gap-2">
+//                       <Button
+//                         variant="outline"
+//                         size="sm"
+//                         onClick={() => editNature(nature)}
+//                         disabled={isPending}
+//                       >
+//                         <Edit className="h-4 w-4" />
+//                       </Button>
+//                       <Button
+//                         variant="outline"
+//                         size="sm"
+//                         onClick={() => handleDeleteNature(nature.id)}
+//                         disabled={isPending}
+//                       >
+//                         <Trash2 className="h-4 w-4" />
+//                       </Button>
+//                     </div>
+//                   </TableCell>
+//                 </TableRow>
+//               ))}
+//             </TableBody>
+//           </Table>
+//         </CardContent>
+//       </Card>
+//     </TabsContent>
+//   </Tabs>
+// </div>
+
   )
 }
