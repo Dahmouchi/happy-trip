@@ -11,6 +11,7 @@ export default async function VoyagesPage() {
   const rawDestinations = await getDestinations();
   const rawCategories = await getCategories();
   const rawNatures = await getNatures();
+
   return (
     <div>
       <VoyagesComponent initialDestinations={rawDestinations} initialCategories={rawCategories} initialNatures={rawNatures} />
