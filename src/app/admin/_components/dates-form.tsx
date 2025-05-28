@@ -44,7 +44,6 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium text-lime-600">Dates du Tour</h3>
         <span className="text-sm text-gray-500">{dates.length} date(s)</span>
       </div>
 

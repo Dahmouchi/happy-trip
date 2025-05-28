@@ -3,8 +3,9 @@ import React, { useState } from 'react';
 import { Plus, X, Upload, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
+import RichTextEditor from "@/components/ui/rich-text-editor";
+
 
 interface Program {
   id: string;
@@ -62,7 +63,6 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
   return (
     <div className="space-y-6 ">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium text-lime-600">Programmes du Tour</h3>
         <span className="text-sm text-gray-500">{programs.length} programme(s)</span>
       </div>
 
@@ -126,12 +126,12 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Description
                 </label>
-                <Textarea
-                  placeholder="Describe this program..."
+                <RichTextEditor
                   value={newProgram.description}
-                  onChange={(e) => setNewProgram(prev => ({ ...prev, description: e.target.value }))}
-                  className="w-full min-h-[100px] resize-none"
+                  onChange={(value) => setNewProgram(prev => ({ ...prev, description: value }))}
+                  className="max-h-60 w-full overflow-auto"
                 />
+               
               </div>
 
               <div>

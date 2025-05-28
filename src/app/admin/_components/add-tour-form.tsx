@@ -229,13 +229,13 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="space-y-8">
+        <Card className="border border-none">
+          <CardContent className="pt-6 ">
+            <div className="space-y-8 ">
               {/* Basic Information */}
-              <div className="space-y-4 ">
-                <h3 className="text-lime-600 text-lg font-medium">Informations de base</h3>
-                <p className="text-lime-800 text-sm  mb-4">Entrez les détails de base du circuit.</p>
+              <div className="space-y-4 p-6 shadow-lg rounded-lg border border-gray-200">
+                <h3 className="text-lime-600 text-xl font-medium">Informations de base</h3>
+                <p className="text-lime-800 text-md  mb-4">Entrez les détails de base du circuit.</p>
                 <Separator className="mb-6" />
 
                 <div className="space-y-4">
@@ -282,6 +282,7 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
 
 
                     {/* Tour type (national or international) */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 my-8">
                   <FormField
                     control={form.control}
                     name="type"
@@ -311,7 +312,7 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
 
 
                     {/* national and international destinations */}
-
+                    
                     <FormField
                       control={form.control}
                       name="location"
@@ -354,9 +355,9 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
                       )
                         }}
                       />
-
+                    </div>
                       {/* activities  */}
-
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 my-8">
                       <FormField
                         control={form.control}
                         name="natures"
@@ -447,7 +448,7 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
                       </FormItem>
                     )}
                   />
-
+                  </div>
 
 
 
@@ -501,6 +502,7 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
                  
 
                     {/* difficulty level of the tour */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 my-8">
                      <FormField
                     control={form.control}
                     name="difficultyLevel"
@@ -552,6 +554,7 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
                       </FormItem>
                     )}
                   />
+                  </div>
 
                   {/* google maps  link */}
 
@@ -580,7 +583,7 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
 
 
                     {/* Groupe type  */}
-
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 my-8">
                     <FormField
                       control={form.control}
                       name="groupType"
@@ -634,14 +637,14 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
                         </FormItem>
                       )}
                     />
-               
+               </div>
                 </div>
               </div>
                   
                 {/* programms information */}
-                <div>
+                <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
                 <h3 className="text-lime-600 text-lg font-medium">Informations sur le programmes</h3>
-                <p className="text-lime-800 text-sm  mb-4">Définissez les détails du programmes pour le circuit.</p>
+                <p className="text-lime-800 text-md  mb-4">Définissez les détails du programmes pour le circuit.</p>
                 <Separator className="mb-6" />
 
                 <div className="space-y-4">
@@ -671,9 +674,9 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
 
 
               {/* Pricing Information */}
-              <div>
+              <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
                 <h3 className="text-lime-600 text-lg font-medium">Informations sur les prix</h3>
-                <p className="text-lime-800 text-sm  mb-4">Définissez les détails de prix pour le circuit.</p>
+                <p className="text-lime-800 text-md  mb-4">Définissez les détails de prix pour le circuit.</p>
                 <Separator className="mb-6" />
 
                 <div className="space-y-4">
@@ -739,9 +742,9 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
               </div>
 
               {/* Dates and Duration */}
-              <div>
+              <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
                 <h3 className="text-lime-600 text-lg font-medium">Dates et durée</h3>
-                <p className="text-lime-800 text-sm  mb-4">Définissez les dates et la durée du circuit.</p>
+                <p className="text-lime-800 text-md  mb-4">Définissez les dates et la durée du circuit.</p>
                 <Separator className="mb-6" />
 
                 <div className="space-y-4">
@@ -850,12 +853,12 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
 
 
               {/* inclus et exclus */}
-               <div>
+               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
                 <h3 className="text-lime-600 text-lg font-medium">Inclus & Exclus</h3>
-                <p className="text-lime-800 text-sm  mb-4">Définissez les inclus et les exlus du circuit.</p>
+                <p className="text-lime-800 text-md  mb-4">Définissez les inclus et les exlus du circuit.</p>
                 <Separator className="mb-6" />
 
-                <div className="space-y-4">
+                <div className="space-y-4 grid lg:grid-cols-2 grid-cols-1 gap-4 ">
                   <StringLoop
                     title="Inclus"
                     type="inclus"
@@ -872,9 +875,9 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
 
 
               {/* Additional Details */}
-              <div>
+              <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
                 <h3 className="text-lime-600 text-lg font-medium">Détails supplémentaires</h3>
-                <p className="text-lime-800 text-sm  mb-4">Définissez des détails supplémentaires pour le circuit.</p>
+                <p className="text-lime-800 text-md  mb-4">Définissez des détails supplémentaires pour le circuit.</p>
                 <Separator className="mb-6" />
 
                 <div className="space-y-4">
@@ -887,7 +890,7 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
                           <FormItem>
                             <FormLabel>Images du circuit</FormLabel>
                             <FormDescription>
-                              Ajoutez les URLs de 8 images pour ce circuit
+                              Ajoutez les URLs de 9 images pour ce circuit
                             </FormDescription>
                            
                             <FileUploader
@@ -929,9 +932,9 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
               </div>
 
               {/* Display Options */}
-              <div>
+              <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
                 <h3 className="text-lime-600 text-lg font-medium">Options d&apos;affichage</h3>
-                <p className="text-lime-800 text-sm  mb-4">Configurez la façon dont le circuit est affiché.</p>
+                <p className="text-lime-800 text-md  mb-4">Configurez la façon dont le circuit est affiché.</p>
                 <Separator className="mb-6" />
 
                 <div className="space-y-4">
@@ -1008,7 +1011,7 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
         </Card>
 
         <div className="flex justify-end">
-            <Button type="submit" size="lg" className="bg-[#6EC207] text-white hover:bg-[#5BA906] hover:cursor-pointer mr-8">
+            <Button type="submit" size="lg" className="bg-lime-600 text-white hover:bg-lime-700 hover:cursor-pointer mr-8">
             Créer le circuit
           </Button>
         </div>

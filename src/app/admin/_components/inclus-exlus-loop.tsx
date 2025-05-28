@@ -57,6 +57,7 @@ const StringLoop: React.FC<StringLoopProps> = ({ title, type, description }) => 
               setInputValue('');
             }
           }}
+          className='bg-lime-600 hover:bg-lime-700 text-white'
         >
           Ajouter
         </Button>
@@ -88,9 +89,8 @@ const StringLoop: React.FC<StringLoopProps> = ({ title, type, description }) => 
 
       {strings.length === 0 && (
         <div className="text-center py-8 text-gray-500">
-        <p>No strings added yet.</p>
-        <p className="text-sm">Add your first {type} string above!</p>
-        </div>
+        <p>Aucune chaîne ajoutée pour le moment.</p> 
+        <p className="text-sm">Ajoutez votre première chaîne {type} ci-dessus&nbsp;!</p>  </div>
       )}
       </CardContent>
     </Card>
