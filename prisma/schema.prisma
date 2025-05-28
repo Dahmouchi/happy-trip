@@ -68,6 +68,17 @@ model Landing {
   footer       Boolean @default(true)
 }
 
+model Program {
+  id          String @id @default(cuid())
+  title       String
+  description String?
+  imageUrl    String?
+  tourId      String
+  tour        Tour @relation("TourPrograms", fields: [tourId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model Tour {
   id                 String   @id @default(cuid())
   title              String
@@ -99,14 +110,15 @@ model Tour {
   averageRating      Float    @default(0.0)
   discountPercent    Int?     // e.g. 10 for 10%
   weekendsOnly       Boolean  @default(false)
-
+  accomodationType    String?  // e.g., "Hôtel", "Auberge", "Camping"
+  programs          Program[] @relation("TourPrograms")
   dates              TourDate[]
   destinations        Destination[]
   categories         Category[] @relation("CategoryTours")
   natures            Nature[] @relation("NatureTours")
+  images             File[]
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
-  images             File[]
   // VacationStyle VacationStyle[] @relation("TourVacationStyles")
 }
 

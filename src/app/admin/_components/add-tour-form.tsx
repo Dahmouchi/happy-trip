@@ -9,6 +9,7 @@ import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import {FileUploader, FileUploaderContent, FileUploaderItem, FileInput} from "@/components/ui/file-upload";
 import {
   Command,
   CommandEmpty,
@@ -44,49 +45,69 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { addTour } from "@/actions/toursActions";
-import { useState } from "react";
+import { JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, useState } from "react";
 import { toast } from "react-toastify";
 import { DatetimePicker } from "@/components/ui/datetime-picker";
 import Loading from "@/components/Loading";
 import RichTextEditor from "@/components/ui/rich-text-editor";
-// Mock vacation styles for the demo
-// In a real app, you would fetch these from your database
-const vacationStyles = [
-  { id: "1", name: "Adventure" },
-  { id: "2", name: "Beach" },
-  { id: "3", name: "City Break" },
-  { id: "4", name: "Cultural" },
-  { id: "5", name: "Eco-Tourism" },
-  { id: "6", name: "Family" },
-  { id: "7", name: "Luxury" },
-  { id: "8", name: "Romantic" },
-  { id: "9", name: "Wildlife" },
-];
+import { get } from "http";
+import { getNatures } from "@/actions/natures";
+import { getInternationalDestinations, getNationalDestinations } from "@/actions/destinations";
+import { Tour } from "@prisma/client";
+import ProgramForm from "@/app/admin/_components/programs-form";
+import DateForm from "@/app/admin/_components/dates-form";
+import StringLoop from "@/app/admin/_components/inclus-exlus-loop";
 
-const nationalDestinations = [
-  { id: "1", name: "Tous Maroc" },
-  { id: "2", name: "Parc Toubkal" },
-  { id: "3", name: "Haut Atlas" },
-  { id: "4", name: "Méditerranée" },
-  { id: "5", name: "Atlantique" },
-  { id: "6", name: "Moyen Atlas" },
-  { id: "7", name: "Dakhla et Région"},
-  { id: "8", name: "Rif" },
-  { id: "9", name: "Anti Atlas et Souss" },
-  { id: "10", name: "Sahara-Draa & Tafilalet" },
-  { id: "11", name: "Oriental" },
-  { id: "12", name: "Autres" },
-]
-
-const internationalDestinations = [
-  { id: "1", name: "Tous Monde" },
-  { id: "2", name: "Turquie" },
-  { id: "3", name: "Azerbaïdjan" },
-]
+type AddTourFormState = {
+  title: string;
+  description?: string;
+  type: "NATIONAL" | "INTERNATIONAL";
+  location?: string;
+  priceOriginal?: number;
+  priceDiscounted?: number;
+  dateCard?: string;
+  startDate?: Date;
+  endDate?: Date;
+  durationDays?: number;
+  durationNights?: number;
+  accommodation?: string;
+  imageUrl?: string;
+  destination?: string;
+  activite?: string;
+  inclu?: string;
+  exclu?: string;
+  groupType?: string;
+  groupSizeMax?: number;
+  showReviews: boolean;
+  showDifficulty: boolean;
+  showDiscount: boolean;
+  difficultyLevel?: number;
+  totalReviews?: number;
+  averageRating?: number;
+  discountPercent?: number;
+  weekendsOnly: boolean;
+  googleMapsLink?: string;
+  accomodationType?: string;
+  programs?: Array<{
+    title: string;
+    description?: string;
+    day: number;
+    date?: Date;
+  }>;
+  dates?: Array<{
+    description?: string;
+    startDate: Date;
+    endDate: Date;
+  
+  }>;
+  destinations?: string[]; // array of destination IDs or names
+  categories?: string[]; // array of category IDs or names
+  natures?: string[]; // array of nature IDs or names
+};
 
 const formSchema = z.object({
   title: z.string().min(3, {
-    message: "Title must be at least 3 characters.",
+    message: "Le titre doit comporter au moins 3 caractères.",
   }),
   description: z.string().optional(),
   type: z.enum(["NATIONAL", "INTERNATIONAL"]),
@@ -94,12 +115,13 @@ const formSchema = z.object({
   activities: z.array(z.string()).optional(),
   priceOriginal: z.coerce.number().int().positive().optional(),
   priceDiscounted: z.coerce.number().int().positive().optional(),
-  startDate: z.coerce.date().optional(),
-  endDate: z.coerce.date().optional(),
+  dateCard: z.string().optional(),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
   durationDays: z.coerce.number().int().positive().optional(),
   durationNights: z.coerce.number().int().positive().optional(),
   accommodation: z.string().optional(),
-  imageURLs: z.array(z.string().url()).length(8),
+  imageURLs: z.array(z.string()).max(8).optional(),
   groupType: z.string().optional(),
   groupSizeMax: z.coerce.number().int().positive().optional(),
   showReviews: z.boolean(),
@@ -108,35 +130,80 @@ const formSchema = z.object({
   difficultyLevel: z.coerce.number().int().min(1).max(5).optional(),
   discountPercent: z.coerce.number().int().min(0).max(100).optional(),
   weekendsOnly: z.boolean(),
-  vacationStyles: z.array(z.string()),
+  vacationStyles: z.array(z.string()).optional(),
+  googleMapsLink: z.string().url().optional(),
+  programs: z
+    .array(
+      z.object({
+        title: z.string(),
+        description: z.string().optional(),
+        day: z.coerce.number().int().positive(),
+        date: z.date().optional(),
+      })
+    )
+    .optional(),
+  dates: z
+    .array(
+      z.object({
+        startDate: z.date(),
+        endDate: z.date(),
+      })
+    )
+    .optional(),
+  destinations: z.array(z.string()).optional(),
+  categories: z.array(z.string()).optional(),
+  natures: z.array(z.string()).optional(),
 });
 
-export function AddTourForm() {
+
+export  function AddTourForm({ nationalDestinations, internationalDestinations, categories, natures}: any) {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [files, setFiles] = useState<File[] | null>(null);
+
 
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       description: "",
       type: "NATIONAL",
       location: "",
       activities: [],
-      imageURLs: Array(8).fill(""),
-      showReviews: true,
-      showDifficulty: true,
-      showDiscount: true,
+      priceOriginal: undefined,
+      priceDiscounted: undefined,
+      startDate: undefined,
+      endDate: undefined,
+      durationDays: undefined,
+      durationNights: undefined,
+      accommodation: "",
+      imageURLs: [],
+      groupType: "",
+      groupSizeMax: undefined,
+      showReviews: false,
+      showDifficulty: false,
+      showDiscount: false,
+      difficultyLevel: undefined,
+      discountPercent: undefined,
       weekendsOnly: false,
       vacationStyles: [],
+      googleMapsLink: "",
+      programs: [],
+      dates: [],
+      destinations: [],
+      categories: [],
+      natures: [],
     },
-  });
+    },
+  );
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setIsSubmitting(true);
 
       // Call the server action to add the tour
-      const result = await addTour(values);
+      const result = await addTour({
+        ...values,
+        vacationStyles: values.vacationStyles ?? [],
+      });
 
       if (result.success) {
         toast.success("Circuit créé avec succès");
@@ -166,7 +233,7 @@ export function AddTourForm() {
           <CardContent className="pt-6">
             <div className="space-y-8">
               {/* Basic Information */}
-              <div>
+              <div className="space-y-4 ">
                 <h3 className="text-lime-600 text-lg font-medium">Informations de base</h3>
                 <p className="text-lime-800 text-sm  mb-4">Entrez les détails de base du circuit.</p>
                 <Separator className="mb-6" />
@@ -210,25 +277,8 @@ export function AddTourForm() {
                       </FormItem>
                     )}
                     />
-                        
-                  {/* <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Entrez la description du circuit"
-                            className="min-h-32"
-                            {...field}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  /> */}
+
+                
 
 
                     {/* Tour type (national or international) */}
@@ -292,8 +342,8 @@ export function AddTourForm() {
                           </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                          {destinations.map((dest) => (
-                            <SelectItem key={dest.id} value={dest.name}>
+                          {destinations.map((dest: { id: Key | null | undefined; name: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; }) => (
+                            <SelectItem key={dest.id} value={String(dest.name)}>
                             {dest.name}
                             </SelectItem>
                           ))}
@@ -309,48 +359,51 @@ export function AddTourForm() {
 
                       <FormField
                         control={form.control}
-                        name="activities"
+                        name="natures"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Activités</FormLabel>
+                            <FormLabel>Nature(s)</FormLabel>
                             <FormControl>
                               <Popover>
                                 <PopoverTrigger asChild>
-                                  <Button variant="outline" role="combobox" className="w-full justify-between">
+                                  <Button variant="outline" role="combobox" className="w-fit justify-between">
                                     {field.value && field.value.length > 0
-                                      ? field.value.join(", ")
-                                      : "Sélectionnez les activités"}
+                                      ? natures
+                                          .filter((nature: any) => (Array.isArray(field.value) ? field.value.includes(nature.id) : false))
+                                          .map((nature: any) => nature.name)
+                                          .join(", ")
+                                      : "Sélectionnez la/les nature(s)"}
                                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                   </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-full p-0">
+                                <PopoverContent className="p-0">
                                   <Command>
-                                    <CommandInput placeholder="Rechercher des activités..." />
+                                    <CommandInput placeholder="Rechercher une nature..." />
                                     <CommandList>
-                                      <CommandEmpty>Aucune activité trouvée.</CommandEmpty>
+                                      <CommandEmpty>Aucune nature trouvée.</CommandEmpty>
                                       <CommandGroup>
-                                        {["Randonnée", "Montagne", "Baignade", "Bivouac"].map((activity) => (
+                                        {natures.map((nature: any) => (
                                           <CommandItem
-                                            key={activity}
-                                            value={activity}
+                                            key={nature.id}
+                                            value={nature.id}
                                             onSelect={() => {
-                                              const currentValue = Array.isArray(field.value) ? [...field.value] : []
-                                              const index = currentValue.indexOf(activity)
+                                              const currentValue = Array.isArray(field.value) ? [...field.value] : [];
+                                              const index = currentValue.indexOf(nature.id);
                                               if (index === -1) {
-                                                field.onChange([...currentValue, activity])
+                                                field.onChange([...currentValue, nature.id]);
                                               } else {
-                                                currentValue.splice(index, 1)
-                                                field.onChange(currentValue)
+                                                currentValue.splice(index, 1);
+                                                field.onChange(currentValue);
                                               }
                                             }}
                                           >
                                             <Check
                                               className={cn(
                                                 "mr-2 h-4 w-4",
-                                                field.value && field.value.includes(activity) ? "opacity-100" : "opacity-0",
+                                                field.value && field.value.includes(nature.id) ? "opacity-100" : "opacity-0"
                                               )}
                                             />
-                                            {activity}
+                                            {nature.name}
                                           </CommandItem>
                                         ))}
                                       </CommandGroup>
@@ -359,48 +412,263 @@ export function AddTourForm() {
                                 </PopoverContent>
                               </Popover>
                             </FormControl>
-                            <FormDescription>Sélectionnez toutes les activités proposées dans ce circuit</FormDescription>
+                            <FormDescription>Sélectionnez toutes les natures associées à ce circuit</FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
 
-                      {/* images of the tour */}
-                         <FormField
-  control={form.control}
-  name="imageURLs"
-  render={() => (
-    <FormItem>
-      <FormLabel>Images du circuit</FormLabel>
-      <FormDescription>Ajoutez les URLs de 8 images pour ce circuit</FormDescription>
-      {Array.from({ length: 8 }).map((_, index) => (
-        <FormField
-          key={index}
-          control={form.control}
-          name={`imageURLs.${index}`}
-          render={({ field }) => (
-            <FormItem className="mt-2">
-              <FormLabel>Image {index + 1}</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder={`Entrez l'URL de l'image ${index + 1}`}
-                  {...field}
-                  value={field.value || ""}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      ))}
-    </FormItem>
-  )}
-/>
+                             {/* groupe type or category */}
+                  <FormField
+                    control={form.control}
+                    name="categories"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Catégorie</FormLabel>
+                        <FormControl>
+                          <Select
+                            onValueChange={(value) => field.onChange([value])}
+                            value={Array.isArray(field.value) && field.value.length > 0 ? field.value[0] : ""}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Sélectionnez la catégorie" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {categories.map((cat: any) => (
+                                <SelectItem key={cat.id} value={cat.id}>
+                                  {cat.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormDescription>Sélectionnez la catégorie associée à ce circuit</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                    
-                    
+
+
+
+                  {/* image de base du circuit */}
+
+                      <FormField
+                        control={form.control}
+                        name="imageURLs"
+                        render={() => (
+                          <FormItem>
+                            <FormLabel>Images d circuit</FormLabel>
+                            <FormDescription>
+                              Ajoutez une image principale pour ce circuit
+                            </FormDescription>
+                           
+                            <FileUploader
+                              value={files}
+                              onValueChange={setFiles}
+                              dropzoneOptions={{
+                                maxFiles: 1,
+                                maxSize: 1 * 1024 * 1024, // 5MB
+                                accept: {
+                                  "image/*": [".jpg", ".jpeg", ".png", ".gif"],
+                                  "application/pdf": [".pdf"],
+                                },
+                                multiple: true,
+                              }}
+                              className="border border-gray-300 rounded-lg p-4 bg-white shadow-sm"
+                              orientation="vertical"
+                            >
+                              <FileInput className="border-2 border-dashed p-6 text-center hover:bg-gray-50">
+                                <p className="text-gray-500">Glissez-déposez vos fichiers ici ou cliquez pour parcourir.</p>
+                              </FileInput>
+
+                              <FileUploaderContent className="mt-4">
+                                {files?.map((file, index) => (
+                                  <FileUploaderItem key={index} index={index}>
+                                    <span className="truncate max-w-[200px]">{file.name}</span>
+                                  </FileUploaderItem>
+                                ))}
+                              </FileUploaderContent>
+                            </FileUploader>
+                                                
+                                                  
+                                  <FormMessage />
+                              </FormItem>
+                                  )}
+                              />
+
+                      
+                 
+
+                    {/* difficulty level of the tour */}
+                     <FormField
+                    control={form.control}
+                    name="difficultyLevel"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Niveau de difficulté (1-5)</FormLabel>
+                        <Select
+                          onValueChange={(value: any) =>
+                            field.onChange(Number.parseInt(value))
+                          }
+                          defaultValue={field.value?.toString()}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Sélectionnez le niveau de difficulté" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="1">1 - Très facile</SelectItem>
+                            <SelectItem value="2">2 - Facile</SelectItem>
+                            <SelectItem value="3">3 - Modéré</SelectItem>
+                            <SelectItem value="4">4 - Difficile</SelectItem>
+                            <SelectItem value="5">
+                              5 - Très difficile
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* accommodation type */}
+
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Type d&apos;hébergement</FormLabel>
+                        <FormControl>
+                         <Input
+                            placeholder="Entrez le type d'hébergement"
+                            {...field}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* google maps  link */}
+
+                  <FormField
+                    control={form.control}
+                    name="googleMapsLink"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Lien Google Maps</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="url"
+                            placeholder="Entrez le lien Google Maps de l'emplacement"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Ajoutez un lien Google Maps pour la localisation du circuit.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+
+
+
+                    {/* Groupe type  */}
+
+                    <FormField
+                      control={form.control}
+                      name="groupType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Type de groupe</FormLabel>
+                          <FormControl>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value || ""}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Sélectionnez le type de groupe" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="small">Petit</SelectItem>
+                                <SelectItem value="medium">Moyen</SelectItem>
+                                <SelectItem value="large">Grand</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormDescription>
+                            Choisissez la taille du groupe pour ce circuit.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+
+
+                    {/* group size  */}
+                    <FormField
+                      control={form.control}
+                      name="groupSizeMax"
+                      render={({ field }) => (
+                        <FormItem className="w-fit">
+                          <FormLabel>Taille du groupe</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="Entrez la taille du groupe"
+                              min={1}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Indiquez la taille maximale du groupe pour ce circuit.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+               
                 </div>
               </div>
+                  
+                {/* programms information */}
+                <div>
+                <h3 className="text-lime-600 text-lg font-medium">Informations sur le programmes</h3>
+                <p className="text-lime-800 text-sm  mb-4">Définissez les détails du programmes pour le circuit.</p>
+                <Separator className="mb-6" />
+
+                <div className="space-y-4">
+                    <div >
+                    <ProgramForm
+                      programs={
+                        (form.watch("programs") || []).map((p: any, idx: number) => ({
+                          id: p.id ?? idx.toString(),
+                          title: p.title,
+                          description: p.description,
+                          image: p.image ?? "",
+                        }))
+                      }
+                      onChange={(programs: any[]) => {
+                        form.setValue(
+                          "programs",
+                          programs.map(({ id, image, ...rest }) => rest)
+                        );
+                      }}
+                    />
+                    </div>
+                </div>
+              </div>
+
+
+
+
 
               {/* Pricing Information */}
               <div>
@@ -477,61 +745,27 @@ export function AddTourForm() {
                 <Separator className="mb-6" />
 
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="startDate"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <FormLabel>Date de début</FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                               
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent
-                              className="w-auto p-0"
-                              align="start"
-                            >
-                              
-                            </PopoverContent>
-                          </Popover>
-                          <FormDescription>
-                            Your date of birth is used to calculate your age.
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
 
                     <FormField
                       control={form.control}
-                      name="endDate"
+                      name="dateCard"
                       render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <FormLabel>Date de fin</FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent
-                              className="w-auto p-0"
-                              align="start"
-                            >
-                              
-                            </PopoverContent>
-                          </Popover>
+                        <FormItem>
+                          <FormLabel>Date du circuit (affichage carte)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="text"
+                              placeholder="Ex: 12-15 Juin 2024"
+                              {...field}
+                            />
+                          </FormControl>
                           <FormDescription>
-                            Your date of birth is used to calculate your age.
+                            Entrez la date du circuit telle qu&apos;elle doit apparaître sur la carte (ex: 12-15 Juin 2024).
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
@@ -539,32 +773,39 @@ export function AddTourForm() {
                       name="durationDays"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Durée (Jours)</FormLabel>
+                          <FormLabel>Nombre de jours</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
                               placeholder="Entrez le nombre de jours"
+                              min={1}
                               {...field}
                             />
                           </FormControl>
+                          <FormDescription>
+                            Indiquez le nombre total de jours du circuit.
+                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-
                     <FormField
                       control={form.control}
                       name="durationNights"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Durée (Nuits)</FormLabel>
+                          <FormLabel>Nombre de nuits</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
                               placeholder="Entrez le nombre de nuits"
+                              min={0}
                               {...field}
                             />
                           </FormControl>
+                          <FormDescription>
+                            Indiquez le nombre total de nuits du circuit.
+                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -573,77 +814,62 @@ export function AddTourForm() {
 
                   <FormField
                     control={form.control}
-                    name="weekendsOnly"
+                    name="dates"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>Week-ends seulement</FormLabel>
-                          <FormDescription>
-                            Cochez ceci si le circuit est disponible uniquement
-                            les week-ends
-                          </FormDescription>
-                        </div>
+                      <FormItem>
+                        <FormLabel>Dates du circuit</FormLabel>
+                        <DateForm
+                          dates={
+                            (field.value || []).map((d: any, idx: number) => ({
+                              id: d.id ?? idx.toString(),
+                              dateDebut: d.startDate ?? d.dateDebut ?? new Date(),
+                              dateFin: d.endDate ?? d.dateFin ?? new Date(),
+                              description: d.description ?? "",
+                            }))
+                          }
+                          onChange={(dates) =>
+                            field.onChange(
+                              dates.map((d) => ({
+                                startDate: (d.dateDebut && Object.prototype.toString.call(d.dateDebut) === "[object Date]") ? d.dateDebut : new Date(d.dateDebut),
+                                endDate: (d.dateFin instanceof Date) ? d.dateFin : new Date(d.dateFin),
+                                description: d.description,
+                              }))
+                            )
+                          }
+                        />
+                        <FormDescription>
+                          Ajoutez une ou plusieurs périodes pour ce circuit. Chaque période doit contenir une date de début, une date de fin et une description optionnelle.
+                        </FormDescription>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
               </div>
 
-              {/* Group Information */}
-              <div>
-                <h3 className="text-lime-600 text-lg font-medium">Informations sur le groupe</h3>
-                <p className="text-lime-800 text-sm  mb-4">Définissez les détails du groupe pour le circuit.</p>
+
+
+              {/* inclus et exclus */}
+               <div>
+                <h3 className="text-lime-600 text-lg font-medium">Inclus & Exclus</h3>
+                <p className="text-lime-800 text-sm  mb-4">Définissez les inclus et les exlus du circuit.</p>
                 <Separator className="mb-6" />
 
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="groupType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Type de groupe</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value || ""}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Sélectionnez le type de groupe" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="Voyage en groupe">Voyage en groupe</SelectItem>
-                              <SelectItem value="Comité d'entreprise">Comité d&apos;entreprise</SelectItem>
-                              <SelectItem value="Voyage sur mesure">Voyage sur mesure</SelectItem>
-                              <SelectItem value="Voyage Team ">Voyage Team Building</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormDescription>Décrivez le type de groupe pour lequel ce circuit est conçu</FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                  <StringLoop
+                    title="Inclus"
+                    type="inclus"
+                    description="Liste des éléments inclus dans le circuit"
                     />
-
-                    <FormField
-                      control={form.control}
-                      name="groupSizeMax"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Taille maximale du groupe</FormLabel>
-                          <FormControl>
-                            <Input type="number" placeholder="Entrez la taille maximale du groupe" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                  <StringLoop
+                    title="Exclus"
+                    type="exclus"
+                    description="Liste des éléments exclus du circuit"
                     />
-                  </div>
                 </div>
               </div>
+
+
 
               {/* Additional Details */}
               <div>
@@ -652,56 +878,53 @@ export function AddTourForm() {
                 <Separator className="mb-6" />
 
                 <div className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="accommodation"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Hébergement</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Entrez les détails de l'hébergement"
-                            {...field}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormDescription>Décrivez l&apos;hébergement fourni pendant le circuit</FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  
+                      {/* Image URLs 9 max */}
+                      <FormField
+                        control={form.control}
+                        name="imageURLs"
+                        render={() => (
+                          <FormItem>
+                            <FormLabel>Images du circuit</FormLabel>
+                            <FormDescription>
+                              Ajoutez les URLs de 8 images pour ce circuit
+                            </FormDescription>
+                           
+                            <FileUploader
+                              value={files}
+                              onValueChange={setFiles}
+                              dropzoneOptions={{
+                                maxFiles: 9,
+                                maxSize: 9 * 1024 * 1024, // 5MB
+                                accept: {
+                                  "image/*": [".jpg", ".jpeg", ".png", ".gif"],
+                                  "application/pdf": [".pdf"],
+                                },
+                                multiple: true,
+                              }}
+                              className="border border-gray-300 rounded-lg p-4 bg-white shadow-sm"
+                              orientation="vertical"
+                            >
+                              <FileInput className="border-2 border-dashed p-6 text-center hover:bg-gray-50">
+                                <p className="text-gray-500">Glissez-déposez vos fichiers ici ou cliquez pour parcourir.</p>
+                              </FileInput>
 
-                  <FormField
-                    control={form.control}
-                    name="difficultyLevel"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Niveau de difficulté (1-5)</FormLabel>
-                        <Select
-                          onValueChange={(value: any) =>
-                            field.onChange(Number.parseInt(value))
-                          }
-                          defaultValue={field.value?.toString()}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Sélectionnez le niveau de difficulté" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="1">1 - Très facile</SelectItem>
-                            <SelectItem value="2">2 - Facile</SelectItem>
-                            <SelectItem value="3">3 - Modéré</SelectItem>
-                            <SelectItem value="4">4 - Difficile</SelectItem>
-                            <SelectItem value="5">
-                              5 - Très difficile
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                              <FileUploaderContent className="mt-4">
+                                {files?.map((file, index) => (
+                                  <FileUploaderItem key={index} index={index}>
+                                    <span className="truncate max-w-[200px]">{file.name}</span>
+                                  </FileUploaderItem>
+                                ))}
+                              </FileUploaderContent>
+                            </FileUploader>
+                                                
+                                                  
+                                  <FormMessage />
+                              </FormItem>
+                                  )}
+                              />
+
+                 
                 </div>
               </div>
 
@@ -779,78 +1002,7 @@ export function AddTourForm() {
                 </div>
               </div>
 
-              {/* Vacation Styles */}
-                <div>
-                <h3 className="text-lime-600 text-lg font-medium">Styles de vacances</h3>
-                <p className="text-lime-800 text-sm  mb-4">
-                  Sélectionnez les styles de vacances qui s&apos;appliquent à ce circuit.
-                </p>
-                <Separator className="mb-6" />
-
-                <div className="space-y-4">
-                  <FormField
-                  control={form.control}
-                  name="vacationStyles"
-                  render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Styles de vacances</FormLabel>
-                    <FormControl>
-                      <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" role="combobox" className="w-full justify-between">
-                        {field.value.length > 0
-                          ? vacationStyles
-                            .filter((style) => field.value.includes(style.id))
-                            .map((style) => style.name)
-                            .join(", ")
-                          : "Sélectionnez les styles de vacances"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-full p-0">
-                        <Command>
-                        <CommandInput placeholder="Rechercher des styles de vacances..." />
-                        <CommandList>
-                          <CommandEmpty>Aucun style trouvé.</CommandEmpty>
-                          <CommandGroup>
-                          {vacationStyles.map((style) => (
-                            <CommandItem
-                            key={style.id}
-                            value={style.name}
-                            onSelect={() => {
-                              const currentValue = [...field.value]
-                              const index = currentValue.indexOf(style.id)
-
-                              if (index === -1) {
-                              field.onChange([...currentValue, style.id])
-                              } else {
-                              currentValue.splice(index, 1)
-                              field.onChange(currentValue)
-                              }
-                            }}
-                            >
-                            <Check
-                              className={cn(
-                              "mr-2 h-4 w-4",
-                              field.value.includes(style.id) ? "opacity-100" : "opacity-0",
-                              )}
-                            />
-                            {style.name}
-                            </CommandItem>
-                          ))}
-                          </CommandGroup>
-                        </CommandList>
-                        </Command>
-                      </PopoverContent>
-                      </Popover>
-                    </FormControl>
-                    <FormDescription>Sélectionnez tous les styles de vacances qui s&apos;appliquent à ce circuit</FormDescription>
-                    <FormMessage />
-                    </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
+               
             </div>
           </CardContent>
         </Card>

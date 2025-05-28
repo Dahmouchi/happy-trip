@@ -105,3 +105,32 @@ export async function getDestinations() {
     return []
   }
 }
+
+
+export async function getNationalDestinations() {
+  try {
+    const destinations = await prisma.destination.findMany({
+      where: { type: "NATIONAL"},
+      orderBy: { name: "asc" },
+    })
+    return destinations
+  }
+  catch (error) {
+    console.error("Error fetching national destinations:", error)
+    return []
+  }
+}
+
+export async function getInternationalDestinations() {
+  try {
+    const destinations = await prisma.destination.findMany({
+      where: { type: "INTERNATIONAL"},
+      orderBy: { name: "asc" },
+    })
+    return destinations
+  }
+  catch (error) {
+    console.error("Error fetching international destinations:", error)
+    return []
+  }
+}
