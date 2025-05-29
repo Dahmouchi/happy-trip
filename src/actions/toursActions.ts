@@ -33,6 +33,7 @@ const tourSchema = z.object({
 })
 
 export type TourFormData = z.infer<typeof tourSchema>
+ 
 
 /**
  * Server action to add a new tour to the database
