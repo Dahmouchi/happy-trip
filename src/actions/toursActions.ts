@@ -5,55 +5,78 @@ import { z } from "zod"
 import { getFileUrl, uploadFile } from "@/lib/cloudeFlare";
 // import sharp from "sharp";
 
+
+
+
+// function getCloudFlareURL(stringImage: string): string {
+//   const image = stringImage as unknown as File;
+//   const quality = 80;
+//    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+//       const filename = `${timestamp}-${image.name}`;
+//       const arrayBuffer = await image.arrayBuffer();
+//       const test = await sharp(arrayBuffer)
+//         .resize(1200)
+//         .jpeg({ quality }) // or .png({ compressionLevel: 9 })
+//         .toBuffer();
+  
+//       const fileContent = Buffer.from(test);
+  
+//       const uploadResponse = await uploadFile(fileContent, filename, image.type);
+//       const imageUrl = getFileUrl(uploadResponse.Key); // Assuming Key contains the file name
+  
+// }
+
+
+
 const prisma = new PrismaClient()
 
 // Schema for validating tour data
+
 const tourSchema = z.object({
-  title: z.string().min(3, {
-    message: "Le titre doit comporter au moins 3 caractères.",
-  }),
-  description: z.string().optional(),
-  type: z.enum(["NATIONAL", "INTERNATIONAL"]).optional(),
-  priceOriginal: z.coerce.number().int().positive().optional(),
-  priceDiscounted: z.coerce.number().int().positive().optional(),
+  title: z.string().min(1, "Le titre est requis"),
+  description: z.string().min(1, "La description est requise"),
+  type: z.enum(["NATIONAL", "INTERNATIONAL"]),
+  priceOriginal: z.number().min(0, "Le prix doit être positif").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
+  priceDiscounted: z.number().min(0, "Le prix doit être positif").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
   dateCard: z.string().optional(),
-  // startDate: z.coerce.date().optional(),
-  // endDate: z.coerce.date().optional(),
-  durationDays: z.coerce.number().int().positive().optional(),
-  durationNights: z.coerce.number().int().positive().optional(),
-  accommodation: z.string().optional(),
-  imageUrl: z.string().url().optional(),
-  destination: z.string().optional(),
-  activite: z.string().optional(),
-  inclu: z.string().optional(),
-  exclu: z.string().optional(),
+  durationDays: z.number().min(1, "Au moins 1 jour").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
+  durationNights: z.number().min(0, "Nuits >= 0").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
+  imageURL: z.string(),
   groupType: z.string().optional(),
-  groupSizeMax: z.coerce.number().int().positive().optional(),
-  showReviews: z.boolean().optional(),
-  showDifficulty: z.boolean().optional(),
-  showDiscount: z.boolean().optional(),
-  difficultyLevel: z.coerce.number().int().min(1).max(5).optional(),
-  totalReviews: z.coerce.number().int().min(0).optional(),
-  averageRating: z.coerce.number().min(0).optional(),
-  discountPercent: z.coerce.number().int().min(0).max(100).optional(),
-  weekendsOnly: z.boolean().optional(),
+  groupSizeMax: z.number().min(1, "Taille min 1").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
+  showReviews: z.boolean().default(true),
+  showDifficulty: z.boolean().default(true),
+  showDiscount: z.boolean().default(true),
+  difficultyLevel: z.number().min(1).max(5).optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
+  discountPercent: z.number().min(0).max(100).optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
+  weekendsOnly: z.boolean().default(false),
   accommodationType: z.string().optional(),
-  // Relations (arrays of strings or IDs, adjust as needed for your use case)
-  programs: z.array(z.string()).optional(),
-  dates: z
-    .array(
-      z.object({
-        startDate: z.coerce.date(),
-        endDate: z.coerce.date(),
-        description: z.string().optional(),
-      })
-    )
-    .optional(),
-  destinations: z.array(z.string()).optional(),
-  categories: z.array(z.string()).optional(),
-  natures: z.array(z.string()).optional(),
-  images: z.array(z.string()).optional(),
-})
+  googleMapsLink: z.string().url("Lien Google Maps invalide").optional().or(z.literal("")),
+  programs: z.array(
+    z.object({
+      title: z.string().min(1, "Titre requis"),
+      description: z.string().optional(),
+      image: z.string().optional(),
+    })
+  ).optional(),
+  dates: z.array(
+    z.object({
+      startDate: z.date(),
+      endDate: z.date(),
+      description: z.string().optional(),
+    })
+  ).optional(),
+  images:z.array(
+    z.object({
+      link: z.string(),
+    })
+  ),
+  destinations: z.array(z.string()),
+  categories: z.array(z.string()),
+  natures: z.array(z.string()),
+  inclus: z.string().optional(),
+  exclus: z.string().optional(),
+});
 
 export type TourFormData = z.infer<typeof tourSchema>
 
@@ -79,24 +102,17 @@ export async function addTour(formData: TourFormData) {
       priceOriginal: validatedData.priceOriginal,
       priceDiscounted: validatedData.priceDiscounted,
       dateCard: validatedData.dateCard,
-      // startDate: validatedData.startDate,
-      // endDate: validatedData.endDate,
       durationDays: validatedData.durationDays,
       durationNights: validatedData.durationNights,
-      accommodation: "",
-      imageUrl: validatedData.imageUrl,
-      destination: validatedData.destination,
-      activite: validatedData.activite,
-      inclu: validatedData.inclu,
-      exclu: validatedData.exclu,
+      imageUrl: validatedData.imageURL,
+      inclus: validatedData.inclus,
+      exclus: validatedData.exclus,
       groupType: validatedData.groupType,
       groupSizeMax: validatedData.groupSizeMax,
       showReviews: validatedData.showReviews,
       showDifficulty: validatedData.showDifficulty,
       showDiscount: validatedData.showDiscount,
       difficultyLevel: validatedData.difficultyLevel,
-      totalReviews: validatedData.totalReviews,
-      averageRating: validatedData.averageRating,
       discountPercent: validatedData.discountPercent,
       weekendsOnly: validatedData.weekendsOnly,
       accommodationType: validatedData.accommodationType,
@@ -126,17 +142,23 @@ export async function addTour(formData: TourFormData) {
           connect: validatedData.natures.map((id) => ({ id })),
         }
         : undefined,
-      images: validatedData.images?.length
-        ? {
-            create: validatedData.images
-              .filter((img) => !!img)
-              .map((img) => ({ url: img })),
-          }
-        : undefined,
+      
+      images: validatedData.images
+      ? {
+        create: validatedData.images.map((image) => ({
+          url: image.link,
+        }))
+      }
+      : undefined,
+
       programs: validatedData.programs
         ? {
-          connect: validatedData.programs.map((id) => ({ id })),
-        }
+            create: validatedData.programs.map((program) => ({
+              title: program.title,
+              description: program.description,
+              image: program.image,
+            })),
+          }
         : undefined,
       },
     })

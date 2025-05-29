@@ -5,7 +5,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
+import { CalendarIcon, Check, ChevronsUpDown, Images } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -59,52 +59,55 @@ import DateForm from "@/app/admin/_components/dates-form";
 import StringLoop from "@/app/admin/_components/inclus-exlus-loop";
 
 
+
 const tourSchema = z.object({
-  title: z.string().min(3, {
-    message: "Le titre doit comporter au moins 3 caractères.",
-  }),
-  description: z.string().optional(),
-  type: z.enum(["NATIONAL", "INTERNATIONAL"]).optional(),
-  priceOriginal: z.coerce.number().int().positive().optional(),
-  priceDiscounted: z.coerce.number().int().positive().optional(),
+  title: z.string().min(1, "Le titre est requis"),
+  description: z.string().min(1, "La description est requise"),
+  type: z.enum(["NATIONAL", "INTERNATIONAL"]),
+  priceOriginal: z.number().min(0, "Le prix doit être positif").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
+  priceDiscounted: z.number().min(0, "Le prix doit être positif").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
   dateCard: z.string().optional(),
-  // startDate: z.coerce.date().optional(),
-  // endDate: z.coerce.date().optional(),
-  durationDays: z.coerce.number().int().positive().optional(),
-  durationNights: z.coerce.number().int().positive().optional(),
-  accommodation: z.string().optional(),
-  imageUrl: z.string().url().optional(),
-  destination: z.string().optional(),
-  activite: z.string().optional(),
-  inclu: z.string().optional(),
-  exclu: z.string().optional(),
+  durationDays: z.number().min(1, "Au moins 1 jour").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
+  durationNights: z.number().min(0, "Nuits >= 0").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
+  imageURL: z.string(),
   groupType: z.string().optional(),
-  groupSizeMax: z.coerce.number().int().positive().optional(),
-  showReviews: z.boolean().optional(),
-  showDifficulty: z.boolean().optional(),
-  showDiscount: z.boolean().optional(),
-  difficultyLevel: z.coerce.number().int().min(1).max(5).optional(),
-  totalReviews: z.coerce.number().int().min(0).optional(),
-  averageRating: z.coerce.number().min(0).optional(),
-  discountPercent: z.coerce.number().int().min(0).max(100).optional(),
-  weekendsOnly: z.boolean().optional(),
+  groupSizeMax: z.number().min(1, "Taille min 1").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
+  showReviews: z.boolean().default(true),
+  showDifficulty: z.boolean().default(true),
+  showDiscount: z.boolean().default(true),
+  difficultyLevel: z.number().min(1).max(5).optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
+  discountPercent: z.number().min(0).max(100).optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
+  weekendsOnly: z.boolean().default(false),
   accommodationType: z.string().optional(),
-  // Relations (arrays of strings or IDs, adjust as needed for your use case)
-  programs: z.array(z.string()).optional(),
-  dates: z
-    .array(
-      z.object({
-        startDate: z.coerce.date(),
-        endDate: z.coerce.date(),
-        description: z.string().optional(),
-      })
-    )
-    .optional(),
-  destinations: z.array(z.string()).optional(),
-  categories: z.array(z.string()).optional(),
-  natures: z.array(z.string()).optional(),
-  images: z.array(z.string()).optional(),
-})
+  googleMapsLink: z.string().url("Lien Google Maps invalide").optional().or(z.literal("")),
+  programs: z.array(
+    z.object({
+      title: z.string().min(1, "Titre requis"),
+      description: z.string().optional(),
+      image: z.string().optional(),
+    })
+  ).optional(),
+  dates: z.array(
+    z.object({
+      startDate: z.date(),
+      endDate: z.date(),
+      description: z.string().optional(),
+    })
+  ).optional(),
+  images:z.array(
+    z.object({
+      link: z.string(),
+    })
+  ),
+  destinations: z.array(z.string()),
+  categories: z.array(z.string()),
+  natures: z.array(z.string()),
+  inclus: z.string(),
+  exclus: z.string(),
+  arrayInclus: z.array(z.string()),
+  arrayExlus: z.array(z.string()),
+
+});
 
 
 export  function AddTourForm({ nationalDestinations, internationalDestinations, categories, natures}: any) {
@@ -116,17 +119,13 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
     defaultValues: {
       title: "",
       description: "",
-      type: "NATIONAL", // DestinaionType: NATIONAL | INTERNATIONAL | EN_MESURE
-      activities: [],
+      type: "NATIONAL", 
       priceOriginal: undefined,
       priceDiscounted: undefined,
       dateCard: "",
-      startDate: undefined,
-      endDate: undefined,
       durationDays: undefined,
       durationNights: undefined,
-      accommodation: "",
-      imageURLs: [],
+      imageURL:"",
       groupType: "",
       groupSizeMax: undefined,
       showReviews: true,         // Prisma default: true
@@ -136,13 +135,17 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
       discountPercent: undefined,
       weekendsOnly: false,       // Prisma default: false
       accommodationType: "",
-      vacationStyles: [],
       googleMapsLink: "",
+      inclus: "",
+      exclus :"",
       programs: [],
       dates: [],
       destinations: [],
       categories: [],
       natures: [],
+      images: [],
+      arrayInclus:[],
+      arrayExlus: [], 
     },
   });
 
@@ -152,10 +155,17 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
 
       // Call the server action to add the tour
       const { programs, dates, images, ...restValues } = values;
-      const result = await addTour({
-        ...restValues,
-        images: images?.map((img) => img.image ?? "").filter(Boolean),
-      });
+      const formData = { 
+        ...restValues, 
+        programs, 
+        dates, 
+        images,
+        inclus: Array.isArray(values.arrayInclus) ? values.arrayInclus.join(';') : values.inclus,
+        exclus: Array.isArray(values.arrayExlus) ? values.arrayExlus.join(';') : values.exclus,
+      };
+      console.log(values.arrayInclus);
+
+      const result = await addTour(formData);
 
       if (result.success) {
         toast.success("Circuit créé avec succès");
@@ -434,7 +444,7 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
 
                       <FormField
                         control={form.control}
-                        name="imageURLs"
+                        name="imageURL"
                         render={() => (
                           <FormItem>
                             <FormLabel>Images d circuit</FormLabel>
@@ -838,17 +848,21 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
 
                 <div className="space-y-4 grid lg:grid-cols-2 grid-cols-1 gap-4 ">
                   <StringLoop
-                    title="Inclus"
-                    type="inclus"
-                    description="Liste des éléments inclus dans le circuit"
-                    onChange={(value) => form.setValue("inclus", value)}
-                    />
+                  title="Inclus"
+                  type="inclus"
+                  description="Liste des éléments inclus dans le circuit"
+                  onChange={(value) => {
+                    form.setValue("arrayInclus", Array.isArray(value) ? value : [value]);
+                  }}
+                  />
                   <StringLoop
-                    title="Exclus"
-                    type="exclus"
-                    description="Liste des éléments exclus du circuit"
-                    onChange={(value) => form.setValue("exclus", value)}
-                    />
+                  title="Exclus"
+                  type="exclus"
+                  description="Liste des éléments exclus du circuit"
+                  onChange={(value) => {
+                    form.setValue("arrayExlus", Array.isArray(value) ? value : [value]);
+                  }}
+                  />
                 </div>
               </div>
 
@@ -865,7 +879,7 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
                       {/* Image URLs 9 max */}
                       <FormField
                         control={form.control}
-                        name="imageURLs"
+                        name="images"
                         render={() => (
                           <FormItem>
                             <FormLabel>Images du circuit</FormLabel>
