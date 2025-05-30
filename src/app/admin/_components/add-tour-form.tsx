@@ -58,53 +58,102 @@ import ProgramForm from "@/app/admin/_components/programs-form";
 import DateForm from "@/app/admin/_components/dates-form";
 import StringLoop from "@/app/admin/_components/inclus-exlus-loop";
 
+type AddTourFormState = {
+  title: string;
+  description?: string;
+  type: "NATIONAL" | "INTERNATIONAL";
+  location?: string;
+  priceOriginal?: number;
+  priceDiscounted?: number;
+  dateCard?: string;
+  startDate?: Date;
+  endDate?: Date;
+  durationDays?: number;
+  durationNights?: number;
+  accommodation?: string;
+  imageUrl?: string;
+  destination?: string;
+  activite?: string;
+  inclu?: string;
+  exclu?: string;
+  groupType?: string;
+  groupSizeMax?: number;
+  showReviews: boolean;
+  showDifficulty: boolean;
+  showDiscount: boolean;
+  difficultyLevel?: number;
+  totalReviews?: number;
+  averageRating?: number;
+  discountPercent?: number;
+  weekendsOnly: boolean;
+  googleMapsLink?: string;
+  accomodationType?: string;
+  programs?: Array<{
+    title: string;
+    description?: string;
+    day: number;
+    date?: Date;
+  }>;
+  dates?: Array<{
+    description?: string;
+    startDate: Date;
+    endDate: Date;
+  
+  }>;
+  destinations?: string[]; // array of destination IDs or names
+  categories?: string[]; // array of category IDs or names
+  natures?: string[]; // array of nature IDs or names
+};
 
-const tourSchema = z.object({
+const formSchema = z.object({
   title: z.string().min(3, {
     message: "Le titre doit comporter au moins 3 caractères.",
   }),
   description: z.string().optional(),
-  type: z.enum(["NATIONAL", "INTERNATIONAL"]).optional(),
+  type: z.enum(["NATIONAL", "INTERNATIONAL"]),
+  location: z.string().optional(),
+  activities: z.array(z.string()).optional(),
   priceOriginal: z.coerce.number().int().positive().optional(),
   priceDiscounted: z.coerce.number().int().positive().optional(),
   dateCard: z.string().optional(),
-  // startDate: z.coerce.date().optional(),
-  // endDate: z.coerce.date().optional(),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
   durationDays: z.coerce.number().int().positive().optional(),
   durationNights: z.coerce.number().int().positive().optional(),
   accommodation: z.string().optional(),
-  imageUrl: z.string().url().optional(),
-  destination: z.string().optional(),
-  activite: z.string().optional(),
-  inclu: z.string().optional(),
-  exclu: z.string().optional(),
+  imageURLs: z.array(z.string()).max(8).optional(),
   groupType: z.string().optional(),
   groupSizeMax: z.coerce.number().int().positive().optional(),
-  showReviews: z.boolean().optional(),
-  showDifficulty: z.boolean().optional(),
-  showDiscount: z.boolean().optional(),
+  showReviews: z.boolean(),
+  showDifficulty: z.boolean(),
+  showDiscount: z.boolean(),
   difficultyLevel: z.coerce.number().int().min(1).max(5).optional(),
-  totalReviews: z.coerce.number().int().min(0).optional(),
-  averageRating: z.coerce.number().min(0).optional(),
   discountPercent: z.coerce.number().int().min(0).max(100).optional(),
-  weekendsOnly: z.boolean().optional(),
-  accommodationType: z.string().optional(),
-  // Relations (arrays of strings or IDs, adjust as needed for your use case)
-  programs: z.array(z.string()).optional(),
+  weekendsOnly: z.boolean(),
+  vacationStyles: z.array(z.string()).optional(),
+  googleMapsLink: z.string().url().optional(),
+  programs: z
+    .array(
+      z.object({
+        title: z.string(),
+        description: z.string().optional(),
+        day: z.coerce.number().int().positive(),
+        date: z.date().optional(),
+      })
+    )
+    .optional(),
   dates: z
     .array(
       z.object({
-        startDate: z.coerce.date(),
-        endDate: z.coerce.date(),
-        description: z.string().optional(),
+        startDate: z.date(),
+        endDate: z.date(),
       })
     )
     .optional(),
   destinations: z.array(z.string()).optional(),
   categories: z.array(z.string()).optional(),
   natures: z.array(z.string()).optional(),
-  images: z.array(z.string()).optional(),
-})
+});
 
 
 export  function AddTourForm({ nationalDestinations, internationalDestinations, categories, natures}: any) {
@@ -112,15 +161,15 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
   const [files, setFiles] = useState<File[] | null>(null);
 
 
-  const form = useForm<z.infer<typeof tourSchema>>({
+  const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
       title: "",
       description: "",
-      type: "NATIONAL", // DestinaionType: NATIONAL | INTERNATIONAL | EN_MESURE
+      type: "NATIONAL",
+      location: "",
       activities: [],
       priceOriginal: undefined,
       priceDiscounted: undefined,
-      dateCard: "",
       startDate: undefined,
       endDate: undefined,
       durationDays: undefined,
@@ -129,13 +178,12 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
       imageURLs: [],
       groupType: "",
       groupSizeMax: undefined,
-      showReviews: true,         // Prisma default: true
-      showDifficulty: true,      // Prisma default: true
-      showDiscount: true,        // Prisma default: true
+      showReviews: false,
+      showDifficulty: false,
+      showDiscount: false,
       difficultyLevel: undefined,
       discountPercent: undefined,
-      weekendsOnly: false,       // Prisma default: false
-      accommodationType: "",
+      weekendsOnly: false,
       vacationStyles: [],
       googleMapsLink: "",
       programs: [],
@@ -144,17 +192,17 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
       categories: [],
       natures: [],
     },
-  });
+    },
+  );
 
-  async function onSubmit(values: z.infer<typeof tourSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setIsSubmitting(true);
 
       // Call the server action to add the tour
-      const { programs, dates, images, ...restValues } = values;
       const result = await addTour({
-        ...restValues,
-        images: images?.map((img) => img.image ?? "").filter(Boolean),
+        ...values,
+        vacationStyles: values.vacationStyles ?? [],
       });
 
       if (result.success) {
@@ -235,106 +283,80 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
 
                     {/* Tour type (national or international) */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 my-8">
-                    <FormField
-                      control={form.control}
-                      name="type"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Type de circuit</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Sélectionnez le type de circuit" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="NATIONAL">National</SelectItem>
-                              <SelectItem value="INTERNATIONAL">International</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                  <FormField
+                    control={form.control}
+                    name="type"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Type de circuit</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="selectionnez le type de circuit" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="NATIONAL">National</SelectItem>
+                            <SelectItem value="INTERNATIONAL">
+                              International
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                     />
 
-                    {/* national and international destinations (multi-select) */}
+
+                    {/* national and international destinations */}
+                    
                     <FormField
                       control={form.control}
-                      name="destinations"
+                      name="location"
                       render={({ field }) => {
-                        const selectedType = form.watch("type");
-                        const destinations =
-                          selectedType === "INTERNATIONAL"
-                            ? internationalDestinations
-                            : nationalDestinations;
-
-                        return (
-                          <FormItem>
-                            <FormLabel>
-                              {selectedType === "INTERNATIONAL"
-                                ? "Destinations internationales"
-                                : "Destinations nationales"}
-                            </FormLabel>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <Button variant="outline" role="combobox" className="w-fit justify-between">
-                                  {field.value && field.value.length > 0
-                                    ? destinations
-                                        .filter((dest: any) => Array.isArray(field.value) && field.value.includes(dest.id))
-                                        .map((dest: any) => dest.name)
-                                        .join(", ")
-                                    : "Sélectionnez la/les destination(s)"}
-                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="p-0">
-                                <Command>
-                                  <CommandInput placeholder="Rechercher une destination..." />
-                                  <CommandList>
-                                    <CommandEmpty>Aucune destination trouvée.</CommandEmpty>
-                                    <CommandGroup>
-                                      {destinations.map((dest: any) => (
-                                        <CommandItem
-                                          key={dest.id}
-                                          value={dest.id}
-                                          onSelect={() => {
-                                            const currentValue = Array.isArray(field.value) ? [...field.value] : [];
-                                            const index = currentValue.indexOf(dest.id);
-                                            if (index === -1) {
-                                              field.onChange([...currentValue, dest.id]);
-                                            } else {
-                                              currentValue.splice(index, 1);
-                                              field.onChange(currentValue);
-                                            }
-                                          }}
-                                        >
-                                          <Check
-                                            className={cn(
-                                              "mr-2 h-4 w-4",
-                                              field.value && field.value.includes(dest.id) ? "opacity-100" : "opacity-0"
-                                            )}
-                                          />
-                                          {dest.name}
-                                        </CommandItem>
-                                      ))}
-                                    </CommandGroup>
-                                  </CommandList>
-                                </Command>
-                              </PopoverContent>
-                            </Popover>
-                            <FormDescription>
-                              Sélectionnez une ou plusieurs destinations associées à ce circuit.
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        );
-                      }}
-                    />
-                  </div>
-                      {/* activities  (natures)*/}
+                      const selectedType = form.watch("type")
+                      const destinations =
+                        selectedType === "INTERNATIONAL"
+                        ? internationalDestinations
+                        : nationalDestinations
+  
+                      return (
+                        <FormItem>
+                        <FormLabel>
+                          {selectedType === "INTERNATIONAL"
+                          ? "Destination internationale"
+                          : "Destination nationale"}
+                        </FormLabel>
+                        <Select onValueChange={field.onChange} value={typeof field.value === "string" ? field.value : ""} >
+                          <FormControl>
+                          <SelectTrigger>
+                            <SelectValue
+                            placeholder={
+                              selectedType === "INTERNATIONAL"
+                              ? "Sélectionnez la destination internationale"
+                              : "Sélectionnez la destination nationale"
+                            }
+                            />
+                          </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                          {destinations.map((dest: { id: Key | null | undefined; name: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; }) => (
+                            <SelectItem key={dest.id} value={String(dest.name)}>
+                            {dest.name}
+                            </SelectItem>
+                          ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                        </FormItem>
+                      )
+                        }}
+                      />
+                    </div>
+                      {/* activities  */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 my-8">
                       <FormField
                         control={form.control}
@@ -517,7 +539,7 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
 
                   <FormField
                     control={form.control}
-                    name="accommodationType"
+                    name="description"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Type d&apos;hébergement</FormLabel>
@@ -841,13 +863,11 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
                     title="Inclus"
                     type="inclus"
                     description="Liste des éléments inclus dans le circuit"
-                    onChange={(value) => form.setValue("inclus", value)}
                     />
                   <StringLoop
                     title="Exclus"
                     type="exclus"
                     description="Liste des éléments exclus du circuit"
-                    onChange={(value) => form.setValue("exclus", value)}
                     />
                 </div>
               </div>
