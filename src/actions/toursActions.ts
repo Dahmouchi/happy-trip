@@ -14,31 +14,40 @@ const prisma = new PrismaClient()
 
 const tourSchema = z.object({
   title: z.string().min(1, "Le titre est requis"),
-  description: z.string().min(1, "La description est requise"),
+  description: z.string().min(1, "La description est requise").optional(),
   type: z.enum(["NATIONAL", "INTERNATIONAL"]),
-  priceOriginal: z.number().min(0, "Le prix doit être positif").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
-  priceDiscounted: z.number().min(0, "Le prix doit être positif").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
+  priceOriginal: z.preprocess((val) => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(0, "Le prix doit être positif").optional()),
+  priceDiscounted: z.preprocess((val) => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(0, "Le prix doit être positif").optional()),
   dateCard: z.string().optional(),
-  durationDays: z.number().min(1, "Au moins 1 jour").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
-  durationNights: z.number().min(0, "Nuits >= 0").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
+  durationDays: z.preprocess((val) => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(1, "Au moins 1 jour").optional()),
+  durationNights: z.preprocess((val) => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(0, "Nuits >= 0").optional()),
   imageURL: z.instanceof(File).optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
   groupType: z.string().optional(),
-  groupSizeMax: z.number().min(1, "Taille min 1").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
+  groupSizeMax: z.preprocess((val) => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(1, "Taille min 1").optional()),
   showReviews: z.boolean().default(true),
   showDifficulty: z.boolean().default(true),
   showDiscount: z.boolean().default(true),
   difficultyLevel: z.number().min(1).max(5).optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
-  discountPercent: z.number().min(0).max(100).optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
+  discountPercent: z.preprocess(val => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(0).max(100).optional()),
   weekendsOnly: z.boolean().default(false),
   accommodationType: z.string().optional(),
   googleMapsLink: z.string().url("Lien Google Maps invalide").optional().or(z.literal("")),
-  programs: z.array(
+  programs: z
+  .array(
     z.object({
       title: z.string().min(1, "Titre requis"),
       description: z.string().optional(),
-      image: z.string().optional(),
+      image: z
+        .union([z.instanceof(File), z.string()])
+        .optional()
+        .transform((val) => {
+          if (val === "" || val === undefined) return undefined;
+          return val;
+        }),
     })
-  ).optional(),
+  )
+  .optional(),
+
   dates: z.array(
     z.object({
       startDate: z.date(),
@@ -46,23 +55,23 @@ const tourSchema = z.object({
       description: z.string().optional(),
     })
   ).optional(),
-  images:z.array(
+  images: z.array(
     z.object({
-      link: z.string(),
+      link: z.instanceof(File).optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
     })
   ),
   destinations: z.array(z.string()),
   categories: z.array(z.string()),
   natures: z.array(z.string()),
-  inclus: z.string().optional(),
-  exclus: z.string().optional(),
+  inclus: z.string(),
+  exclus: z.string(),
+  arrayInclus: z.array(z.string()),
+  arrayExlus: z.array(z.string()),
 });
 
 export type TourFormData = z.infer<typeof tourSchema>
 
-/**
- * Server action to add a new tour to the database
- */
+
   export async function addTour(formData: TourFormData) {
 
 
@@ -97,11 +106,8 @@ export type TourFormData = z.infer<typeof tourSchema>
     const validatedData = tourSchema.parse(formData)
     
     console.log(validatedData)
- // Create the tour in the database
-    // Upload images to Cloudflare and get their URLs
+    // Create the tour in the database
   
-    
-
     const tour = await prisma.tour.create({
       data: {
       title: validatedData.title,
@@ -113,7 +119,6 @@ export type TourFormData = z.infer<typeof tourSchema>
       durationDays: validatedData.durationDays,
       durationNights: validatedData.durationNights,
       imageUrl: validatedData.imageURL ? await uploadImage(validatedData.imageURL) : "", // Upload image and get URL
-      // imageUrl: validatedData.imageURL,
       inclus: validatedData.inclus,
       exclus: validatedData.exclus,
       groupType: validatedData.groupType,
@@ -154,27 +159,37 @@ export type TourFormData = z.infer<typeof tourSchema>
       
       images: validatedData.images
       ? {
-        create: validatedData.images.map((image) => ({
-          url: image.link,
-        }))
+        create: await Promise.all(
+          validatedData.images.map(async (image) => ({
+            url: image.link ? await uploadImage(image.link) : "",
+          }))
+        )
       }
       : undefined,
 
       programs: validatedData.programs
-        ? {
-            create: validatedData.programs.map((program) => ({
-              title: program.title,
-              description: program.description,
-              image: program.image,
-            })),
+  ? {
+      create: await Promise.all(
+        validatedData.programs.map(async (program) => {
+          let imageUrl = "";
+
+          if (program.image instanceof File) {
+            imageUrl = await uploadImage(program.image);
+          } else if (typeof program.image === "string") {
+            imageUrl = program.image;
           }
-        : undefined,
+
+          return {
+            title: program.title,
+            description: program.description,
+            imageUrl,
+          };
+        })
+      ),
+    }
+  : undefined,
       },
     })
-    // Revalidate the tours page to show the new tour
-    // revalidatePath("/tours")
-
-    
     return { success: true, data: tour }
   } catch (error) {
     

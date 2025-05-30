@@ -60,21 +60,22 @@ import StringLoop from "@/app/admin/_components/inclus-exlus-loop";
 import { getFileUrl, uploadFile } from "@/lib/cloudeFlare";
 import sharp from "sharp";
 import { useEffect } from "react";
+import { setgid } from "process";
 
 
 
 const tourSchema = z.object({
   title: z.string().min(1, "Le titre est requis"),
-  description: z.string().min(1, "La description est requise"),
+  description: z.string().min(1, "La description est requise").optional(),
   type: z.enum(["NATIONAL", "INTERNATIONAL"]),
-  priceOriginal: z.number().min(0, "Le prix doit être positif").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
-  priceDiscounted: z.number().min(0, "Le prix doit être positif").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
+  priceOriginal: z.preprocess((val) => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(0, "Le prix doit être positif").optional()),
+  priceDiscounted: z.preprocess((val) => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(0, "Le prix doit être positif").optional()),
   dateCard: z.string().optional(),
-  durationDays: z.number().min(1, "Au moins 1 jour").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
-  durationNights: z.number().min(0, "Nuits >= 0").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
+  durationDays: z.preprocess((val) => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(1, "Au moins 1 jour").optional()),
+  durationNights: z.preprocess((val) => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(0, "Nuits >= 0").optional()),
   imageURL: z.instanceof(File).optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
   groupType: z.string().optional(),
-  groupSizeMax: z.number().min(1, "Taille min 1").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
+  groupSizeMax: z.preprocess((val) => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(1, "Taille min 1").optional()),
   showReviews: z.boolean().default(true),
   showDifficulty: z.boolean().default(true),
   showDiscount: z.boolean().default(true),
@@ -83,13 +84,22 @@ const tourSchema = z.object({
   weekendsOnly: z.boolean().default(false),
   accommodationType: z.string().optional(),
   googleMapsLink: z.string().url("Lien Google Maps invalide").optional().or(z.literal("")),
-  programs: z.array(
+  programs: z
+  .array(
     z.object({
       title: z.string().min(1, "Titre requis"),
       description: z.string().optional(),
-      image: z.string().optional(),
+      image: z
+        .union([z.instanceof(File), z.string()])
+        .optional()
+        .transform((val) => {
+          if (val === "" || val === undefined) return undefined;
+          return val;
+        }),
     })
-  ).optional(),
+  )
+  .optional(),
+
   dates: z.array(
     z.object({
       startDate: z.date(),
@@ -99,7 +109,7 @@ const tourSchema = z.object({
   ).optional(),
   images: z.array(
     z.object({
-      link: z.string(),
+      link: z.instanceof(File).optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
     })
   ),
   destinations: z.array(z.string()),
@@ -114,7 +124,9 @@ const tourSchema = z.object({
 
 export  function AddTourForm({ nationalDestinations, internationalDestinations, categories, natures}: any) {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [files, setFiles] = useState<File[] | null>(null);
+  const [cardImage, setCardImage] = useState<File | null>(null);
+  const [gallery, setGallery] = useState<File[] | null>(null);
+  const [programsFiles, setProgramsFiles] = useState<File[]>([]);
 
 
   const form = useForm<z.infer<typeof tourSchema>>({
@@ -152,18 +164,27 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
   });
 
 
-  // removed misplaced import
 
-  useEffect(() => {
-    if (files && files.length > 0) {
-      const cardImage = files[0];
-      form.setValue("imageURL", cardImage);
-    }
-    else
-    {
-      form.setValue("imageURL", undefined);
-    }
-  }, [files, form]);
+    useEffect(() => {
+    // Main image (imageURL)
+      if (cardImage) {
+        form.setValue("imageURL", cardImage);
+      } else {
+         form.setValue("imageURL", undefined);
+      }
+
+    // Gallery images
+      if (gallery && gallery.length > 0) {
+        const imageObjects = gallery.map((file) => ({ link: file }));
+        form.setValue("images", imageObjects);
+      } else {
+        form.setValue("images", []);
+      }
+      console.log("gallery", gallery);
+
+    // // Programs images
+
+  }, [cardImage, gallery, programsFiles, form]);
 
   async function onSubmit(values: z.infer<typeof tourSchema>) {
 
@@ -180,6 +201,7 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
         images,
         inclus: Array.isArray(values.arrayInclus) ? values.arrayInclus.join(';') : values.inclus,
         exclus: Array.isArray(values.arrayExlus) ? values.arrayExlus.join(';') : values.exclus,
+
       };
       console.log(values.arrayInclus);
 
@@ -458,107 +480,60 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
 
 
 
-                  {/* image de base du circuit */}
 
-                      {/* <FormField
-                        control={form.control}
-                        name="imageURL"
-                        render={() => (
-                          <FormItem>
-                            <FormLabel>Images d circuit</FormLabel>
-                            <FormDescription>
-                              Ajoutez une image principale pour ce circuit
-                            </FormDescription>
-                           
-                            <FileUploader
-                              value={files}
-                              onValueChange={setFiles}
-                              dropzoneOptions={{
-                                maxFiles: 1,
-                                maxSize: 1 * 1024 * 1024, // 5MB
-                                accept: {
-                                  "image/*": [".jpg", ".jpeg", ".png", ".gif"],
-                                  "application/pdf": [".pdf"],
-                                },
-                                multiple: true,
-                              }}
-                              className="border border-gray-300 rounded-lg p-4 bg-white shadow-sm"
-                              orientation="vertical"
-                            >
-                              <FileInput className="border-2 border-dashed p-6 text-center hover:bg-gray-50">
-                                <p className="text-gray-500">Glissez-déposez vos fichiers ici ou cliquez pour parcourir.</p>
-                              </FileInput>
+                    <FormField
+                      control={form.control}
+                      name="imageURL"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Image du circuit</FormLabel>
+                          <FormDescription>
+                            Ajoutez une image principale pour ce circuit
+                          </FormDescription>
 
-                              <FileUploaderContent className="mt-4">
-                                {files?.map((file, index) => (
-                                  <FileUploaderItem key={index} index={index}>
-                                    <span className="truncate max-w-[200px]">{file.name}</span>
-                                  </FileUploaderItem>
-                                ))}
-                              </FileUploaderContent>
-                            </FileUploader>
-                                                
-                                                  
-                                  <FormMessage />
-                              </FormItem>
-                                  )}
-                              /> */}
-                              
+                          <FileUploader
+                            value={cardImage ? [cardImage] : null}
+                            onValueChange={(files) => setCardImage(files && files.length > 0 ? files[0] : null)}
+                            dropzoneOptions={{
+                              maxFiles: 1,
+                              maxSize: 1 * 1024 * 1024, // 1MB
+                              accept: {
+                                "image/*": [".jpg", ".jpeg", ".png", ".gif"],
+                              },
+                              multiple: false,
+                            }}
+                            className="border border-gray-300 rounded-lg p-4 bg-white shadow-sm"
+                            orientation="vertical"
+                          >
+                            <FileInput className="border-2 border-dashed p-6 text-center hover:bg-gray-50">
+                              <p className="text-gray-500">
+                                Glissez-déposez une image ici ou cliquez pour parcourir.
+                              </p>
+                            </FileInput>
 
-                              <FormField
-      control={form.control}
-      name="imageURL"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Image du circuit</FormLabel>
-          <FormDescription>
-            Ajoutez une image principale pour ce circuit
-          </FormDescription>
+                            <FileUploaderContent className="mt-4">
+                             
+                                <FileUploaderItem index={0} >
+                                  <span className="truncate max-w-[200px]">{cardImage ? cardImage.name : ""}</span>
+                                </FileUploaderItem>
+                            </FileUploaderContent>
+                          </FileUploader>
 
-          <FileUploader
-            value={files}
-            onValueChange={setFiles}
-            dropzoneOptions={{
-              maxFiles: 1,
-              maxSize: 1 * 1024 * 1024, // 1MB
-              accept: {
-                "image/*": [".jpg", ".jpeg", ".png", ".gif"],
-              },
-              multiple: false,
-            }}
-            className="border border-gray-300 rounded-lg p-4 bg-white shadow-sm"
-            orientation="vertical"
-          >
-            <FileInput className="border-2 border-dashed p-6 text-center hover:bg-gray-50">
-              <p className="text-gray-500">
-                Glissez-déposez une image ici ou cliquez pour parcourir.
-              </p>
-            </FileInput>
+                          {field.value && (
+                            <div className="mt-4">
+                              <p className="text-sm text-gray-500">Image actuelle :</p>
+                              <img
+                                src={field.value}
+                                alt="uploaded"
+                                className="w-32 h-32 object-cover rounded"
+                              />
+                            </div>
+                          )}
 
-            <FileUploaderContent className="mt-4">
-              {files?.map((file, index) => (
-                <FileUploaderItem key={index} index={index}>
-                  <span className="truncate max-w-[200px]">{file.name}</span>
-                </FileUploaderItem>
-              ))}
-            </FileUploaderContent>
-          </FileUploader>
-
-          {field.value && (
-            <div className="mt-4">
-              <p className="text-sm text-gray-500">Image actuelle :</p>
-              <img
-                src={field.value}
-                alt="uploaded"
-                className="w-32 h-32 object-cover rounded"
-              />
-            </div>
-          )}
-
-          <FormMessage />
-        </FormItem>
-      )}
-    />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
                       
                  
@@ -711,22 +686,22 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
 
                 <div className="space-y-4">
                     <div >
-                    <ProgramForm
-                      programs={
-                        (form.watch("programs") || []).map((p: any, idx: number) => ({
-                          id: p.id ?? idx.toString(),
-                          title: p.title,
-                          description: p.description,
-                          image: p.image ?? "",
-                        }))
-                      }
-                      onChange={(programs: any[]) => {
-                        form.setValue(
-                          "programs",
-                          programs.map(({ id, image, ...rest }) => rest)
-                        );
-                      }}
-                    />
+                   <ProgramForm
+                    programs={
+                      (form.watch("programs") || []).map((p: any, idx: number) => ({
+                        id: p.id ?? idx.toString(),
+                        title: p.title,
+                        description: p.description,
+                        image: p.image,
+                      }))
+                    }
+                    onChange={(programs: any[]) => {
+                      form.setValue(
+                        "programs",
+                        programs.map(({ id, ...rest }) => rest) 
+                      );
+                    }}
+                  />
                     </div>
                 </div>
               </div>
@@ -748,7 +723,7 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
                       name="priceOriginal"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Prix original</FormLabel>
+                          <FormLabel>Prix original (DH)</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -766,7 +741,7 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
                       name="priceDiscounted"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Prix réduit</FormLabel>
+                          <FormLabel>Prix réduit (DH)</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -784,7 +759,7 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
                       name="discountPercent"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Pourcentage de réduction</FormLabel>
+                          <FormLabel>Pourcentage de réduction (%)</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -962,11 +937,11 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
                             </FormDescription>
                            
                             <FileUploader
-                              value={files}
-                              onValueChange={setFiles}
+                              value={gallery}
+                              onValueChange={setGallery}
                               dropzoneOptions={{
                                 maxFiles: 9,
-                                maxSize: 9 * 1024 * 1024, // 5MB
+                                maxSize: 9 * 1024 * 1024,
                                 accept: {
                                   "image/*": [".jpg", ".jpeg", ".png", ".gif"],
                                   "application/pdf": [".pdf"],
@@ -981,7 +956,7 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
                               </FileInput>
 
                               <FileUploaderContent className="mt-4">
-                                {files?.map((file, index) => (
+                                {gallery?.map((file, index) => (
                                   <FileUploaderItem key={index} index={index}>
                                     <span className="truncate max-w-[200px]">{file.name}</span>
                                   </FileUploaderItem>
