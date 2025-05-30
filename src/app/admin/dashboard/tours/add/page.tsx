@@ -11,7 +11,7 @@ export default async function AddTourPage() {
   const natures = await getNatures();
   return (
     <div className="container py-10">
-      <h1 className="text-3xl font-bold mb-6 ml-6">Ajouter un nouveau tour</h1>
+      <h1 className="text-3xl font-bold ml-6">Ajouter un nouveau tour</h1>
       <AddTourForm nationalDestinations={nationalDestinations} internationalDestinations={internationalDestinations} categories={categories} natures={natures}/>
     </div>
   );

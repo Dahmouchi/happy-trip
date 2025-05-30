@@ -34,7 +34,7 @@ model Destination {
   name        String @unique
   type        DestinaionType @default(NATIONAL)
   imageUrl    String
-  tours       Tour[] // Relation field for many-to-many with Tour
+  tours       Tour[] @relation("TourDestinations") // Relation field for many-to-many with Tour
 }
 
 model Category {
@@ -84,20 +84,14 @@ model Tour {
   title              String
   description        String?
   type               TravelType @default(NATIONAL)
-  location           String?
   priceOriginal      Int?
   priceDiscounted    Int?
   dateCard           String? //this date for card view
-  startDate          DateTime?
-  endDate            DateTime?
   durationDays       Int?
   durationNights     Int?
-  accommodation      String?
   imageUrl           String?
-  destination        String?
-  activite           String?
-  inclu              String?
-  exclu              String?
+  inclus              String?
+  exclus             String?
   groupType          String?     // e.g., "Petit groupe"
   groupSizeMax       Int?        // e.g., 12
 
@@ -110,16 +104,15 @@ model Tour {
   averageRating      Float    @default(0.0)
   discountPercent    Int?     // e.g. 10 for 10%
   weekendsOnly       Boolean  @default(false)
-  accomodationType    String?  // e.g., "Hôtel", "Auberge", "Camping"
+  accommodationType    String?  // e.g., "Hôtel", "Auberge", "Camping"
   programs          Program[] @relation("TourPrograms")
   dates              TourDate[]
-  destinations        Destination[]
-  categories         Category[] @relation("CategoryTours")
-  natures            Nature[] @relation("NatureTours")
+  destinations        Destination[] @relation("TourDestinations")
+  categories          Category[] @relation("CategoryTours")
+  natures             Nature[] @relation("NatureTours")
   images             File[]
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
-  // VacationStyle VacationStyle[] @relation("TourVacationStyles")
 }
 
 model File {
@@ -143,6 +136,7 @@ model TourDate {
   startDate DateTime?
   endDate   DateTime?
 }
+
 model User {
   id              String    @id @default(cuid())
   name            String?

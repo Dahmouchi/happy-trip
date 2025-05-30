@@ -1,36 +1,30 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-"use client"
+"use client";
 
-import { useEditor, EditorContent } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
-import TextStyle from '@tiptap/extension-text-style'
-import FontFamily from '@tiptap/extension-font-family'
-import TextAlign from '@tiptap/extension-text-align'
-
-import HorizontalAlign from '@tiptap/extension-horizontal-rule'
-import Color from '@tiptap/extension-color'
-import Link from '@tiptap/extension-link'
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import TextStyle from "@tiptap/extension-text-style";
+import FontFamily from "@tiptap/extension-font-family";
+import TextAlign from "@tiptap/extension-text-align";
+import HorizontalAlign from "@tiptap/extension-horizontal-rule";
+import Color from "@tiptap/extension-color";
+import Link from "@tiptap/extension-link";
+import { Separator } from "@/components/ui/separator";
 import {
   Bold,
   Italic,
   List,
   ListOrdered,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
   Link as LinkIcon,
-  Quote,
   Undo,
   Redo,
-  Palette,
   UnderlineIcon,
-} from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import Underline from '@tiptap/extension-underline' // Add this import
-import { useEffect } from "react"
+} from "lucide-react";
+import Underline from "@tiptap/extension-underline"; // Add this import
+import { useEffect } from "react";
+import ListItem from "@tiptap/extension-list-item";
+import BulletList from "@tiptap/extension-bullet-list";
+import OrderedList from "@tiptap/extension-ordered-list";
 
 export default function RichTextEditor({
   value,
@@ -42,84 +36,85 @@ export default function RichTextEditor({
   editorClassName = "",
   editorStyle = {},
 }: {
-  value: string
-  onChange: (value: string) => void
-  className?: string
-  style?: React.CSSProperties
-  toolbarClassName?: string
-  toolbarStyle?: React.CSSProperties
-  editorClassName?: string
-  editorStyle?: React.CSSProperties
+  value: string;
+  onChange: (value: string) => void;
+  className?: string;
+  style?: React.CSSProperties;
+  toolbarClassName?: string;
+  toolbarStyle?: React.CSSProperties;
+  editorClassName?: string;
+  editorStyle?: React.CSSProperties;
 }) {
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      TextStyle,
-      FontFamily,
-      Color.configure({
-        types: ['textStyle'],
-      }),
-      Link.configure({
-        openOnClick: false,
-      }),
-      Underline,
-      HorizontalAlign,
-      TextAlign,
-    ],
-    content: value || "",
-    onUpdate({ editor }: { editor: import('@tiptap/core').Editor }) {
-      onChange(editor.getHTML())
-    },
-  })
+const editor = useEditor({
+  extensions: [
+    StarterKit.configure({
+      bulletList: {
+        HTMLAttributes: {
+          class: "list-disc pl-4",
+        },
+      },
+      orderedList: {
+        HTMLAttributes: {
+          class: "list-decimal pl-4",
+        },
+      },
+      listItem: {
+        HTMLAttributes: {
+          class: "leading-normal",
+        },
+      },
+    }),
+    TextStyle,
+    FontFamily,
+    Color.configure({
+      types: ["textStyle"],
+    }),
+    Link.configure({
+      openOnClick: false,
+    }),
+    Underline,
+    HorizontalAlign,
+    TextAlign,
+  ],
+  content: value || "",
+  onUpdate({ editor }) {
+    onChange(editor.getHTML());
+  },
+});
 
   useEffect(() => {
     if (editor && value !== editor.getHTML()) {
-      editor.commands.setContent(value || "", false)
+      editor.commands.setContent(value || "", false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value])
-
-  const colors = [
-    "#000000",
-    "#FF0000",
-    "#00FF00",
-    "#0000FF",
-    "#FFFF00",
-    "#FF00FF",
-    "#00FFFF",
-    "#FFA500",
-    "#800080",
-    "#008000",
-  ]
+  }, [value]);
 
   if (!editor) {
-    return null
+    return null;
   }
 
   const addLink = () => {
-    const previousUrl = editor.getAttributes('link').href
-    const url = window.prompt('URL', previousUrl)
+    const previousUrl = editor.getAttributes("link").href;
+    const url = window.prompt("URL", previousUrl);
 
     // cancelled
     if (url === null) {
-      return
+      return;
     }
 
     // empty
-    if (url === '') {
-      editor.chain().focus().extendMarkRange('link').unsetLink()
-        .run()
-      return
+    if (url === "") {
+      editor.chain().focus().extendMarkRange("link").unsetLink().run();
+      return;
     }
 
     // update link
-    editor.chain().focus().extendMarkRange('link').setLink({ href: url })
-      .run()
-  }
+    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+  };
 
   return (
     <div
-      className={`w-full max-w-4xl mx-auto border rounded-lg bg-white shadow-sm ${className}`}
+      className={`w-full mx-auto border rounded-lg bg-white shadow-sm ${className}`}
       style={style}
     >
       {/* Toolbar */}
@@ -128,67 +123,95 @@ export default function RichTextEditor({
         style={toolbarStyle}
       >
         {/* ...toolbar buttons (unchanged)... */}
-        <Button
-          variant={editor.isActive('bold') ? 'secondary' : 'ghost'}
-          size="sm"
+        <div
+          role="button"
+          tabIndex={0}
           onClick={() => editor.chain().focus().toggleBold().run()}
-          className="h-8 w-8 p-0"
+          className={`flex items-center justify-center h-8 w-8 p-0 rounded-sm ${
+            editor.isActive("bold")
+              ? "bg-secondary text-secondary-foreground"
+              : "text-muted-foreground hover:bg-muted"
+          }`}
         >
           <Bold className="h-4 w-4" />
-        </Button>
-        <Button
-          variant={editor.isActive('italic') ? 'secondary' : 'ghost'}
-          size="sm"
+        </div>
+        <div
+          role="button"
+          tabIndex={0}
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          className="h-8 w-8 p-0"
+          className={`flex items-center justify-center h-8 w-8 p-0 rounded-sm ${
+            editor.isActive("italic")
+              ? "bg-secondary text-secondary-foreground"
+              : "text-muted-foreground hover:bg-muted"
+          }`}
         >
           <Italic className="h-4 w-4" />
-        </Button>
-        <Button
-          variant={editor.isActive('underline') ? 'secondary' : 'ghost'}
-          size="sm"
+        </div>
+        <div
+          role="button"
+          tabIndex={0}
           onClick={() => editor.chain().focus().toggleUnderline().run()}
-          className="h-8 w-8 p-0"
+          className={`flex items-center justify-center h-8 w-8 p-0 rounded-sm ${
+            editor.isActive("underline")
+              ? "bg-secondary text-secondary-foreground"
+              : "text-muted-foreground hover:bg-muted"
+          }`}
         >
           <UnderlineIcon className="h-4 w-4" />
-        </Button>
+        </div>
         <Separator orientation="vertical" className="h-6" />
-        <Button
-          variant={editor.isActive('bulletList') ? 'secondary' : 'ghost'}
-          size="sm"
+        <div
+          role="button"
+          tabIndex={0}
           onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className="h-8 w-8 p-0"
+          className={`flex items-center justify-center h-8 w-8 p-0 rounded-sm ${
+            editor.isActive("bulletList")
+              ? "bg-secondary text-secondary-foreground"
+              : "text-muted-foreground hover:bg-muted"
+          }`}
         >
           <List className="h-4 w-4" />
-        </Button>
-        <Button
-          variant={editor.isActive('orderedList') ? 'secondary' : 'ghost'}
-          size="sm"
+        </div>
+        <div
+          role="button"
+          tabIndex={0}
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className="h-8 w-8 p-0"
+          className={`flex items-center justify-center h-8 w-8 p-0 rounded-sm ${
+            editor.isActive("orderedList")
+              ? "bg-secondary text-secondary-foreground"
+              : "text-muted-foreground hover:bg-muted"
+          }`}
         >
           <ListOrdered className="h-4 w-4" />
-        </Button>
+        </div>
         <Separator orientation="vertical" className="h-6" />
         <Separator orientation="vertical" className="h-6" />
-        <Button
-          variant="ghost"
-          size="sm"
+        <div
+          role="button"
+          tabIndex={0}
           onClick={() => editor.chain().focus().undo().run()}
-          disabled={!editor.can().undo()}
-          className="h-8 w-8 p-0"
+          aria-disabled={!editor.can().undo()}
+          className={`flex items-center justify-center h-8 w-8 p-0 rounded-sm ${
+            !editor.can().undo()
+              ? "opacity-50 cursor-not-allowed"
+              : "text-muted-foreground hover:bg-muted"
+          }`}
         >
           <Undo className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
+        </div>
+        <div
+          role="button"
+          tabIndex={0}
           onClick={() => editor.chain().focus().redo().run()}
-          disabled={!editor.can().redo()}
-          className="h-8 w-8 p-0"
+          aria-disabled={!editor.can().redo()}
+          className={`flex items-center justify-center h-8 w-8 p-0 rounded-sm ${
+            !editor.can().redo()
+              ? "opacity-50 cursor-not-allowed"
+              : "text-muted-foreground hover:bg-muted"
+          }`}
         >
           <Redo className="h-4 w-4" />
-        </Button>
+        </div>
       </div>
 
       {/* Editor Content */}
@@ -198,5 +221,5 @@ export default function RichTextEditor({
         style={editorStyle}
       />
     </div>
-  )
+  );
 }
