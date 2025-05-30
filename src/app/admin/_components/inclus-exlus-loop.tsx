@@ -126,7 +126,7 @@ const StringLoop: React.FC<StringLoopProps> = ({ title, type, description, onCha
   const [inputValue, setInputValue] = useState<string>('');
 
   useEffect(() => {
-    onChange(strings); // Pass array to parent
+    onChange(strings); 
   }, [strings]);
 
   const addString = (newString: string) => {

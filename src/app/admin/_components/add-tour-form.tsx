@@ -57,6 +57,9 @@ import { Tour } from "@prisma/client";
 import ProgramForm from "@/app/admin/_components/programs-form";
 import DateForm from "@/app/admin/_components/dates-form";
 import StringLoop from "@/app/admin/_components/inclus-exlus-loop";
+import { getFileUrl, uploadFile } from "@/lib/cloudeFlare";
+import sharp from "sharp";
+import { useEffect } from "react";
 
 
 
@@ -69,7 +72,7 @@ const tourSchema = z.object({
   dateCard: z.string().optional(),
   durationDays: z.number().min(1, "Au moins 1 jour").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
   durationNights: z.number().min(0, "Nuits >= 0").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
-  imageURL: z.string(),
+  imageURL: z.instanceof(File).optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
   groupType: z.string().optional(),
   groupSizeMax: z.number().min(1, "Taille min 1").optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
   showReviews: z.boolean().default(true),
@@ -94,7 +97,7 @@ const tourSchema = z.object({
       description: z.string().optional(),
     })
   ).optional(),
-  images:z.array(
+  images: z.array(
     z.object({
       link: z.string(),
     })
@@ -106,7 +109,6 @@ const tourSchema = z.object({
   exclus: z.string(),
   arrayInclus: z.array(z.string()),
   arrayExlus: z.array(z.string()),
-
 });
 
 
@@ -125,7 +127,7 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
       dateCard: "",
       durationDays: undefined,
       durationNights: undefined,
-      imageURL:"",
+      imageURL: undefined,
       groupType: "",
       groupSizeMax: undefined,
       showReviews: true,         // Prisma default: true
@@ -149,12 +151,28 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
     },
   });
 
+
+  // removed misplaced import
+
+  useEffect(() => {
+    if (files && files.length > 0) {
+      const cardImage = files[0];
+      form.setValue("imageURL", cardImage);
+    }
+    else
+    {
+      form.setValue("imageURL", undefined);
+    }
+  }, [files, form]);
+
   async function onSubmit(values: z.infer<typeof tourSchema>) {
+
+
     try {
       setIsSubmitting(true);
 
       // Call the server action to add the tour
-      const { programs, dates, images, ...restValues } = values;
+      const { programs, dates, images,  ...restValues } = values;
       const formData = { 
         ...restValues, 
         programs, 
@@ -442,7 +460,7 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
 
                   {/* image de base du circuit */}
 
-                      <FormField
+                      {/* <FormField
                         control={form.control}
                         name="imageURL"
                         render={() => (
@@ -484,7 +502,63 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
                                   <FormMessage />
                               </FormItem>
                                   )}
-                              />
+                              /> */}
+                              
+
+                              <FormField
+      control={form.control}
+      name="imageURL"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Image du circuit</FormLabel>
+          <FormDescription>
+            Ajoutez une image principale pour ce circuit
+          </FormDescription>
+
+          <FileUploader
+            value={files}
+            onValueChange={setFiles}
+            dropzoneOptions={{
+              maxFiles: 1,
+              maxSize: 1 * 1024 * 1024, // 1MB
+              accept: {
+                "image/*": [".jpg", ".jpeg", ".png", ".gif"],
+              },
+              multiple: false,
+            }}
+            className="border border-gray-300 rounded-lg p-4 bg-white shadow-sm"
+            orientation="vertical"
+          >
+            <FileInput className="border-2 border-dashed p-6 text-center hover:bg-gray-50">
+              <p className="text-gray-500">
+                Glissez-déposez une image ici ou cliquez pour parcourir.
+              </p>
+            </FileInput>
+
+            <FileUploaderContent className="mt-4">
+              {files?.map((file, index) => (
+                <FileUploaderItem key={index} index={index}>
+                  <span className="truncate max-w-[200px]">{file.name}</span>
+                </FileUploaderItem>
+              ))}
+            </FileUploaderContent>
+          </FileUploader>
+
+          {field.value && (
+            <div className="mt-4">
+              <p className="text-sm text-gray-500">Image actuelle :</p>
+              <img
+                src={field.value}
+                alt="uploaded"
+                className="w-32 h-32 object-cover rounded"
+              />
+            </div>
+          )}
+
+          <FormMessage />
+        </FormItem>
+      )}
+    />
 
                       
                  
