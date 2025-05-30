@@ -126,7 +126,6 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [cardImage, setCardImage] = useState<File | null>(null);
   const [gallery, setGallery] = useState<File[] | null>(null);
-  const [programsFiles, setProgramsFiles] = useState<File[]>([]);
 
 
   const form = useForm<z.infer<typeof tourSchema>>({
@@ -182,9 +181,8 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
       }
       console.log("gallery", gallery);
 
-    // // Programs images
 
-  }, [cardImage, gallery, programsFiles, form]);
+  }, [cardImage, gallery, form]);
 
   async function onSubmit(values: z.infer<typeof tourSchema>) {
 
@@ -192,7 +190,6 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
     try {
       setIsSubmitting(true);
 
-      // Call the server action to add the tour
       const { programs, dates, images,  ...restValues } = values;
       const formData = { 
         ...restValues, 
@@ -210,10 +207,8 @@ export  function AddTourForm({ nationalDestinations, internationalDestinations, 
       if (result.success) {
         toast.success("Circuit créé avec succès");
         setIsSubmitting(false);
-        // Reset the form after successful submission
         form.reset();
       } else {
-        // Show error message
         toast.error("Erreur lors de la création du circuit");
         setIsSubmitting(false);
       }

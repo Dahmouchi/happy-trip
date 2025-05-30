@@ -179,7 +179,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                     setNewProgram({ title: '', description: '', image: null, imagePreview: undefined });
                   }}
                 >
-                  Annulle
+                  Annuller
                 </Button>
               </div>
             </div>
