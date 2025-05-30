@@ -84,20 +84,14 @@ model Tour {
   title              String
   description        String?
   type               TravelType @default(NATIONAL)
-  location           String?
   priceOriginal      Int?
   priceDiscounted    Int?
   dateCard           String? //this date for card view
-  startDate          DateTime?
-  endDate            DateTime?
   durationDays       Int?
   durationNights     Int?
-  accommodation      String?
   imageUrl           String?
-  destination        String?
-  activite           String?
-  inclu              String?
-  exclu              String?
+  inclus              String?
+  exclus             String?
   groupType          String?     // e.g., "Petit groupe"
   groupSizeMax       Int?        // e.g., 12
 
