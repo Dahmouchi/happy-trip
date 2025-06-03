@@ -86,6 +86,7 @@ model Tour {
   type               TravelType @default(NATIONAL)
   priceOriginal      Int?
   priceDiscounted    Int?
+  advancedPrice     Int? // e.g., 1000 for 1000€
   dateCard           String? //this date for card view
   durationDays       Int?
   durationNights     Int?

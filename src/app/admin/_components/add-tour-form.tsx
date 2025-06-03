@@ -92,6 +92,11 @@ const tourSchema = z.object({
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
     z.number().min(0, "Le prix doit être positif").optional()
   ),
+  advancedPrice: z.preprocess(
+    (val) =>
+      val === "" ? undefined : typeof val === "string" ? Number(val) : val,
+    z.number().min(0, "Le prix doit être positif").optional()
+  ),
   dateCard: z.string().optional(),
   durationDays: z.preprocess(
     (val) =>
@@ -198,6 +203,7 @@ export function AddTourForm({
       type: "NATIONAL",
       priceOriginal: undefined,
       priceDiscounted: undefined,
+      advancedPrice: 0,
       dateCard: "",
       durationDays: undefined,
       durationNights: undefined,
@@ -208,7 +214,7 @@ export function AddTourForm({
       showDifficulty: true, // Prisma default: true
       showDiscount: true, // Prisma default: true
       difficultyLevel: undefined,
-      discountPercent: undefined,
+      discountPercent: 0,
       weekendsOnly: false, // Prisma default: false
       accommodationType: "",
       googleMapsLink: "",
@@ -832,7 +838,7 @@ export function AddTourForm({
                 </p>
                 <Separator className="mb-6" />
 
-                <div className="space-y-4">
+               <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Original Price */}
                     <FormField
@@ -849,16 +855,15 @@ export function AddTourForm({
                               onChange={(e) => {
                                 const value = parseFloat(e.target.value);
                                 field.onChange(value);
-                                // Calculate discount when original price changes
-                                const discountPercent =
-                                  form.getValues("discountPercent") || 0;
-                                if (discountPercent > 0) {
-                                  const discountedPrice =
-                                    value - (value * discountPercent) / 100;
-                                  form.setValue(
-                                    "priceDiscounted",
-                                    discountedPrice
+
+                                const discountedPrice = form.getValues("priceDiscounted") || 0;
+                                if (value > 0 && discountedPrice > 0 && discountedPrice < value) {
+                                  const discountPercent = Math.round(
+                                    ((value - discountedPrice) / value) * 100
                                   );
+                                  form.setValue("discountPercent", discountPercent);
+                                } else {
+                                  form.setValue("discountPercent", 0);
                                 }
                               }}
                             />
@@ -868,61 +873,72 @@ export function AddTourForm({
                       )}
                     />
 
-                    {/* Discount Percentage */}
+                   {/* Discounted Price */}
+                  <FormField
+                    control={form.control}
+                    name="priceDiscounted"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Prix réduit (DH)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="Entrez le prix réduit"
+                            {...field}
+                            onChange={(e) => {
+                              const value = parseFloat(e.target.value);
+                              field.onChange(value);
+
+                              const originalPrice = form.getValues("priceOriginal") || 0;
+                              if (originalPrice > 0 && value < originalPrice) {
+                                const discountPercent = Math.round(
+                                  ((originalPrice - value) / originalPrice) * 100
+                                );
+                                form.setValue("discountPercent", discountPercent);
+                              } else {
+                                form.setValue("discountPercent", 0);
+                              }
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                    {/* Discount Percentage (read-only, integer only) */}
                     <FormField
                       control={form.control}
                       name="discountPercent"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Pourcentage de réduction (%)</FormLabel>
-                          <FormControl>
+                            <FormControl>
                             <Input
                               type="number"
-                              placeholder="0-100"
-                              min="0"
-                              max="100"
-                              {...field}
-                              onChange={(e) => {
-                                const value = parseFloat(e.target.value);
-                                field.onChange(value);
-                                // Calculate discount when percentage changes
-                                const originalPrice =
-                                  form.getValues("priceOriginal") || 0;
-                                if (originalPrice > 0 && value > 0) {
-                                  const discountedPrice =
-                                    originalPrice -
-                                    (originalPrice * value) / 100;
-                                  form.setValue(
-                                    "priceDiscounted",
-                                    discountedPrice
-                                  );
-                                } else {
-                                  form.setValue(
-                                    "priceDiscounted",
-                                    originalPrice
-                                  );
-                                }
-                              }}
+                              readOnly
+                              value={
+                              field.value !== 0
+                                ? 100 - Math.round(field.value ?? 0)
+                                : Math.round(field.value ?? 0)
+                              }
+                              placeholder="Calculé automatiquement"
                             />
-                          </FormControl>
-                        
+                            </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-
-                    {/* Discounted Price (read-only) */}
+                    {/* advance price */}
                     <FormField
                       control={form.control}
-                      name="priceDiscounted"
+                      name="advancedPrice"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Prix réduit (DH)</FormLabel>
+                          <FormLabel>Prix d&apos;avance (DH)</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
-                              placeholder="Calculé automatiquement"
-                              readOnly
+                              placeholder="Entrez le prix d'avance"
                               {...field}
                             />
                           </FormControl>
@@ -933,6 +949,7 @@ export function AddTourForm({
                   </div>
                 </div>
               </div>
+
 
               {/* Dates and Duration */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
