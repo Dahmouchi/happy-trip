@@ -26,7 +26,6 @@ enum TravelType {
 enum DestinaionType {
   NATIONAL
   INTERNATIONAL
-  EN_MESURE
 }
 
 model Destination {
@@ -104,7 +103,7 @@ model Tour {
   totalReviews       Int      @default(0)
   averageRating      Float    @default(0.0)
   discountPercent    Int?     // e.g. 10 for 10%
-  weekendsOnly       Boolean  @default(false)
+  // weekendsOnly       Boolean  @default(false)
   accommodationType    String?  // e.g., "Hôtel", "Auberge", "Camping"
   programs          Program[] @relation("TourPrograms")
   dates              TourDate[]

@@ -1,0 +1,44 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+'use client';
+import React, { useEffect, useState } from 'react';
+import { DataTable } from './tour-data-table';
+import { tourColumns } from "./tour-columns";
+import type { ColumnDef } from "@tanstack/react-table";
+import { getAllTours } from "@/actions/toursActions";
+import { Tour } from '@prisma/client';
+
+type TourData = Tour & {
+  destinations: { name: string }[];
+  categories: { name: string }[];
+  natures: { name: string }[];
+  programs: { title: string }[];
+  images: { url: string }[];
+};
+
+export default function ReceptionPage() {
+  const [tours, setTours] = useState<TourData[]>([]);
+
+  useEffect(() => {
+    const fetchTours = async () => {
+      const response = await getAllTours();
+      if (response.success && Array.isArray(response.data)) {
+        setTours(response.data as TourData[]);
+      } else {
+        console.error("Failed to fetch tours", response.error);
+      }
+    };
+
+    fetchTours();
+  }, []);
+
+  return (
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Page de Réception</h1>
+      
+      <DataTable<TourData, unknown>
+        columns={tourColumns as ColumnDef<TourData, unknown>[]}
+        data={tours}
+      />
+    </div>
+  );
+}

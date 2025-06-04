@@ -39,7 +39,7 @@ const datas = {
   navMain: [
     {
       title: "Accueil",
-      url: "/admin/dashboard",
+      url: "/admin/dashboard/reception",
       icon: House,
       
     },

@@ -213,3 +213,180 @@ export type TourFormData = z.infer<typeof tourSchema>
     await prisma.$disconnect()
   }
 }
+
+export async function getAllTours() {
+  try {
+    const tours = await prisma.tour.findMany({
+      include: {
+        destinations: true,
+        categories: true,
+        natures: true,
+        programs: true,
+        images: true,
+      },
+    })
+    return { success: true, data: tours }
+  } catch (error) {
+    console.error("Error fetching tours:", error)
+    return { success: false, error: "Failed to fetch tours" }
+  } finally {
+    await prisma.$disconnect()
+  }
+}
+
+export async function deleteTour(tourId: string) {
+  try {
+    const deletedTour = await prisma.tour.delete({
+      where: { id: tourId },
+    })
+    return { success: true, data: deletedTour }
+  } catch (error) {
+    console.error("Error deleting tour:", error)
+    return { success: false, error: "Failed to delete tour" }
+  } finally {
+    await prisma.$disconnect()
+  }
+}
+
+// export async function updateTour(tourId: string, formData: TourFormData) {
+//   try {
+//     // Validate the form data
+//     const validatedData = tourSchema.parse(formData)
+
+//     // Update the tour in the database
+//     const updatedTour = await prisma.tour.update({
+//       where: { id: tourId },
+//       data: {
+//         title: validatedData.title,
+//         description: validatedData.description,
+//         type: validatedData.type as TravelType,
+//         priceOriginal: validatedData.priceOriginal,
+//         priceDiscounted: validatedData.priceDiscounted,
+//         advancedPrice: validatedData.advancedPrice,
+//         dateCard: validatedData.dateCard,
+//         durationDays: validatedData.durationDays,
+//         durationNights: validatedData.durationNights,
+//         imageUrl: validatedData.imageURL ? await uploadImage(validatedData.imageURL) : undefined, // Upload image and get URL
+//         inclus: validatedData.inclus,
+//         exclus: validatedData.exclus,
+//         groupType: validatedData.groupType,
+//         groupSizeMax: validatedData.groupSizeMax,
+//         showReviews: validatedData.showReviews,
+//         showDifficulty: validatedData.showDifficulty,
+//         showDiscount: validatedData.showDiscount,
+//         difficultyLevel: validatedData.difficultyLevel,
+//         discountPercent: validatedData.discountPercent,
+//         weekendsOnly: validatedData.weekendsOnly,
+//         accommodationType: validatedData.accommodationType,
+
+//         // Relations
+//         dates: validatedData.dates
+//           ? {
+//               upsert: validatedData.dates.map((dateObj) => ({
+//                 where: { startDate_endDate: { startDate: dateObj.startDate, endDate: dateObj.endDate } },
+//                 create: {
+//                   startDate: dateObj.startDate,
+//                   endDate: dateObj.endDate,
+//                   description: dateObj.description,
+//                 },
+//                 update: {
+//                   description: dateObj.description,
+//                 },
+//               })),
+//             }
+//           : undefined,
+
+//         destinations: validatedData.destinations
+//           ? {
+//               set: [],
+//               connectOrCreate:
+//                 validatedData.destinations.map((id) => ({
+//                   where: { id },
+//                   create: { id }, // Assuming id is unique and exists in the database
+//                 })),
+//             }
+//           : undefined,
+
+//         categories:
+//           validatedData.categories && Array.isArray(validatedData.categories)
+//             ? {
+//                 set: [],
+//                 connectOrCreate:
+//                   validatedData.categories.map((id) => ({
+//                     where: { id
+//                     },
+//                     create: { id }, // Assuming id is unique and exists in the database
+//                   })),
+//             }
+//           : undefined,
+//         natures:      
+//           validatedData.natures && Array.isArray(validatedData.natures)
+//             ? {
+//                 set: [],
+//                 connectOrCreate:
+//                   validatedData.natures.map((id) => ({
+//                     where: { id },
+//                     create: { id }, // Assuming id is unique and exists in the database
+//                   })),
+//             }
+//           : undefined,
+//         images: validatedData.images
+//           ? {
+//               upsert: await Promise.all(
+//                 validatedData.images.map(async (image) => ({
+//                   where: { url: image.link ? await uploadImage(image.link) : "" },
+//                   create: { url: image.link ? await uploadImage(image.link) : "" },
+//                   update: { url: image.link ? await uploadImage(image.link) : "" },
+//                 }))
+//               ),
+//             }
+//           : undefined,
+//         programs: validatedData.programs
+//           ? {   
+//               upsert: await Promise.all(
+//                 validatedData.programs.map(async (program) => {
+//                   let imageUrl = "";
+
+//                   if (program.image instanceof File) {
+//                     imageUrl = await uploadImage(program.image);
+//                   } else if (typeof program.image === "string") {
+//                     imageUrl = program.image;
+//                   }
+
+//                   return {
+//                     where: { title: program.title },
+//                     create: {
+//                       title: program.title,
+//                       description: program.description,
+//                       imageUrl,
+//                     },
+//                     update: {
+//                       description: program.description,
+//                       imageUrl,
+//                     },
+//                   };
+//                 })
+//               ),
+//             }
+//           : undefined,
+//       },
+//     })
+//     return { success: true, data: updatedTour }
+//   } catch (error) {
+//     console.error("Error updating tour:", error)
+//     if (error instanceof z.ZodError) {
+//       return {
+//         success: false,
+//         error: "Validation error",
+//         details: error.errors,
+//       }
+//     }
+//     return {
+//       success: false,
+//       error: "Failed to update tour",
+//     }
+//   }
+//   finally {
+//     await prisma.$disconnect()
+//   }
+// } 
