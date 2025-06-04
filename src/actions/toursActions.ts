@@ -30,7 +30,6 @@ const tourSchema = z.object({
   showDiscount: z.boolean().default(true),
   difficultyLevel: z.number().min(1).max(5).optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
   discountPercent: z.preprocess(val => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(0).max(100).optional()),
-  weekendsOnly: z.boolean().default(false),
   accommodationType: z.string().optional(),
   googleMapsLink: z.string().url("Lien Google Maps invalide").optional().or(z.literal("")),
   programs: z
@@ -131,7 +130,6 @@ export type TourFormData = z.infer<typeof tourSchema>
       showDiscount: validatedData.showDiscount,
       difficultyLevel: validatedData.difficultyLevel,
       discountPercent: validatedData.discountPercent,
-      weekendsOnly: validatedData.weekendsOnly,
       accommodationType: validatedData.accommodationType,
 
       // Relations
@@ -236,17 +234,30 @@ export async function getAllTours() {
 
 export async function deleteTour(tourId: string) {
   try {
+    // Delete related records first
+    await prisma.tourDate.deleteMany({ where: { tourId } });
+    await prisma.program.deleteMany({ where: { tourId } });
+    await prisma.file.deleteMany({ where: { tourId } });
+
+    // Delete relations in join tables
+    await prisma.$executeRaw`DELETE FROM "_TourDestinations" WHERE "A" = ${tourId}`;
+    await prisma.$executeRaw`DELETE FROM "_CategoryTours" WHERE "A" = ${tourId}`;
+    await prisma.$executeRaw`DELETE FROM "_NatureTours" WHERE "A" = ${tourId}`;
+
+    // Delete the tour
     const deletedTour = await prisma.tour.delete({
       where: { id: tourId },
-    })
-    return { success: true, data: deletedTour }
+    });
+
+    return { success: true, data: deletedTour };
   } catch (error) {
-    console.error("Error deleting tour:", error)
-    return { success: false, error: "Failed to delete tour" }
-  } finally {
-    await prisma.$disconnect()
+    console.error("Error deleting tour:", error);
+    return { success: false, error: "Failed to delete tour" };
   }
+  // no prisma.$disconnect() here
 }
+
+
 
 // export async function updateTour(tourId: string, formData: TourFormData) {
 //   try {
