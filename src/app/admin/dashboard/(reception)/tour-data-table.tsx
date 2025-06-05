@@ -89,28 +89,27 @@ export function DataTable<TData, TValue>({
         </TableHeader>
         <TableBody>
           {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
+            table.getRowModel().rows.map((row, idx) => (
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
+                className={idx % 2 === 1 ? "bg-lime-50" : ""}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
-                
               </TableRow>
             ))
           ) : (
             <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+              <TableCell colSpan={columns.length} className="h-24 text-center">
                 Aucun résultat.
-                </TableCell>
+              </TableCell>
             </TableRow>
           )}
-        </TableBody>
-      </Table>
+        </TableBody>  </Table>
 
       <div className="flex items-center justify-end space-x-2 py-4 pr-4">
        <span className="text-sm text-muted-foreground">
