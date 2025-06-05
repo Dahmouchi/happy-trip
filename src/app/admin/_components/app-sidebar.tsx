@@ -8,6 +8,8 @@ import {
   Settings2,
   Users,
   SwatchBook,
+  Tickets,
+  PlaneTakeoff,
 } from "lucide-react";
 
 import { NavMain } from "./nav-main";
@@ -39,9 +41,8 @@ const datas = {
   navMain: [
     {
       title: "Accueil",
-      url: "/admin/dashboard/reception",
+      url: "/admin/dashboard",
       icon: House,
-      
     },
     {
       title: "Landing Page",
@@ -51,28 +52,24 @@ const datas = {
     {
       title: "Ajouter Tour",
       url: "/admin/dashboard/tours/add",
-      icon: SwatchBook,
+      icon: Tickets,
     },
     {
       title: "Voyages",
       url: "/admin/dashboard/voyages",
-      icon: SwatchBook,
+      icon: PlaneTakeoff,
     },
     {
       title: "Utilisateurs",
       url: "/admin/dashboard/users",
       icon: Users,
     },
-   
     {
       title: "Settings",
       url: "/admin/dashboard/settings",
       icon: Settings2,
-      
     },
-    
   ],
-
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

@@ -1,4 +1,7 @@
-import DOMPurify from 'dompurify';
+'use client';
+
+import { useEffect, useState } from 'react';
+import createDOMPurify from 'dompurify';
 
 interface SafeHTMLProps {
   html: string;
@@ -6,12 +9,17 @@ interface SafeHTMLProps {
 }
 
 const SafeHTML = ({ html, className }: SafeHTMLProps) => {
-  const cleanHTML = DOMPurify.sanitize(html);
-  
+  const [cleanHTML, setCleanHTML] = useState('');
+
+  useEffect(() => {
+    const DOMPurify = createDOMPurify(window);
+    setCleanHTML(DOMPurify.sanitize(html));
+  }, [html]);
+
   return (
-    <div 
+    <div
       className={className}
-      dangerouslySetInnerHTML={{ __html: cleanHTML }} 
+      dangerouslySetInnerHTML={{ __html: cleanHTML }}
     />
   );
 };

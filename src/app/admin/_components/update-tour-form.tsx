@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+ 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
@@ -50,7 +50,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { addTour } from "@/actions/toursActions";
+import { addTour, updateTour } from "@/actions/toursActions";
 import {
   JSXElementConstructor,
   Key,
@@ -76,7 +76,8 @@ import StringLoop from "@/app/admin/_components/inclus-exlus-loop";
 import { getFileUrl, uploadFile } from "@/lib/cloudeFlare";
 import sharp from "sharp";
 import { useEffect } from "react";
-import { setgid } from "process";
+import { setgid, title } from "process";
+import { getRandomValues } from "crypto";
 
 const tourSchema = z.object({
   title: z.string().min(1, "Le titre est requis"),
@@ -136,6 +137,7 @@ const tourSchema = z.object({
     .optional()
     .or(z.literal(""))
     .transform((val) => (val === "" ? undefined : val)),
+  weekendsOnly: z.boolean().default(false),
   accommodationType: z.string().optional(),
   googleMapsLink: z
     .string()
@@ -185,11 +187,13 @@ const tourSchema = z.object({
   arrayExlus: z.array(z.string()),
 });
 
-export function AddTourForm({
+export function UpdateTourForm({
   nationalDestinations,
   internationalDestinations,
   categories,
   natures,
+  initialData,
+  tourId,
 }: any) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cardImage, setCardImage] = useState<File[] | null>(null);
@@ -197,41 +201,49 @@ export function AddTourForm({
 
   const form = useForm<z.infer<typeof tourSchema>>({
     defaultValues: {
-      title: "",
-      description: "",
-      type: "NATIONAL",
-      priceOriginal: undefined,
-      priceDiscounted: undefined,
-      advancedPrice: 0,
-      dateCard: "",
-      durationDays: undefined,
-      durationNights: undefined,
-      imageURL: undefined,
-      groupType: "",
-      groupSizeMax: undefined,
-      showReviews: true, // Prisma default: true
-      showDifficulty: true, // Prisma default: true
-      showDiscount: true, // Prisma default: true
-      difficultyLevel: undefined,
-      discountPercent: 0,
-      accommodationType: "",
-      googleMapsLink: "",
-      inclus: "",
-      exclus: "",
-      programs: [],
-      dates: [],
-      destinations: [],
-      categories: [],
-      natures: [],
-      images: [],
-      arrayInclus: [],
-      arrayExlus: [],
+      title: initialData.title ?? "",
+      description: initialData.description ?? "",
+      type: initialData.type ?? "NATIONAL",
+      priceOriginal: initialData.priceOriginal ?? undefined,
+      priceDiscounted: initialData.priceDiscounted ?? undefined,
+      advancedPrice: initialData.advancedPrice ?? 0,
+      dateCard: initialData.dateCard ?? "",
+      durationDays: initialData.durationDays ?? undefined,
+      durationNights: initialData.durationNights ?? undefined,
+      imageURL: initialData?.imageURL || "",
+      groupType: initialData.groupType ?? "",
+      groupSizeMax: initialData.groupSizeMax ?? undefined,
+      showReviews: initialData.showReviews ?? true,
+      showDifficulty: initialData.showDifficulty ?? true,
+      showDiscount: initialData.showDiscount ?? true,
+      difficultyLevel: initialData.difficultyLevel ?? undefined,
+      discountPercent: initialData.discountPercent ?? 0,
+      accommodationType: initialData.accommodationType ?? "",
+      googleMapsLink: initialData.googleMapsLink ?? "",
+      inclus: initialData.inclus ?? "",
+      exclus: initialData.exclus ?? "",
+      programs: initialData.programs || [],
+      dates: initialData.dates || [],
+      destinations: initialData.destinations
+        ? initialData.destinations.map((d: any) => d.id)
+        : [],
+      categories: initialData.categories
+        ? initialData.categories.map((c: any) => c.id)
+        : [],
+      natures: initialData.natures
+        ? initialData.natures.map((n: any) => n.id)
+        : [],
+      images: initialData.images
+        ? initialData.images.map((img: any) => ({ link: img.link }))
+        : [],
+      arrayInclus: initialData.inclus?.split(";") || [],
+      arrayExlus: initialData.exclus?.split(";") || [],
     },
   });
 
   useEffect(() => {
     // Main image (imageURL)
-    if (cardImage && cardImage.length > 0) {
+    if (cardImage) {
       form.setValue("imageURL", cardImage[0]);
     } else {
       form.setValue("imageURL", undefined);
@@ -244,7 +256,6 @@ export function AddTourForm({
     } else {
       form.setValue("images", []);
     }
-    console.log("gallery", gallery);
   }, [cardImage, gallery, form]);
 
   async function onSubmit(values: z.infer<typeof tourSchema>) {
@@ -264,30 +275,29 @@ export function AddTourForm({
           ? values.arrayExlus.join(";")
           : values.exclus,
       };
-      console.log(values.arrayInclus);
 
-      const result = await addTour(formData);
+      const result = await updateTour(tourId, formData);
 
       if (result.success) {
         toast.success("Circuit créé avec succès");
         setIsSubmitting(false);
-        form.reset();
+        form.reset(values);
       } else {
         toast.error("Erreur lors de la création du circuit");
         setIsSubmitting(false);
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
       toast.error("Erreur lors de la création du circuit");
     } finally {
       setIsSubmitting(false);
     }
   }
-
   if (isSubmitting) {
     return <Loading />;
   }
   return (
+    <div>
+    <div className="ml-6 p-6 bg-lime-50 rounded-xl">Modifier le tour : <span className="text-lime-800 font-bold">{form.watch("title")}</span></div>
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <Card className="border border-none">
@@ -595,7 +605,8 @@ export function AddTourForm({
                     />
                   </div>
 
-                  {/* Main image for the tour */}
+
+                  {/* Main image upload */}
                   <FormField
                     control={form.control}
                     name="imageURL"
@@ -1076,17 +1087,17 @@ export function AddTourForm({
                     title="Inclus"
                     type="inclus"
                     description="Liste des éléments inclus dans le circuit"
+                    // value={form.watch("arrayInclus")}
                     onChange={(value) => {
-                      form.setValue(
-                        "arrayInclus",
-                        Array.isArray(value) ? value : [value]
-                      );
+                      form.setValue("arrayInclus", value);
                     }}
                   />
+
                   <StringLoop
                     title="Exclus"
                     type="exclus"
                     description="Liste des éléments exclus du circuit"
+                    // value={form.watch("arrayExlus")}
                     onChange={(value) => {
                       form.setValue(
                         "arrayExlus",
@@ -1246,10 +1257,11 @@ export function AddTourForm({
             size="lg"
             className="bg-lime-600 text-white hover:bg-lime-700 hover:cursor-pointer mr-8"
           >
-            Créer le circuit
+            Modifier le circuit
           </Button>
         </div>
       </form>
     </Form>
+    </div>
   );
 }

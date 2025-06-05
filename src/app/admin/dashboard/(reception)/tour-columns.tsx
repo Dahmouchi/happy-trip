@@ -41,7 +41,11 @@ export const tourColumns = ({ refresh }: { refresh: () => void }): ColumnDef<Tou
           <DropdownMenuContent align="end" className="bg-white p-2 rounded-xl border-2 border-gray-300 z-50 shadow-lg">
             <DropdownMenuLabel className="p-2 text-gray-500 font-bold">Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="p-2 font-medium rounded hover:bg-gray-100 hover:cursor-pointer focus-visible:outline-0">
+            <DropdownMenuItem className="p-2 font-medium rounded hover:bg-gray-100 hover:cursor-pointer focus-visible:outline-0"
+              onSelect={() => {
+                window.location.href = `/admin/dashboard/tours/update/${row.original.id}`;
+              }}
+            >
               Voir détails / Modifier
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -49,7 +53,8 @@ export const tourColumns = ({ refresh }: { refresh: () => void }): ColumnDef<Tou
              onSelect={async () => {
                 try {
                   const result = await deleteTour(row.original.id);
-                  if (!result.success) {
+                  if (!result.success)
+                  {
                     throw new Error("Échec de la suppression du tour");
                   }
                   toast.success("Tour supprimé avec succès");
