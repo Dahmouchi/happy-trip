@@ -1,6 +1,4 @@
- 
-
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { getTourById } from "@/actions/toursActions";
 import { UpdateTourForm } from "@/app/admin/_components/update-tour-form";
@@ -8,8 +6,8 @@ import { getInternationalDestinations, getNationalDestinations } from "@/actions
 import { getCategories } from "@/actions/categories";
 import { getNatures } from "@/actions/natures";
 
-export default async function UpdateTourPage({ params }: { params: { tourId: string } }) {
-  const result = await getTourById(params.tourId);
+export default async function UpdateTourPage(params:any) {
+  const result = await getTourById(params.params.tourId);
   const nationalDestinations = await getNationalDestinations();
   const internationalDestinations = await getInternationalDestinations();
   const categories = await getCategories();
@@ -26,7 +24,7 @@ export default async function UpdateTourPage({ params }: { params: { tourId: str
 
   return (
     <div>
-      <UpdateTourForm initialData={tour} nationalDestinations={nationalDestinations} internationalDestinations={internationalDestinations} categories={categories} natures={natures} tourId={params.tourId} ></UpdateTourForm>
+      <UpdateTourForm initialData={tour} nationalDestinations={nationalDestinations} internationalDestinations={internationalDestinations} categories={categories} natures={natures} tourId={params.params.tourId} ></UpdateTourForm>
     </div>
   );
 }

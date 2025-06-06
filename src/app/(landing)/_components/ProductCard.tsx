@@ -1,9 +1,13 @@
+/* eslint-disable @next/next/no-img-element */
+"use client"
+import { Tour } from "@prisma/client";
 import { CalendarDays, Eye } from "lucide-react";
+import { redirect } from "next/navigation";
 import React from "react";
 
-export function PromotionCard() {
+export function PromotionCard({tour}:{tour:Tour}) {
   return (
-    <div className="max-w-sm h-full rounded-lg overflow-hidden shadow-lg border border-gray-200 bg-white">
+    <div className="max-w-sm h-full flex flex-col justify-between rounded-lg overflow-hidden shadow-lg border border-gray-200 bg-white">
       {/* Discount Ribbon
       <div className="bg-red-600 text-white text-center py-1 font-bold">
         Réduction de 10%
@@ -16,7 +20,7 @@ export function PromotionCard() {
       </div> */}
       <div
         className="w-full h-[40vh] bg-green-500 relative bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/product.jpg')" }}
+        style={{ backgroundImage: `url(${tour?.imageUrl || "/images/product.jpg"})` }}
       >
         <div className="absolute top-0 right-0 space-y-2">
         <div className="py-1 px-4 bg-red-500 rounded-tr-lg rounded-bl-lg flex itce justify-center text-white">
@@ -50,47 +54,48 @@ export function PromotionCard() {
           <span className="text-gray-600 ml-2">(25)</span>
         </div>
         <div className="items-baseline mb-4 text-right absolute py-1 -bottom-8 bg-[#4FA8FF] w-1/2 rounded-l-full px-2 right-0">
-          <h1 className="text-white line-through mr-2 text-xs">4500 DH</h1>
-          <h1 className="text-xl font-bold text-white">3000 DH</h1>
+          <h1 className="text-white line-through mr-2 text-xs">{tour?.priceOriginal} DH</h1>
+          <h1 className="text-xl font-bold text-white">{tour?.priceDiscounted} DH</h1>
         </div>
       </div>
       
-      <div className="p-4 bg-white">
-        {/* Tour Info */}
+      <div className="p-4 flex flex-col justify-end bg-white">
+        {/* Tour? Info */}
         <div className="bg-[#8EBD22] w-fit flex items-center gap-2 text-white p-1 px-2">
         <CalendarDays className="w-5 h-5" />
-        <div className="text-xs">7J / 6N</div>
+        <div className="text-xs">{tour?.durationDays}J / {tour?.durationNights}N</div>
       </div>
         <div className="mb-4 space-y-2 mt-2">
           <h3 className="font-bold text-lg mb-1">
-            Tour d&apos;Anti-Atlas: Tafraout, Amtoudi, vallée Ait Mansour
+            {tour?.title}
           </h3>
           <div className="flex items-center gap-2">
             <img src="/hotel.png" alt="" className="w-6 h-6 " />
-            <p className="text-gray-700 mb-1">AUBERGE VUE SUR MER</p>
+            <p className="text-gray-700 mb-1">{tour?.accommodationType}</p>
           </div>
           <div className="flex items-center gap-2">
             <img src="/calendrier.png" alt="" className="w-6 h-6 " />
             <div>
-              <p className="text-gray-700">09 au 10 mai 2025</p>
-              <p className="text-gray-500 text-sm">Chaque weekend en mai</p>
+              <p className="text-gray-700">{tour?.dateCard}</p>
             </div>
           </div>
         </div>
 
         {/* Divider */}
-        <div className="border-t border-gray-200 my-4"></div>
+        <div>
+          <div className="border-t border-gray-200 my-4"></div>
 
         {/* Program Rating */}
         <div className="flex justify-between items-center w-full gap-2">
-          <div className="bg-[#8EBD22] rounded-lg shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)] flex itce justify-between px-4 py-3 w-full text-white">
+          <div onClick={()=>redirect(`/national/${tour?.id}`)} className="bg-[#8EBD22] rounded-lg cursor-pointer shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)] flex itce justify-between px-4 py-3 w-full text-white">
             <Eye className="w-6 h-6" />
             <span className="text-white w-full text-center">Programme</span>
           </div>
           <div className="w-16 h-full flex items-center justify-center flex-col rounded-lg text-white p-1 bg-[#4FA8FF]">
             <img src="/boot.png" alt="" className="w-4 h-4 -rotate-12" />
-            <h1>2/5</h1>
+            <h1>{tour?.difficultyLevel}/5</h1>
           </div>
+        </div>
         </div>
       </div>
     </div>

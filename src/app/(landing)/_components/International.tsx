@@ -28,13 +28,13 @@ const International = () => {
         <Carousel opts={{ align: "center" }} className=" ">
           <CarouselContent className="px-8">
             <CarouselItem className="sm:basis-1/3 pb-2 lg:pt-4 py-4">
-              <PromotionCard />{" "}
+             {" "}
             </CarouselItem>
             <CarouselItem className="sm:basis-1/3 pb-2 lg:pt-4 py-4">
-              <PromotionCard />{" "}
+             {" "}
             </CarouselItem>
             <CarouselItem className="sm:basis-1/3 pb-2 lg:pt-4 py-4">
-              <PromotionCard />{" "}
+              {" "}
             </CarouselItem>
           </CarouselContent>
           {/* <div className="w-full flex items-center justify-end gap-2 pt-8">
