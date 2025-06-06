@@ -18,16 +18,20 @@ import {
   ArrowRightIcon,
   BadgeCheck,
   BadgeX,
+  BanknoteIcon,
   Boxes,
   CalendarIcon,
   ChartNoAxesColumnDecreasing,
   Construction,
+  CopyIcon,
   Hotel,
+  InfoIcon,
   LocateIcon,
   Map,
   MapPinHouse,
   MessageCircle,
   MountainSnow,
+  PhoneIcon,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -40,6 +44,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay"; // Optional: if you want autoplay
+import { toast } from "react-toastify";
+import ReservationSection from "./ReservationForm";
 
 const TourDetails = ({ tour }: { tour: any }) => {
   const rating = 4; // Note sur 5
@@ -70,6 +76,39 @@ const TourDetails = ({ tour }: { tour: any }) => {
       avatarUrl: "/home/ubuntu/upload/image.png", // Replace with actual avatar path
     },
   ];
+  const sampleFaqData = [
+  {
+    id: "item-1",
+    question: "Quels sont les modes de paiement acceptés ?",
+    answer: "Nous acceptons les cartes de crédit Visa, MasterCard, American Express, ainsi que PayPal. Les virements bancaires sont également possibles pour les commandes importantes.",
+  },
+  {
+    id: "item-2",
+    question: "Quels sont les délais de livraison ?",
+    answer: "Les délais de livraison varient en fonction de votre localisation. En général, comptez 2 à 5 jours ouvrables pour la France métropolitaine et 5 à 10 jours pour l'international. Vous recevrez un numéro de suivi dès l'expédition.",
+  },
+  {
+    id: "item-3",
+    question: "Comment puis-je retourner un article ?",
+    answer: "Vous disposez de 30 jours après réception de votre commande pour retourner un article. Veuillez consulter notre politique de retour sur le site pour connaître la procédure détaillée et les conditions.",
+  },
+  {
+    id: "item-4",
+    question: "Proposez-vous des réductions pour les étudiants ?",
+    answer: "Oui, nous proposons une réduction de 10% pour les étudiants sur présentation d'un justificatif valide. Contactez notre service client pour obtenir votre code de réduction.",
+  },
+];
+const sampleAvailableDates = [
+  { value: "08-15-juin-9500", label: "08 - 15 Juin (9500 dh)" },
+  { value: "15-22-juin-9700", label: "15 - 22 Juin (9700 dh)" },
+  { value: "22-29-juin-9800", label: "22 - 29 Juin (9800 dh)" },
+];
+
+const sampleHotels = [
+  { value: "Fuar Hotel 4*", label: "Fuar Hotel 4*" },
+  { value: "Park Bosphorus 5*", label: "Park Bosphorus 5*" },
+  { value: "Autre Hotel", label: "Autre Hotel (à préciser)" },
+];
   const plugin = React.useRef(
     Autoplay({ delay: 2000, stopOnInteraction: true }) // Optional Autoplay
   );
@@ -106,7 +145,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
   }
   return (
     <div>
-      <div className="bg-[#F6F3F2] p-6 md:p-8 lg:p-12">
+      <div className="bg-[#F6F3F2] p-4 md:p-8 lg:p-12">
         {/* Breadcrumbs */}
         <nav className="mb-4 text-sm text-gray-500">
           <span className="text-red-600 hover:underline cursor-pointer">
@@ -171,10 +210,12 @@ const TourDetails = ({ tour }: { tour: any }) => {
       <div className="bg-white">
         {/* Top Info Bar */}
         <div className="bg-[#83CD20] text-white  lg:px-24  grid grid-cols-1 lg:grid-cols-4 lg:gap-8 mb-4">
-          <div className="flex items-center gap-2 bg-[#47663B] text-white px-8 py-8 rounded font-semibold justify-center">
-            <img src={"/icons/money.png"} className="w-7 h-7" />{" "}
+          <div className="flex items-center gap-2 bg-[#47663B] text-white px-8 py-8 rounded font-semibold lg:justify-center justify-between">
+            <div className="flex items-center gap-2">
+              <img src={"/icons/money.png"} className="w-7 h-7" />{" "}
             {/* Replace with money icon */}
             <span>{tour.priceDiscounted}</span>
+            </div>
             <Link
               href={"#"}
               className="ml-2 bg-white text-slate-700 px-6 py-2 rounded-full  text-sm hover:bg-lime-700 transition-colors"
@@ -182,19 +223,19 @@ const TourDetails = ({ tour }: { tour: any }) => {
               Réserver
             </Link>
           </div>
-          <div className="flex items-center justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4">
+          <div className="flex items-center lg:px-0 px-8 justify-between lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4 ">
             <img src={"/icons/night-mode.png"} className="w-7 h-7" />{" "}
             {/* Replace with moon/duration icon */}
             <span>
               {tour.durationDays} Jours / {tour.durationNights} Nuités
             </span>
           </div>
-          <div className="flex items-center justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4">
+          <div className="flex items-center lg:px-0 px-8 justify-between lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4">
             <img src={"/icons/map-pin.png"} className="w-7 h-7" />{" "}
             {/* Replace with location/pin icon */}
             <span>{tour.accommodationType}</span>
           </div>
-          <div className="flex items-center gap-2 justify-center py-2">
+          <div className="flex items-center lg:px-0 px-8 gap-2 justify-between lg:justify-center py-4">
             <img src={"/icons/calendar.png"} className="w-7 h-7" />{" "}
             {/* Replace with calendar icon */}
             <span>A partir de {getNextTourDate(tour.dates)}</span>
@@ -238,7 +279,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
                     {prog.title}
                   </AccordionTrigger>
                   <AccordionContent className=" p-2 border border-slate-200 shadow-xs rounded-b-lg ">
-                    <div className="grid lg:grid-cols-3 grid-cols-1 p-4 gap-2">
+                    <div className="grid lg:grid-cols-3 grid-cols-1 lg:p-4 p-2 gap-2">
                       <div className="col-span-2">
                         <SafeHTML html={prog.description || ""} />
                       </div>
@@ -260,8 +301,8 @@ const TourDetails = ({ tour }: { tour: any }) => {
           </div>
 
           {/* Right Column (Sidebar) */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow border border-slate-200 p-4 space-y-4">
+          <div className="lg:col-span-1 space-y-2">
+            <div className="bg-[#F6F3F2] rounded-lg shadow border border-slate-200 p-4 space-y-4">
               <h3 className="text-xl font-bold text-center text-gray-800 mb-4">
                 Voyage
               </h3>
@@ -364,7 +405,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
                 Réserver
               </button>
             </div>
-            <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg max-w-2xl mx-auto font-sans">
+            <div className="bg-[#F6F3F2] p-6 md:p-8 rounded-xl border border-slate-200 shadow-lg max-w-2xl mx-auto font-sans">
               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center justify-center">
                 <MessageCircle />
                 Les avis
@@ -397,6 +438,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
                 <CarouselNext className="absolute right-[-20px] top-1/2 -translate-y-1/2 bg-lime-400 hover:bg-lime-500 text-white border-none rounded-full w-8 h-8" />
               </Carousel>
             </div>
+            <BookingSteps advance={tour?.advancedPrice}/>
           </div>
         </div>
       </div>
@@ -446,6 +488,11 @@ const TourDetails = ({ tour }: { tour: any }) => {
           </div>
         </div>
       </div>
+      <ReservationSection
+         availableDates={sampleAvailableDates}
+         hotels={sampleHotels}
+         imageSrc="/path/to/your/image.jpg" // Provide image path
+       />
       <div className="bg-[#F6F3F2] p-6 rounded-lg shadow-sm mb-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-8 flex items-center justify-center">
           <CalendarIcon />
@@ -475,7 +522,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
               </div>
               <div className="text-sm font-bold text-gray-800">
                 <span className="md:hidden font-semibold">Prix: </span>
-                {tour.priceDiscounted}
+                {tour.priceDiscounted} DH
               </div>
               <div className="mt-2 md:mt-0">
                 <button className="w-full md:w-auto bg-green-700 hover:bg-green-800 text-white text-sm font-semibold py-2 px-4 rounded-md flex items-center justify-center transition-colors">
@@ -506,6 +553,8 @@ const TourDetails = ({ tour }: { tour: any }) => {
           />
         </div>
       </div>
+      <FaqSection faqData={sampleFaqData} />
+       
     </div>
   );
 };
@@ -558,3 +607,136 @@ const TestimonialCard = ({ review }: { review: any }) => {
     </Card>
   );
 };
+const FaqSection = ({ faqData, title = "Questions fréquemment posées" }:any) => {
+  return (
+    <div className="w-full max-w-3xl mx-auto p-4 md:p-8 font-sans">
+      <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-8 flex items-center justify-center">
+        {/* Optional Icon */}
+        {/* <QuestionIcon /> */}
+        {title}
+      </h2>
+
+      {/* Shadcn Accordion Component */}
+      <Accordion type="single" collapsible className="w-full space-y-3">
+        {faqData.map((item:any) => (
+          <AccordionItem
+            key={item.id}
+            value={item.id} // Use unique ID for value
+            className="border border-gray-200 rounded-lg shadow-sm bg-white overflow-hidden"
+          >
+            <AccordionTrigger className="flex justify-between items-center w-full p-4 md:p-5 text-left font-medium text-gray-700 hover:bg-gray-50 transition-colors [&[data-state=open]>svg]:rotate-180">
+              <span className="flex-1 mr-4">{item.question}</span>
+              {/* Default chevron is included in AccordionTrigger, styled via CSS */}
+              {/* You can customize the icon if needed */}
+              {/* <ChevronDownIcon className="h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200" /> */}
+            </AccordionTrigger>
+            <AccordionContent className="p-4 md:p-5 pt-0 text-gray-600 text-sm leading-relaxed bg-white">
+              {item.answer}
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
+    </div>
+  );
+};
+const BookingSteps = ({advance}:{advance:any}) => {
+
+  const rib = "007 810 0004494000304008 16";
+  const phoneNumber = "0628324880";
+  const email = "happy.trip.voyage@gmail.com";
+
+  // Basic copy to clipboard function
+  const copyToClipboard = (text:any) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast.info(`"${text}" copié dans le presse-papiers !`); // Simple feedback
+    }).catch(err => {
+      console.error('Erreur de copie: ', err);
+      toast.info('Erreur lors de la copie.');
+    });
+  };
+
+  return (
+    <div className="w-full max-w-4xl mx-auto p-6 md:p-8 font-sans bg-[#F6F3F2] rounded-lg shadow border border-slate-200">
+      <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-8">
+        Comment faire la réservation
+      </h2>
+
+      <p className="text-center text-sm text-gray-600 mb-8">La réservation est ouverte à la limite des places disponibles.</p>
+
+      {/* Steps Section */}
+      <div className="space-y-2 mb-10">
+        {/* Step 1: Check Availability */}
+        <div className="flex items-start space-x-2 p-4 bg-white rounded-lg border border-blue-100">
+          <div className="flex-shrink-0 pt-1">
+            <PhoneIcon />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-1">Étape 1 : Vérifier la disponibilité</h3>
+            <p className="text-gray-700 text-sm">
+              Contactez le numéro du club ({phoneNumber}) pour vérifier la disponibilité des places avant de procéder.
+            </p>
+          </div>
+        </div>
+
+        {/* Step 2: Make Payment */}
+        <div className="flex items-start space-x-4 p-4 bg-white rounded-lg border border-green-100">
+          <div className="flex-shrink-0 pt-1">
+            <BanknoteIcon />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-1">Étape 2 : Effectuer le virement</h3>
+            <p className="text-gray-700 text-sm mb-2">
+              Faites la réservation par virement bancaire de <strong>{advance}dh</strong> au RIB du club.
+            </p>
+            <div className="text-sm bg-gray-100 p-3 rounded border border-gray-200">
+              <p className="font-medium text-gray-600 mb-1">Banque: Attijariwafa Bank</p>
+              <div className="flex items-center">
+                <p className="font-mono text-gray-800 mr-2">RIB: {rib}</p>
+                <button className="cursor-pointer" onClick={() => copyToClipboard(rib)} title="Copier le RIB">
+                  <CopyIcon />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Step 3: Send Proof */}
+        <div className="flex items-start space-x-4 p-4 bg-white rounded-lg border border-teal-100">
+          <div className="flex-shrink-0 pt-1">
+             <img src={"/icons/whatsapp.png"} className="w-7 h-7" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-1">Étape 3 : Envoyer le reçu</h3>
+            <p className="text-gray-700 text-sm mb-2">
+              Renvoyez le reçu du virement via Whatsapp ({phoneNumber}) avec le nom et prénom du participant.
+            </p>
+            <p className="text-xs text-red-600 font-medium">
+              <strong>Important :</strong> N&apos;oubliez pas de demander au banquier de s&apos;assurer que le compte est au nom de Ayoub.
+            </p>
+          </div>
+        </div>
+
+        {/* Step 4: Club Rights */}
+        <div className="flex items-start space-x-4 p-4 bg-white rounded-lg border border-orange-100">
+          <div className="flex-shrink-0 pt-1">
+            <InfoIcon />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-1">Information importante</h3>
+            <p className="text-gray-700 text-sm">
+              Le club se réserve le droit de modifier le programme en s&apos;assurant de la sécurité des Happy Trippers selon les circonstances du voyage.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Contact Info */}
+      <div className="text-center border-t pt-6 mt-8">
+        <h3 className="text-lg font-semibold text-gray-800 mb-3">Contact</h3>
+        <p className="text-sm text-gray-600 mb-1">GSM/Whatsapp: {phoneNumber}</p>
+        <p className="text-sm text-gray-600">Email: {email}</p>
+      </div>
+    </div>
+  );
+};
+
