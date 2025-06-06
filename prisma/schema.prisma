@@ -89,6 +89,7 @@ model Tour {
   dateCard           String? //this date for card view
   durationDays       Int?
   durationNights     Int?
+  googleMapsUrl            String? // URL to an interactive map
   imageUrl           String?
   inclus              String?
   exclus             String?
@@ -103,7 +104,6 @@ model Tour {
   totalReviews       Int      @default(0)
   averageRating      Float    @default(0.0)
   discountPercent    Int?     // e.g. 10 for 10%
-  // weekendsOnly       Boolean  @default(false)
   accommodationType    String?  // e.g., "Hôtel", "Auberge", "Camping"
   programs          Program[] @relation("TourPrograms")
   dates              TourDate[]

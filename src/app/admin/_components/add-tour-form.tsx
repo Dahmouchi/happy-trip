@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+ 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
@@ -137,7 +137,7 @@ const tourSchema = z.object({
     .or(z.literal(""))
     .transform((val) => (val === "" ? undefined : val)),
   accommodationType: z.string().optional(),
-  googleMapsLink: z
+  googleMapsUrl: z
     .string()
     .url("Lien Google Maps invalide")
     .optional()
@@ -215,7 +215,7 @@ export function AddTourForm({
       difficultyLevel: undefined,
       discountPercent: 0,
       accommodationType: "",
-      googleMapsLink: "",
+      googleMapsUrl: "",
       inclus: "",
       exclus: "",
       programs: [],
@@ -703,7 +703,7 @@ export function AddTourForm({
 
                   <FormField
                     control={form.control}
-                    name="googleMapsLink"
+                    name="googleMapsUrl"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Lien Google Maps</FormLabel>

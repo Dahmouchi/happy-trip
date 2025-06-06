@@ -23,6 +23,11 @@ const tourSchema = z.object({
   dateCard: z.string().optional(),
   durationDays: z.preprocess((val) => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(1, "Au moins 1 jour").optional()),
   durationNights: z.preprocess((val) => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(0, "Nuits >= 0").optional()),
+ googleMapsUrl: z
+    .string()
+    .url("Lien Google Maps invalide")
+    .optional()
+    .or(z.literal("")),
   imageURL: z.instanceof(File).optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
   groupType: z.string().optional(),
   groupSizeMax: z.preprocess((val) => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(1, "Taille min 1").optional()),
@@ -122,6 +127,7 @@ export type TourFormData = z.infer<typeof tourSchema>
       dateCard: validatedData.dateCard,
       durationDays: validatedData.durationDays,
       durationNights: validatedData.durationNights,
+      googleMapsUrl: validatedData.googleMapsUrl,
       imageUrl: validatedData.imageURL ? await uploadImage(validatedData.imageURL) : "", // Upload image and get URL
       inclus: validatedData.inclus,
       exclus: validatedData.exclus,
@@ -339,6 +345,7 @@ export async function updateTour(tourId: string, formData: TourFormData) {
         dateCard: validatedData.dateCard,
         durationDays: validatedData.durationDays,
         durationNights: validatedData.durationNights,
+        googleMapsUrl: validatedData.googleMapsUrl,
         imageUrl: validatedData.imageURL ? await uploadImage(validatedData.imageURL) : "",
         inclus: validatedData.inclus,
         exclus: validatedData.exclus,

@@ -137,9 +137,8 @@ const tourSchema = z.object({
     .optional()
     .or(z.literal(""))
     .transform((val) => (val === "" ? undefined : val)),
-  weekendsOnly: z.boolean().default(false),
   accommodationType: z.string().optional(),
-  googleMapsLink: z
+  googleMapsUrl: z
     .string()
     .url("Lien Google Maps invalide")
     .optional()
@@ -219,7 +218,7 @@ export function UpdateTourForm({
       difficultyLevel: initialData.difficultyLevel ?? undefined,
       discountPercent: initialData.discountPercent ?? 0,
       accommodationType: initialData.accommodationType ?? "",
-      googleMapsLink: initialData.googleMapsLink ?? "",
+      googleMapsUrl: initialData.googleMapsUrl ?? "",
       inclus: initialData.inclus ?? "",
       exclus: initialData.exclus ?? "",
       programs: initialData.programs || [],
@@ -714,7 +713,7 @@ export function UpdateTourForm({
 
                   <FormField
                     control={form.control}
-                    name="googleMapsLink"
+                    name="googleMapsUrl"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Lien Google Maps</FormLabel>
@@ -723,6 +722,7 @@ export function UpdateTourForm({
                             type="url"
                             placeholder="Entrez le lien Google Maps de l'emplacement"
                             {...field}
+                            value={field.value || ""}
                           />
                         </FormControl>
                         <FormDescription>
