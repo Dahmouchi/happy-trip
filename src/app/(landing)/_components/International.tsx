@@ -13,7 +13,7 @@ import { Archive } from "lucide-react";
 
 const International = () => {
   return (
-    <div className="relative mt-10">
+    <div className="relative mt-10 min-h-screen">
     <img src="/international.png" className="w-full h-auto absolute bottom-0 z-0 opacity-30" alt="" />
      <div className="z-20">
      <div className="w-full text-center flex items-center justify-center flex-col gap-2">

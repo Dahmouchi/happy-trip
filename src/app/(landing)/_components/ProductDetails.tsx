@@ -39,6 +39,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay"; // Optional: if you want autoplay
 
 const TourDetails = ({ tour }: { tour: any }) => {
   const rating = 4; // Note sur 5
@@ -69,6 +70,9 @@ const TourDetails = ({ tour }: { tour: any }) => {
       avatarUrl: "/home/ubuntu/upload/image.png", // Replace with actual avatar path
     },
   ];
+  const plugin = React.useRef(
+    Autoplay({ delay: 2000, stopOnInteraction: true }) // Optional Autoplay
+  );
   const includes =
     tour.inclus?.split(",").map((item: any) => item.trim()) || [];
   const excludes =
@@ -366,11 +370,14 @@ const TourDetails = ({ tour }: { tour: any }) => {
                 Les avis
               </h2>
               <Carousel
+                plugins={[plugin.current]} // Add plugin ref here for autoplay
                 className="w-full"
                 opts={{
                   align: "start",
                   loop: true,
                 }}
+                onMouseEnter={plugin.current.stop} // Optional: pause on hover
+                onMouseLeave={plugin.current.reset}
               >
                 <CarouselContent>
                   {sampleTestimonials.map((review, index) => (
