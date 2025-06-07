@@ -25,6 +25,15 @@ const sections: Landing | null = await prisma.landing.findUnique({
     }
 
   });
+  const tourInternational: Tour[] | null = await prisma.tour.findMany({
+    where: {
+      type:"INTERNATIONAL",
+    },
+    orderBy:{
+      createdAt:"asc",
+    }
+
+  });
 
   return (
     <div>
@@ -39,7 +48,7 @@ const sections: Landing | null = await prisma.landing.findUnique({
       } */}
       {(sections?.hero ?? true) && <Hero inp={sections?.search}/>}
       {(sections?.national ?? true) && <National tour={tourNational}/>}
-      {(sections?.international ?? true) && <International />}
+      {(sections?.international ?? true) && <International tour={tourInternational}/>}
       {(sections?.mesure ?? true) && <Mesure />}
       {(sections?.reviews ?? true) && <ReviewsSection />}
       {(sections?.meeting ?? true) && <Meeting />}
