@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Destination } from "@prisma/client";
 import Footer from "./_components/Footer";
 import { Navbar } from "./_components/Header";
@@ -8,9 +9,14 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const tourNational: Destination[] | null = await prisma.destination.findMany({
+  const destinationNational: Destination[] | null = await prisma.destination.findMany({
       where: {
         type:"NATIONAL",
+      },
+    });
+    const destinationInternational: Destination[] | null = await prisma.destination.findMany({
+      where: {
+        type:"INTERNATIONAL",
       },
     });
   return (

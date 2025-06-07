@@ -441,7 +441,7 @@ const sampleHotels = [
                 <CarouselPrevious className="absolute left-[-20px] top-1/2 -translate-y-1/2 bg-lime-400 hover:bg-lime-500 text-white border-none rounded-full w-8 h-8" />
                 <CarouselNext className="absolute right-[-20px] top-1/2 -translate-y-1/2 bg-lime-400 hover:bg-lime-500 text-white border-none rounded-full w-8 h-8" />
               </Carousel>
-              <ReviewModal />
+              <ReviewModal tourId={tour.id}/>
             </div>
             <BookingSteps advance={tour?.advancedPrice}/>
           </div>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
@@ -15,8 +16,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-toastify";
 import { Star } from "lucide-react"; // using Lucide icons (already in ShadCN)
+import { AddReview } from "@/actions/reviewActions";
 
-export function ReviewModal() {
+export function ReviewModal({tourId}:{tourId:any}) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     fullName: "",
@@ -26,12 +28,8 @@ export function ReviewModal() {
 
   const handleSubmit = async () => {
     try {
-      const res = await fetch("/api/reviews", {
-        method: "POST",
-        body: JSON.stringify(form),
-      });
-
-      if (!res.ok) throw new Error("Failed to submit");
+      const res = await AddReview(form.fullName,form.message,form.rating,tourId)
+      if (!res.success) throw new Error("Failed to submit");
 
       toast.success("Review submitted. Awaiting validation.");
       setForm({ fullName: "", message: "", rating: 5 });

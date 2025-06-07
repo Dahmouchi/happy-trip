@@ -120,10 +120,20 @@ model Tour {
   categories          Category[] @relation("CategoryTours")
   natures             Nature[] @relation("NatureTours")
   images             File[]
+  reviews            Review[]
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 }
-
+model Review {
+  id        String   @id @default(cuid())
+  fullName  String
+  message   String
+  rating    Int      @default(5)
+  status    Boolean @default(false)
+  tourId    String
+  tour      Tour    @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
 model File {
   id        Int      @id @default(autoincrement())
   tourId    String
