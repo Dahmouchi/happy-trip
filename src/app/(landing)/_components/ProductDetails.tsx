@@ -46,6 +46,8 @@ import {
 import Autoplay from "embla-carousel-autoplay"; // Optional: if you want autoplay
 import { toast } from "react-toastify";
 import ReservationSection from "./ReservationForm";
+import DiscountTimer from "./DiscountBadge";
+import DiscountTimerProduct from "./DiscountBadgeProductPage";
 
 const TourDetails = ({ tour }: { tour: any }) => {
   const rating = 4; // Note sur 5
@@ -144,7 +146,10 @@ const sampleHotels = [
     return <Loading />;
   }
   return (
-    <div>
+    <div className="relative">
+      <div className="w-full bg-[#F6F3F2]">
+        <DiscountTimerProduct endDate={tour.createdAt.toString()}/>
+      </div>
       <div className="bg-[#F6F3F2] p-4 md:p-8 lg:p-12">
         {/* Breadcrumbs */}
         <nav className="mb-4 text-sm text-gray-500">

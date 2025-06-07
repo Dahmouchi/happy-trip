@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @next/next/no-img-element */
 import React from "react";
-
 import {
   Carousel,
   CarouselContent,
@@ -8,14 +7,17 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { PromotionCard } from "./ProductCard";
-import { Archive } from "lucide-react";
 
-const International = () => {
+import { Tour } from "@prisma/client";
+import { InternationalCard } from "./ProductCardInternational";
+
+const International = ({tour}:{tour:Tour[]}) => {
   return (
     <div className="relative mt-10 min-h-screen">
-    <img src="/international.png" className="w-full h-auto absolute bottom-0 z-0 opacity-30" alt="" />
-     <div className="z-20">
+<div
+    className="absolute inset-0 bg-[url('/international.png')] bg-cover bg-center"
+    style={{ opacity: 0.1, zIndex: 0 }}
+  />     <div className="z-20">
      <div className="w-full text-center flex items-center justify-center flex-col gap-2">
         <h1 className="lg:text-4xl text-xl font-bold">Voyages Interationaux</h1>
         <h1 className="lg:w-1/2 text-sm lg:text-lg text-gray-500">
@@ -27,15 +29,11 @@ const International = () => {
       <div className=" relative container lg:px-28 py-8  ">
         <Carousel opts={{ align: "center" }} className=" ">
           <CarouselContent className="px-8">
-            <CarouselItem className="sm:basis-1/3 pb-2 lg:pt-4 py-4">
-             {" "}
-            </CarouselItem>
-            <CarouselItem className="sm:basis-1/3 pb-2 lg:pt-4 py-4">
-             {" "}
-            </CarouselItem>
-            <CarouselItem className="sm:basis-1/3 pb-2 lg:pt-4 py-4">
-              {" "}
-            </CarouselItem>
+            {tour.map((tr,index)=>(
+                          <CarouselItem key={index} className="sm:basis-1/3 pb-2 lg:pt-4 py-4">
+                          <InternationalCard tour={tr}/>{" "}
+                        </CarouselItem>
+                        ))}
           </CarouselContent>
           {/* <div className="w-full flex items-center justify-end gap-2 pt-8">
             <CarouselPrevious className="custom-next text-center w-8 h-8 flex items-center justify-center bg-orange-800 text-white rounded-full shadow-lg hover:bg-orange-600 transition" />
