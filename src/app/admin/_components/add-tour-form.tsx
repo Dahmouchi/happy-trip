@@ -108,6 +108,11 @@ const tourSchema = z.object({
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
     z.number().min(0, "Nuits >= 0").optional()
   ),
+  videoUrl: z
+    .string()
+    .url("URL de la vidéo invalide")
+    .optional()
+    .or(z.literal("")),
   imageURL: z
     .instanceof(File)
     .optional()
@@ -206,6 +211,7 @@ export function AddTourForm({
       dateCard: "",
       durationDays: undefined,
       durationNights: undefined,
+      videoUrl: "",
       imageURL: undefined,
       groupType: "",
       groupSizeMax: undefined,
@@ -721,6 +727,27 @@ export function AddTourForm({
                         <FormMessage />
                       </FormItem>
                     )}
+                  />
+                    
+                  {/* Video URL */}
+                  <FormField
+                    control={form.control}
+                    name="videoUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Lien vidéo YouTube</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="url"
+                            placeholder="Entrez le lien de la vidéo YouTube"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Ajoutez un lien vers une vidéo YouTube présentant ce circuit.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>  )}
                   />
 
                   {/* Groupe type  */}
