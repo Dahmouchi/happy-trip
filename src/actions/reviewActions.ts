@@ -12,12 +12,12 @@ export async function AddReview(fullName: string,message:string,rating:number) {
     return { success: false, error: "Failed to delete tour" };
   }
 
-  const review = await prisma.review.create({
+ {/*  const review = await prisma.reviews.create({
     data: {
       fullName,
       message,
       rating: Number(rating),
     },
-  });
+  });*/}
     
 }

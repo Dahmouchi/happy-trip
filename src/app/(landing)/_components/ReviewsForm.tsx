@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,12 +13,16 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
 import { toast } from "react-toastify";
+import { Star } from "lucide-react"; // using Lucide icons (already in ShadCN)
 
 export function ReviewModal() {
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ fullName: "", message: "", rating: 5 });
+  const [form, setForm] = useState({
+    fullName: "",
+    message: "",
+    rating: 5,
+  });
 
   const handleSubmit = async () => {
     try {
@@ -36,10 +41,16 @@ export function ReviewModal() {
     }
   };
 
+  const handleStarClick = (index: number) => {
+    setForm({ ...form, rating: index + 1 });
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Leave a Review</Button>
+        <button className="w-full bg-green-800 text-white py-3 rounded-lg font-semibold hover:bg-green-900 transition-colors cursor-pointer">
+            Ajouter un Commmentaire
+        </button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -51,21 +62,25 @@ export function ReviewModal() {
           value={form.fullName}
           onChange={(e) => setForm({ ...form, fullName: e.target.value })}
         />
+
         <Textarea
           placeholder="Your message"
           value={form.message}
           onChange={(e) => setForm({ ...form, message: e.target.value })}
         />
-        <Input
-          type="number"
-          min={1}
-          max={5}
-          placeholder="Rating (1–5)"
-          value={form.rating}
-          onChange={(e) =>
-            setForm({ ...form, rating: Number(e.target.value) })
-          }
-        />
+
+        {/* Star Rating */}
+        <div className="flex items-center gap-1 my-2">
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              className={`w-6 h-6 cursor-pointer transition-colors ${
+                i < form.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+              }`}
+              onClick={() => handleStarClick(i)}
+            />
+          ))}
+        </div>
 
         <DialogFooter>
           <Button onClick={handleSubmit}>Submit</Button>

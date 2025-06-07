@@ -48,6 +48,7 @@ import { toast } from "react-toastify";
 import ReservationSection from "./ReservationForm";
 import DiscountTimer from "./DiscountBadge";
 import DiscountTimerProduct from "./DiscountBadgeProductPage";
+import { ReviewModal } from "./ReviewsForm";
 
 const TourDetails = ({ tour }: { tour: any }) => {
   const rating = 4; // Note sur 5
@@ -147,9 +148,7 @@ const sampleHotels = [
   }
   return (
     <div className="relative">
-      <div className="w-full bg-[#F6F3F2]">
-        <DiscountTimerProduct endDate={tour.createdAt.toString()}/>
-      </div>
+          {tour.showDiscount && tour.priceOriginal !== tour.priceDiscounted && ( <DiscountTimerProduct endDate={tour.createdAt.toString()}/>)}
       <div className="bg-[#F6F3F2] p-4 md:p-8 lg:p-12">
         {/* Breadcrumbs */}
         <nav className="mb-4 text-sm text-gray-500">
@@ -243,7 +242,7 @@ const sampleHotels = [
           <div className="flex items-center lg:px-0 px-8 gap-2 justify-between lg:justify-center py-4">
             <img src={"/icons/calendar.png"} className="w-7 h-7" />{" "}
             {/* Replace with calendar icon */}
-            <span>A partir de {getNextTourDate(tour.dates)}</span>
+            <span>Prochaine date {getNextTourDate(tour.dates)}</span>
           </div>
         </div>
 
@@ -442,6 +441,7 @@ const sampleHotels = [
                 <CarouselPrevious className="absolute left-[-20px] top-1/2 -translate-y-1/2 bg-lime-400 hover:bg-lime-500 text-white border-none rounded-full w-8 h-8" />
                 <CarouselNext className="absolute right-[-20px] top-1/2 -translate-y-1/2 bg-lime-400 hover:bg-lime-500 text-white border-none rounded-full w-8 h-8" />
               </Carousel>
+              <ReviewModal />
             </div>
             <BookingSteps advance={tour?.advancedPrice}/>
           </div>
