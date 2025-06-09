@@ -21,7 +21,8 @@ const TourDetailsMain = async (params:any) => {
         destinations:true,
         programs:true,
         categories:true,
-       // reviews:true,
+        reviews:true,
+        services:true,
     }
   });
 

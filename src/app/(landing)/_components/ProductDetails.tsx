@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/accordion";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Program, Tour, TourDate } from "@prisma/client";
+import { Program, Review, Tour, TourDate } from "@prisma/client";
 import {
   ArrowRightIcon,
   BadgeCheck,
@@ -49,15 +49,15 @@ import DiscountTimerProduct from "./DiscountBadgeProductPage";
 import { ReviewModal } from "./ReviewsForm";
 
 const TourDetails = ({ tour }: { tour: any }) => {
-  const approvedReviews = tour.reviews?.filter((review: any) => review.status);
-  const reviewCount = approvedReviews?.length;
-  const averageRating =
-    approvedReviews?.length > 0
-      ? approvedReviews?.reduce(
-          (sum: any, review: any) => sum + review?.rating,
-          0
-        ) / approvedReviews?.length
-      : 0;
+  const approvedReviews = tour.reviews?.filter(
+  (review: Review) => review.status === true
+) ?? [];
+
+const reviewCount = approvedReviews.length;
+const averageRating = reviewCount > 0
+  ? approvedReviews.reduce((sum:any, review:any) => sum + review.rating, 0) / reviewCount
+  : 0;
+
   const sampleTestimonials = [
     {
       title: "Great Work",
@@ -157,9 +157,11 @@ const TourDetails = ({ tour }: { tour: any }) => {
   }
   return (
     <div className="relative">
-      {tour.showDiscount && tour.priceOriginal !== tour.priceDiscounted && (
-        <DiscountTimerProduct endDate={tour.createdAt.toString()} />
-      )}
+      <div className="block lg:hidden">
+        {tour.showDiscount && tour.priceOriginal !== tour.priceDiscounted && (
+          <DiscountTimerProduct endDate={tour.createdAt.toString()} />
+        )}
+      </div>
       <div className="bg-[#F6F3F2] p-4 md:p-8 lg:p-12">
         {/* Breadcrumbs */}
         <nav className="mb-4 text-sm text-gray-500">
@@ -188,16 +190,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
             {tour.showReviews && (
               <div className="flex items-center mb-6">
                 <div className="flex mr-2">
-                 {[1, 2, 3, 4, 5].map((star) => {
-                const fillValue = Math.max(0, Math.min(1, averageRating - star + 1));
-                return (
-                  <StarIcon 
-                    key={star} 
-                    filled={fillValue} 
-                    className="mr-0.5"
-                  />
-                );
-              })}
+                 <StarRatingDisplay averageRating={averageRating} />
                 </div>
                 <span className="text-gray-600 text-sm ml-1">
                   ({reviewCount} {reviewCount === 1 ? "avis" : "avis"}) •{" "}
@@ -220,11 +213,17 @@ const TourDetails = ({ tour }: { tour: any }) => {
           </div>
 
           {/* Colonne de droite : Image */}
-          <div className="lg:w-1/2 h-full">
+          <div className="lg:w-1/2 w-full h-full relative">
+            <div className="lg:block hidden">
+              {tour.showDiscount &&
+                tour.priceOriginal !== tour.priceDiscounted && (
+                  <DiscountTimerProduct endDate={tour.createdAt.toString()} />
+                )}
+            </div>
             <img
               src={tour.imageUrl || ""} // Remplacez par le chemin réel ou l'URL de votre image
               alt="Randonnée Atlas Central"
-              className="rounded-lg shadow-md w-full h-auto object-cover"
+              className="rounded-lg shadow-md w-full lg:h-[50vh] h-[30vh] object-cover"
               // Pour Next.js, utilisez <Image />
               // import Image from 'next/image';
               // <Image src="/path/to/your/image.jpg" alt="..." width={600} height={400} className="rounded-lg shadow-md" />
@@ -282,7 +281,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
               <div className="absolute inset-0 flex items-center justify-center">
                 <iframe
                   className="absolute top-0 left-0 w-full h-full"
-                  src="https://www.youtube.com/embed/8hatQ0GNTZc"
+                  src={tour.videoUrl || ""}
                   title="YouTube video"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -323,6 +322,53 @@ const TourDetails = ({ tour }: { tour: any }) => {
                 </AccordionItem>
               ))}
             </Accordion>
+            <div className="bg-white p-6 lg:px-12 md:p-8 font-sans">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+                {/* Included Section */}
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800 mb-1">
+                    Qu&apos;est-ce qui est inclus dans cet circuit?
+                  </h2>
+                  <p className="text-sm text-gray-500 mb-4 pb-2 border-b border-gray-200">
+                    Les éléments qui sont inclus dans le coût du prix de la
+                    tournée.
+                  </p>
+                  <ul className="list-none p-0 m-0">
+                    {includes.map((item: any, index: any) => (
+                      <div
+                        key={`inc-${index}`}
+                        className="flex items-center gap-2 mt-2"
+                      >
+                        <BadgeCheck />
+                        <p>{item}</p>
+                      </div>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Excluded Section */}
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800 mb-1">
+                    Qu&apos;est-ce qui n&apos;est pas inclus dans cet circuit?
+                  </h2>
+                  <p className="text-sm text-gray-500 mb-4 pb-2 border-b border-gray-200">
+                    Les éléments qui ne sont pas inclus dans le coût du prix de
+                    la tournée.
+                  </p>
+                  <ul className="list-none p-0 m-0">
+                    {excludes.map((item: any, index: any) => (
+                      <div
+                        key={`inc-${index}`}
+                        className="flex items-center gap-2 mt-2"
+                      >
+                        <BadgeX />
+                        <p>{item}</p>
+                      </div>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Right Column (Sidebar) */}
@@ -363,11 +409,13 @@ const TourDetails = ({ tour }: { tour: any }) => {
                     Distination
                   </span>
                 </div>
-                {tour.destinations.map((des: any, index: any) => (
-                  <span className="text-gray-800" key={index}>
-                    {des.name}
-                  </span>
-                ))}
+                <p>
+                  {tour.destinations.map((des: any, index: any) => (
+                    <span className="text-gray-800" key={index}>
+                      {des.name}
+                    </span>
+                  ))}
+                </p>
               </div>
 
               {/* Detail Item */}
@@ -379,11 +427,13 @@ const TourDetails = ({ tour }: { tour: any }) => {
                     Thématique
                   </span>
                 </div>
-                {tour.natures.map((des: any, index: any) => (
-                  <span className="text-gray-800" key={index}>
-                    {des.name}
-                  </span>
-                ))}
+                <p>
+                  {tour.natures.map((des: any, index: any) => (
+                    <span className="text-gray-800" key={index}>
+                      {des.name}
+                    </span>
+                  ))}
+                </p>
               </div>
 
               {/* Detail Item */}
@@ -420,9 +470,13 @@ const TourDetails = ({ tour }: { tour: any }) => {
                     Services
                   </span>
                 </div>
-                <span className="text-gray-800">
-                  Vole A/R + Transferet +Guides
-                </span>
+                <p>
+                  {tour.services?.map((ser: any, index: any) => (
+                    <span className="text-gray-800" key={index}>
+                      {ser.name},
+                    </span>
+                  ))}
+                </p>
               </div>
 
               {/* Reserve Button */}
@@ -468,52 +522,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
           </div>
         </div>
       </div>
-      <div className="bg-white p-6 lg:px-12 md:p-8 font-sans">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-          {/* Included Section */}
-          <div>
-            <h2 className="text-xl font-bold text-gray-800 mb-1">
-              Qu&apos;est-ce qui est inclus dans cet circuit?
-            </h2>
-            <p className="text-sm text-gray-500 mb-4 pb-2 border-b border-gray-200">
-              Les éléments qui sont inclus dans le coût du prix de la tournée.
-            </p>
-            <ul className="list-none p-0 m-0">
-              {includes.map((item: any, index: any) => (
-                <div
-                  key={`inc-${index}`}
-                  className="flex items-center gap-2 mt-2"
-                >
-                  <BadgeCheck />
-                  <p>{item}</p>
-                </div>
-              ))}
-            </ul>
-          </div>
 
-          {/* Excluded Section */}
-          <div>
-            <h2 className="text-xl font-bold text-gray-800 mb-1">
-              Qu&apos;est-ce qui n&apos;est pas inclus dans cet circuit?
-            </h2>
-            <p className="text-sm text-gray-500 mb-4 pb-2 border-b border-gray-200">
-              Les éléments qui ne sont pas inclus dans le coût du prix de la
-              tournée.
-            </p>
-            <ul className="list-none p-0 m-0">
-              {excludes.map((item: any, index: any) => (
-                <div
-                  key={`inc-${index}`}
-                  className="flex items-center gap-2 mt-2"
-                >
-                  <BadgeX />
-                  <p>{item}</p>
-                </div>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </div>
       <ReservationSection
         availableDates={sampleAvailableDates}
         hotels={sampleHotels}
@@ -585,46 +594,20 @@ const TourDetails = ({ tour }: { tour: any }) => {
 };
 
 export default TourDetails;
+import { Rating } from "react-simple-star-rating";
 
-const StarIcon = ({
-  filled,
-  className = "",
-}: {
-  filled: number;
-  className?: string;
-}) => {
-  // filled can be 0 (empty), 0.5 (half), or 1 (full)
+const StarRatingDisplay = ({ averageRating }: { averageRating: number }) => {
   return (
-    <div
-      className={`relative ${className}`}
-      style={{ width: "1.25rem", height: "1.25rem" }}
-    >
-      {/* Gray background star (always shows) */}
-      <svg
-        className="absolute w-full h-full text-gray-300"
-        fill="currentColor"
-        viewBox="0 0 20 20"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-      </svg>
-
-      {/* Yellow foreground star (clipped based on fill percentage) */}
-      {filled > 0 && (
-        <div
-          className="absolute overflow-hidden"
-          style={{ width: `${filled * 100}%`, height: "100%" }}
-        >
-          <svg
-            className="w-full h-full text-yellow-400"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
-        </div>
-      )}
+    <div className="flex items-center">
+      <Rating
+        readonly
+        initialValue={averageRating}
+        size={20}
+        allowFraction
+        SVGstyle={{ display: "inline-block" }}
+        fillColor="#facc15" // Tailwind's yellow-400
+        emptyColor="#d1d5db" // Tailwind's gray-300
+      />
     </div>
   );
 };
@@ -637,9 +620,7 @@ const TestimonialCard = ({ review }: { review: any }) => {
           <h3 className="text-lg font-semibold text-orange-600">
             {review?.title}
           </h3>
-          <div className="flex">
-            
-          </div>
+          <div className="flex"></div>
         </div>
         <p className="text-gray-600 text-sm mb-4 leading-relaxed">
           &quot;{review?.text}&quot;
@@ -654,7 +635,9 @@ const TestimonialCard = ({ review }: { review: any }) => {
             // <Image src={review?.avatarUrl} alt={review?.name} width={40} height={40} className="rounded-full mr-3" />
           />
           <div>
-            <p className="font-semibold text-gray-800 text-sm">{review?.name}</p>
+            <p className="font-semibold text-gray-800 text-sm">
+              {review?.name}
+            </p>
             <p className="text-gray-500 text-xs">{review?.role}</p>
           </div>
         </div>

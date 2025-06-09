@@ -24,7 +24,9 @@ import { createCategory, updateCategory, deleteCategory, getCategories } from "@
 import { createNature, updateNature, deleteNature, getNatures } from "@/actions/natures"
 import { toast } from "react-toastify"
 import type { DestinaionType } from "@prisma/client"
-import { Categories } from "aws-sdk/clients/connectcontactlens"
+import { createService, updateService, deleteService} from "@/actions/services"
+import RichTextEditor from "@/components/ui/rich-text-editor"
+import SafeHTML from "@/components/SafeHTML"
 
 // Enum for destination types
 const DESTINATION_TYPES = [
@@ -53,13 +55,20 @@ interface Nature {
   imageUrl?: File | null
 }
 
-export default function VoyagesComponent({ initialDestinations, initialCategories, initialNatures }: any) {
+interface Service {
+  id: string
+  name: string
+  description?: string 
+}
+
+export default function VoyagesComponent({ initialDestinations, initialCategories, initialNatures, initialServices }: any) {
   const [isPending, startTransition] = useTransition()
 
   // Data states
   const [destinations, setDestinations] = useState<Destination[]>(initialDestinations)
   const [categories, setCategories] = useState<Category[]>(initialCategories)
   const [natures, setNatures] = useState<Nature[]>(initialNatures)
+  const [services, setServices] = useState<Service[]>(initialServices)
   
  
 
@@ -86,16 +95,24 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
     imageUrl: null,
   })
 
+  const [serviceForm, setServiceForm] = useState<Service>({
+    id: "",
+    name: "",
+    description: "",
+  })
+
   // Modal states
   const [showDestinationModal, setShowDestinationModal] = useState(false)
   const [showCategoryModal, setShowCategoryModal] = useState(false)
   const [showNatureModal, setShowNatureModal] = useState(false)
+  const [showServiceModal, setShowServiceModal] = useState(false)
 
   // Form mode states
   const [isEditMode, setIsEditMode] = useState({
     destination: false,
     category: false,
     nature: false,
+    service: false,
   })
 
   // Destination functions
@@ -352,15 +369,92 @@ if (categoryForm.imageUrl) {
     }
   }
 
+  // Service functions
+  const handleServiceSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+   const formData = new FormData()
+    formData.append("name", serviceForm.name)
+    formData.append("description", serviceForm.description || "")
+
+    startTransition(async () => {
+      try {
+        let result: { success: boolean; data?: any; error?: string }
+        if (isEditMode.service) {
+          const updated = await updateService(serviceForm.id, formData)
+          result = { success: !!updated, data: updated, error: updated ? undefined : "Erreur lors de la mise à jour" }
+          if (result.success) {
+            setServices((prev) => prev.map((serv) => (serv.id === serviceForm.id ? result.data : serv)))
+            toast.success("Type de Service mis à jour avec succès")
+          }
+        } else {
+          const created = await createService(formData)
+          result = { success: !!created, data: created, error: created ? undefined : "Erreur lors de la création" }
+          if (result.success) {
+            setServices((prev) => [...prev, result.data])
+            toast.success("Type de Service créé avec succès")
+          }
+        }
+
+        if (result.success) {
+          setServiceForm({ id: "", name: "", description: "" })
+          setIsEditMode((prev) => ({ ...prev, service: false }))
+          setShowServiceModal(false)
+        } else {
+          toast.error(result.error || "Une erreur est survenue")
+        }
+      } catch (error) {
+        toast.error("Une erreur est survenue")
+      }
+    })
+  }
+
+  const openAddServiceModal = () => {
+    setServiceForm({ id: "", name: "", description: ""})
+    setIsEditMode((prev) => ({ ...prev, service: false }))
+    setShowServiceModal(true)  }
+
+
+  const editService = (service: Service) => {
+    setServiceForm({
+          id: service.id,
+          name: service.name,
+          description: service.description || ""
+        })
+        setIsEditMode((prev) => ({ ...prev, service: true }))
+        setShowServiceModal(true) 
+   }
+
+
+  const handleDeleteService = async (id: string) => {
+    startTransition(async () => {
+          const result = await deleteService(id)
+          if (result.success) {
+            setServices((prev) => prev.filter((nat) => nat.id !== id))
+            toast.success("Type de service supprimé avec succès")
+          } else {
+            toast.error(result.error || "Erreur lors de la suppression")
+          }
+        }) 
+   }
+
+  const cancelServiceEdit = () => {
+    setServiceForm({ id: "", name: "", description: ""})
+    setIsEditMode((prev) => ({ ...prev, service: false }))
+    setShowServiceModal(false)
+  }
+
+
+
   return (
     <div className="container mx-auto p-6 max-w-6xl">
       <div className="mb-8">
         {/* <h1 className="text-3xl font-bold"></h1> */}
-        <p className="text-muted-foreground">Gérer les destinations, catégories et types de nature</p>
+        <p className="text-muted-foreground">Gérer les destinations, catégories, natures et services</p>
       </div>
 
       <Tabs defaultValue="destinations" className="w-full">
-        <TabsList className="grid w-full h-fit lg:grid-cols-3 gap-4 mb-6 ">
+        <TabsList className="grid w-full h-fit lg:grid-cols-4 gap-4 mb-6 ">
           <TabsTrigger
             value="destinations"
             className={`flex items-center gap-2 ${typeof destinations === "undefined" ? " opacity-50 pointer-events-none" : ""}`}
@@ -374,13 +468,24 @@ if (categoryForm.imageUrl) {
             Catégories ({Array.isArray(categories) ? categories.length : 0})
           </TabsTrigger>
           <TabsTrigger
-            value="nature"
+            value="natures"
             className={`flex items-center gap-2${typeof natures === "undefined" ? " opacity-50 pointer-events-none" : ""}`}
             disabled={typeof natures === "undefined"}
           >
             <Leaf className="h-4 w-4" />
-            Nature ({Array.isArray(natures) ? natures.length : 0})
+            Natures ({Array.isArray(natures) ? natures.length : 0})
           </TabsTrigger>
+
+
+          <TabsTrigger
+            value="services"
+            className={`flex items-center gap-2 ${typeof services === "undefined" ? " opacity-50 pointer-events-none" : ""}`}
+            disabled={typeof services === "undefined"}
+          >
+            <Tag className="h-4 w-4" />
+            Services ({Array.isArray(services) ? services.length : 0})
+          </TabsTrigger>
+         
         </TabsList>
 
         <TabsContent value="destinations" className="space-y-6">
@@ -516,7 +621,7 @@ if (categoryForm.imageUrl) {
           </Card>
         </TabsContent>
 
-        <TabsContent value="nature" className="space-y-6">
+        <TabsContent value="natures" className="space-y-6">
           <Card>
             <CardHeader className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
               <div>
@@ -561,6 +666,61 @@ if (categoryForm.imageUrl) {
                             variant="outline"
                             size="sm"
                             onClick={() => handleDeleteNature(nature.id)}
+                            disabled={isPending}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Services table  */}
+        <TabsContent value="services" className="space-y-6">
+          <Card>
+            <CardHeader className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
+              <div>
+                <CardTitle>Types de Service Existants</CardTitle>
+                <CardDescription>Gérer vos enregistrements de types de service</CardDescription>
+              </div>
+              <Button onClick={openAddServiceModal} className="flex items-center gap-2 bg-lime-600 hover:bg-lime-700 text-white">
+                <Plus className="h-4 w-4" />
+                Ajouter un Type de Service
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nom</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {services.map((service) => (
+                    <TableRow key={service.id}>
+                      <TableCell className="font-medium">{service.name}</TableCell>
+                      <TableCell className="max-w-xs truncate">
+                        <SafeHTML
+                          html={service.description ?? ""}
+                          className="safe-html text-gray-600 text-sm"
+                        />
+                       </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button variant="outline" size="sm" onClick={() => editService(service)} disabled={isPending}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteService(service.id)}
                             disabled={isPending}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -835,7 +995,65 @@ if (categoryForm.imageUrl) {
             </CardContent>
           </Card>
         </div>
-      )}
+  )}
+            {/*    services modal */}
+        {showServiceModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                {isEditMode.service ? <Edit className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
+                {isEditMode.service ? "Modifier le Type de Service" : "Ajouter un Nouveau Type de Service"}
+              </CardTitle>
+              <CardDescription>
+                {isEditMode.service
+                  ? "Mettre à jour les détails du type de service"
+                  : "Créer un nouveau type de service pour catégoriser les circuits"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleServiceSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="service-name">Nom *</Label>
+                  <Input
+                    id="service-name"
+                    value={serviceForm.name}
+                    onChange={(e) => setServiceForm((prev) => ({ ...prev, name: e.target.value }))}
+                    placeholder="Entrer le nom du type de service"
+                    required
+                    disabled={isPending}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="service-description">Description </Label>
+                  <RichTextEditor
+                    value={serviceForm.description || ""}
+                    onChange={(value) => setServiceForm((prev) => ({ ...prev, description: value }))}
+                    className="max-h-60 w-full overflow-auto"
+                    
+                  />
+                </div>
+
+                
+                 
+
+                <div className="flex gap-2">
+                  <Button type="submit" className="flex-1 bg-lime-600 hover:bg-lime-700 text-white" disabled={isPending}>
+                    <Save className="h-4 w-4 mr-2" />
+                    {isPending ? "En cours..." : isEditMode.service ? "Mettre à Jour" : "Créer"}
+                  </Button>
+                  <Button type="button" variant="outline" onClick={cancelServiceEdit} disabled={isPending}>
+                    <X className="h-4 w-4 mr-2" />
+                    Annuler
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+        )}
     </div>
+
   )
 }

@@ -54,7 +54,7 @@ export function DataTable<TData, TValue>({
 
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border ">
       <div className="flex items-center py-4 px-4">
        <Input
          placeholder="Filtrer par titre de tour..."
@@ -66,7 +66,7 @@ export function DataTable<TData, TValue>({
          className="max-w-sm"
        />
           </div>
-      <Table>
+      <Table className="border-separate border-spacing-0">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
@@ -95,13 +95,32 @@ export function DataTable<TData, TValue>({
                 data-state={row.getIsSelected() && "selected"}
                 className={idx % 2 === 1 ? "bg-lime-50" : ""}
               >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
+                {row.getVisibleCells().map((cell) => {
+                  if (cell.column.id === 'priceOriginal') {
+                    return (
+                      <TableCell key={cell.id}>
+                        <div className="bg-lime-600 text-center text-white font-bold rounded-lg px-0.5">
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </div>
+                      </TableCell>
+                    );
+                  }
+                  if (cell.column.id === 'priceDiscounted') {
+                    return (
+                      <TableCell key={cell.id}>
+                        <div className="bg-orange-500 text-center text-white font-bold rounded-lg px-0.5">
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </div>
+                      </TableCell>
+                    );
+                  }
+                  return (
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>  ))
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">

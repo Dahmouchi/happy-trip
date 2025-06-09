@@ -87,6 +87,7 @@ model Service {
 
 model Tour {
   id                 String   @id @default(cuid())
+  active             Boolean  @default(true)
   title              String
   description        String?
   type               TravelType @default(NATIONAL)
