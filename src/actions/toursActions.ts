@@ -5,6 +5,8 @@ import { PrismaClient, type TravelType } from "@prisma/client"
 import { z } from "zod"
 import { getFileUrl, uploadFile } from "@/lib/cloudeFlare";
 import sharp from "sharp";
+import { Video } from "lucide-react";
+import { act } from "react";
 
 
 
@@ -14,6 +16,7 @@ const prisma = new PrismaClient()
 // Schema for validating tour data
 
 const tourSchema = z.object({
+  active: z.boolean().default(true),
   title: z.string().min(1, "Le titre est requis"),
   description: z.string().min(1, "La description est requise").optional(),
   type: z.enum(["NATIONAL", "INTERNATIONAL"]),
@@ -26,6 +29,11 @@ const tourSchema = z.object({
  googleMapsUrl: z
     .string()
     .url("Lien Google Maps invalide")
+    .optional()
+    .or(z.literal("")),
+  videoUrl: z
+    .string()
+    .url("Lien vidéo invalide")
     .optional()
     .or(z.literal("")),
   imageURL: z.instanceof(File).optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
@@ -67,6 +75,7 @@ const tourSchema = z.object({
       link: z.instanceof(File).optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
     })
   ),
+  services: z.array(z.string()),
   destinations: z.array(z.string()),
   categories: z.array(z.string()),
   natures: z.array(z.string()),
@@ -118,6 +127,7 @@ export type TourFormData = z.infer<typeof tourSchema>
   
     const tour = await prisma.tour.create({
       data: {
+      active: validatedData.active ?? true, // Default to true if not provided
       title: validatedData.title,
       description: validatedData.description,
       type: validatedData.type as TravelType,
@@ -128,6 +138,7 @@ export type TourFormData = z.infer<typeof tourSchema>
       durationDays: validatedData.durationDays,
       durationNights: validatedData.durationNights,
       googleMapsUrl: validatedData.googleMapsUrl,
+      videoUrl: validatedData.videoUrl ? validatedData.videoUrl : "",
       imageUrl: validatedData.imageURL ? await uploadImage(validatedData.imageURL) : "", // Upload image and get URL
       inclus: validatedData.inclus,
       exclus: validatedData.exclus,
@@ -148,6 +159,12 @@ export type TourFormData = z.infer<typeof tourSchema>
           endDate: dateObj.endDate,
           description: dateObj.description,
           })),
+        }
+        : undefined,
+
+      services: validatedData.services
+        ? {
+          connect: validatedData.services.map((id) => ({ id })),
         }
         : undefined,
       destinations: validatedData.destinations
@@ -251,6 +268,7 @@ export async function deleteTour(tourId: string) {
     await prisma.$executeRaw`DELETE FROM "_TourDestinations" WHERE "A" = ${tourId}`;
     await prisma.$executeRaw`DELETE FROM "_CategoryTours" WHERE "A" = ${tourId}`;
     await prisma.$executeRaw`DELETE FROM "_NatureTours" WHERE "A" = ${tourId}`;
+    await prisma.$executeRaw`DELETE FROM "_TourServices" WHERE "A" = ${tourId}`;
 
     // Delete the tour
     const deletedTour = await prisma.tour.delete({
@@ -336,6 +354,7 @@ export async function updateTour(tourId: string, formData: TourFormData) {
     const updatedTour = await prisma.tour.update({
       where: { id: tourId },
       data: {
+        active: validatedData.active ?? true, // Default to true if not provided
         title: validatedData.title,
         description: validatedData.description,
         type: validatedData.type as TravelType,
@@ -346,6 +365,7 @@ export async function updateTour(tourId: string, formData: TourFormData) {
         durationDays: validatedData.durationDays,
         durationNights: validatedData.durationNights,
         googleMapsUrl: validatedData.googleMapsUrl,
+        videoUrl: validatedData.videoUrl ? validatedData.videoUrl : "",
         imageUrl: validatedData.imageURL ? await uploadImage(validatedData.imageURL) : "",
         inclus: validatedData.inclus,
         exclus: validatedData.exclus,
@@ -388,6 +408,13 @@ export async function updateTour(tourId: string, formData: TourFormData) {
           ? {
               set: [],
               connect: validatedData.natures.map((id) => ({ id })),
+            }
+          : undefined,
+
+        services: validatedData.services
+          ? {
+              set: [],
+              connect: validatedData.services.map((id) => ({ id })),
             }
           : undefined,
 

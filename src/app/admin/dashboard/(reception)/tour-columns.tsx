@@ -14,6 +14,7 @@ type TourData = Tour & {
   destinations: { name: string }[];
   categories: { name: string }[];
   natures: { name: string }[];
+  services: { name: string }[];
   programs: { title: string }[];
   images: { url: string }[];
 };
@@ -22,7 +23,7 @@ export const tourColumns = ({ refresh }: { refresh: () => void }): ColumnDef<Tou
   { accessorKey: "title", header: "Titre", cell: ({ row }) => row.getValue("title") ?? "—" },
   { accessorKey: "type", header: "Type" },
   { accessorKey: "priceOriginal", header: "Prix d'origine", cell: ({ row }) => `${row.getValue("priceOriginal") ?? "—"} MAD` },
-  { accessorKey: "priceDiscounted", header: "Prix remisé", cell: ({ row }) => `${row.getValue("priceDiscounted") ?? "—"} MAD` },
+  // { accessorKey: "priceDiscounted", header: "Prix remisé", cell: ({ row }) => `${row.getValue("priceDiscounted") ?? "—"} MAD` },
   { accessorKey: "advancedPrice", header: "Acompte", cell: ({ row }) => row.getValue("advancedPrice") ?? "—" },
   { accessorKey: "dateCard", header: "Date (carte)", cell: ({ row }) => row.getValue("dateCard") ?? "—" },
   { accessorKey: "durationDays", header: "Jours", cell: ({ row }) => row.getValue("durationDays") ?? "—" },

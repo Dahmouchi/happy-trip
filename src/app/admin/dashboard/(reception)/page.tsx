@@ -12,6 +12,7 @@ type TourData = Tour & {
   destinations: { name: string }[];
   categories: { name: string }[];
   natures: { name: string }[];
+  services: {name:string}[];
   programs: { title: string }[];
   images: { url: string }[];
 };
@@ -22,7 +23,7 @@ export default function ReceptionPage() {
   const fetchTours = useCallback(async () => {
     const response = await getAllTours();
     if (response.success && Array.isArray(response.data)) {
-      setTours(response.data as TourData[]);
+      setTours(response.data as unknown as TourData[]);
     } else {
       console.error("Failed to fetch tours", response.error);
     }

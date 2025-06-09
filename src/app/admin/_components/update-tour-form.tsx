@@ -80,6 +80,7 @@ import { setgid, title } from "process";
 import { getRandomValues } from "crypto";
 
 const tourSchema = z.object({
+  active: z.boolean().default(true),
   title: z.string().min(1, "Le titre est requis"),
   description: z.string().min(1, "La description est requise").optional(),
   type: z.enum(["NATIONAL", "INTERNATIONAL"]),
@@ -143,6 +144,11 @@ const tourSchema = z.object({
     .url("Lien Google Maps invalide")
     .optional()
     .or(z.literal("")),
+  videoUrl: z
+    .string()
+    .url("Lien vidéo invalide")
+    .optional()
+    .or(z.literal("")),
   programs: z
     .array(
       z.object({
@@ -180,6 +186,7 @@ const tourSchema = z.object({
   destinations: z.array(z.string()),
   categories: z.array(z.string()),
   natures: z.array(z.string()),
+  services: z.array(z.string()),
   inclus: z.string(),
   exclus: z.string(),
   arrayInclus: z.array(z.string()),
@@ -191,6 +198,7 @@ export function UpdateTourForm({
   internationalDestinations,
   categories,
   natures,
+  services,
   initialData,
   tourId,
 }: any) {
@@ -200,6 +208,7 @@ export function UpdateTourForm({
 
   const form = useForm<z.infer<typeof tourSchema>>({
     defaultValues: {
+      active: initialData.active ?? true,
       title: initialData.title ?? "",
       description: initialData.description ?? "",
       type: initialData.type ?? "NATIONAL",
@@ -219,6 +228,7 @@ export function UpdateTourForm({
       discountPercent: initialData.discountPercent ?? 0,
       accommodationType: initialData.accommodationType ?? "",
       googleMapsUrl: initialData.googleMapsUrl ?? "",
+      videoUrl: initialData.videoUrl ?? "",
       inclus: initialData.inclus ?? "",
       exclus: initialData.exclus ?? "",
       programs: initialData.programs || [],
@@ -231,6 +241,9 @@ export function UpdateTourForm({
         : [],
       natures: initialData.natures
         ? initialData.natures.map((n: any) => n.id)
+        : [],
+      services: initialData.services
+        ? initialData.services.map((s: any) => s.id)
         : [],
       images: initialData.images
         ? initialData.images.map((img: any) => ({ link: img.link }))
@@ -313,6 +326,7 @@ export function UpdateTourForm({
                 <Separator className="mb-6" />
 
                 <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 align-middle">
                   <FormField
                     control={form.control}
                     name="title"
@@ -330,6 +344,28 @@ export function UpdateTourForm({
                       </FormItem>
                     )}
                   />
+
+                     <FormField
+                      control={form.control}
+                      name="active"
+                      render={({ field }) => (
+                        <FormItem className="flex items-center space-x-2 mt-4">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              className="h-6 w-6 hover:cursor-pointer"
+                            />
+                          </FormControl>  <FormLabel>{field.value ? "Actif" : "Inactif"}</FormLabel>
+                          <FormDescription>
+                            {field.value
+                              ? "Décochez pour désactiver ce circuit."
+                              : "Cochez pour activer ce circuit."}
+                          </FormDescription>  <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    </div>
                   <FormField
                     control={form.control}
                     name="description"
@@ -602,6 +638,95 @@ export function UpdateTourForm({
                         </FormItem>
                       )}
                     />
+
+                    {/* services */}
+
+                    <FormField
+                      control={form.control}
+                      name="services"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Service(s)</FormLabel>
+                          <FormControl>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className="w-fit justify-between"
+                                >
+                                  {field.value && field.value.length > 0
+                                    ? services
+                                        .filter((service: any) =>
+                                          Array.isArray(field.value)
+                                            ? field.value.includes(service.id)
+                                            : false
+                                        )
+                                        .map((service: any) => service.name)
+                                        .join(", ")
+                                    : "Sélectionnez la/les service(s)"}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="p-0">
+                                <Command>
+                                  <CommandInput placeholder="Rechercher une service..." />
+                                  <CommandList>
+                                    <CommandEmpty>
+                                      Aucune service trouvée.
+                                    </CommandEmpty>
+                                    <CommandGroup>
+                                      {services.map((service: any) => (
+                                        <CommandItem
+                                          key={service.id}
+                                          value={service.id}
+                                          onSelect={() => {
+                                            const currentValue = Array.isArray(
+                                              field.value
+                                            )
+                                              ? [...field.value]
+                                              : [];
+                                            const index = currentValue.indexOf(
+                                              service.id
+                                            );
+                                            if (index === -1) {
+                                              field.onChange([
+                                                ...currentValue,
+                                                service.id,
+                                              ]);
+                                            } else {
+                                              currentValue.splice(index, 1);
+                                              field.onChange(currentValue);
+                                            }
+                                          }}
+                                        >
+                                          <Check
+                                            className={cn(
+                                              "mr-2 h-4 w-4",
+                                              field.value &&
+                                                field.value.includes(service.id)
+                                                ? "opacity-100"
+                                                : "opacity-0"
+                                            )}
+                                          />
+                                          {service.name}
+                                        </CommandItem>
+                                      ))}
+                                    </CommandGroup>
+                                  </CommandList>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+                          </FormControl>
+                          <FormDescription>
+                            Sélectionnez toutes les services associées à ce
+                            circuit
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
                   </div>
 
 
@@ -728,6 +853,29 @@ export function UpdateTourForm({
                         <FormDescription>
                           Ajoutez un lien Google Maps pour la localisation du
                           circuit.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* video url */}
+                  <FormField
+                    control={form.control}
+                    name="videoUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Lien de la vidéo</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="url"
+                            placeholder="Entrez le lien de la vidéo du circuit"
+                            {...field}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Ajoutez un lien vers une vidéo pour ce circuit.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>

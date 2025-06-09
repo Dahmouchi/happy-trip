@@ -25,6 +25,8 @@ import { createNature, updateNature, deleteNature, getNatures } from "@/actions/
 import { toast } from "react-toastify"
 import type { DestinaionType } from "@prisma/client"
 import { createService, updateService, deleteService} from "@/actions/services"
+import RichTextEditor from "@/components/ui/rich-text-editor"
+import SafeHTML from "@/components/SafeHTML"
 
 // Enum for destination types
 const DESTINATION_TYPES = [
@@ -704,7 +706,12 @@ if (categoryForm.imageUrl) {
                   {services.map((service) => (
                     <TableRow key={service.id}>
                       <TableCell className="font-medium">{service.name}</TableCell>
-                      <TableCell className="max-w-xs truncate">{service.description}</TableCell>
+                      <TableCell className="max-w-xs truncate">
+                        <SafeHTML
+                          html={service.description ?? ""}
+                          className="safe-html text-gray-600 text-sm"
+                        />
+                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button variant="outline" size="sm" onClick={() => editService(service)} disabled={isPending}>
@@ -1019,15 +1026,12 @@ if (categoryForm.imageUrl) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="service-description">Description *</Label>
-                  <Textarea
-                    id="service-description"
-                    value={serviceForm.description ?? ""}
-                    onChange={(e) => setServiceForm((prev) => ({ ...prev, description: e.target.value }))}
-                    placeholder="Entrer la description du type de service"
-                    rows={3}
-                    disabled={isPending}
-                    required
+                  <Label htmlFor="service-description">Description </Label>
+                  <RichTextEditor
+                    value={serviceForm.description || ""}
+                    onChange={(value) => setServiceForm((prev) => ({ ...prev, description: value }))}
+                    className="max-h-60 w-full overflow-auto"
+                    
                   />
                 </div>
 

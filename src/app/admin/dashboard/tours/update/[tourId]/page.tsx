@@ -5,6 +5,7 @@ import { UpdateTourForm } from "@/app/admin/_components/update-tour-form";
 import { getInternationalDestinations, getNationalDestinations } from "@/actions/destinations";
 import { getCategories } from "@/actions/categories";
 import { getNatures } from "@/actions/natures";
+import { getServices } from "@/actions/services";
 
 export default async function UpdateTourPage(params:any) {
   const result = await getTourById(params.params.tourId);
@@ -12,6 +13,7 @@ export default async function UpdateTourPage(params:any) {
   const internationalDestinations = await getInternationalDestinations();
   const categories = await getCategories();
   const natures = await getNatures();
+  const services = await getServices();
   if (!result.success) {
     return <div>Tour non trouvé</div>;
   }
@@ -24,7 +26,7 @@ export default async function UpdateTourPage(params:any) {
 
   return (
     <div>
-      <UpdateTourForm initialData={tour} nationalDestinations={nationalDestinations} internationalDestinations={internationalDestinations} categories={categories} natures={natures} tourId={params.params.tourId} ></UpdateTourForm>
+      <UpdateTourForm initialData={tour} nationalDestinations={nationalDestinations} internationalDestinations={internationalDestinations} categories={categories} natures={natures} services={services} tourId={params.params.tourId} ></UpdateTourForm>
     </div>
   );
 }
