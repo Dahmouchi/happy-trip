@@ -80,7 +80,7 @@ export function PromotionCard({ tour }: { tour: Tour }) {
           {/* Program Rating */}
           <div className="flex justify-between items-center w-full gap-2">
             <div
-              onClick={() => redirect(`/national/${tour?.id}`)}
+              onClick={() => redirect(`/destination/national/t/${tour?.id}`)}
               className="bg-[#8EBD22] rounded-lg cursor-pointer shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)] flex itce justify-between px-4 py-3 w-full text-white"
             >
               <Eye className="w-6 h-6" />

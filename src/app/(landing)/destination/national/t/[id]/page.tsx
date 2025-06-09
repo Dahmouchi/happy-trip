@@ -4,8 +4,8 @@ export const dynamic = "force-dynamic";
 
 import prisma from "@/lib/prisma";
 import React from "react";
-import TourDetails from "../../_components/ProductDetails";
 import { Tour } from "@prisma/client";
+import TourDetails from "@/app/(landing)/_components/ProductDetails";
 
 
 
@@ -21,6 +21,7 @@ const TourDetailsMain = async (params:any) => {
         destinations:true,
         programs:true,
         categories:true,
+       // reviews:true,
     }
   });
 

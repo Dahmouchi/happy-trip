@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Destination } from "@prisma/client";
 import Footer from "./_components/Footer";
 import { Navbar } from "./_components/Header";
@@ -21,7 +20,7 @@ export default async function RootLayout({
     });
   return (
     <div className="">
-      <Navbar />
+      <Navbar nationalDestinations={destinationNational} internationalDestinations={destinationInternational}/>
       {children}
       <Footer />
     </div>

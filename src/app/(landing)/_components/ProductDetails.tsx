@@ -26,7 +26,6 @@ import {
   CopyIcon,
   Hotel,
   InfoIcon,
-  LocateIcon,
   Map,
   MapPinHouse,
   MessageCircle,
@@ -46,13 +45,19 @@ import {
 import Autoplay from "embla-carousel-autoplay"; // Optional: if you want autoplay
 import { toast } from "react-toastify";
 import ReservationSection from "./ReservationForm";
-import DiscountTimer from "./DiscountBadge";
 import DiscountTimerProduct from "./DiscountBadgeProductPage";
 import { ReviewModal } from "./ReviewsForm";
 
 const TourDetails = ({ tour }: { tour: any }) => {
-  const rating = 4; // Note sur 5
-  const reviewCount = 90;
+  const approvedReviews = tour.reviews?.filter((review: any) => review.status);
+  const reviewCount = approvedReviews?.length;
+  const averageRating =
+    approvedReviews?.length > 0
+      ? approvedReviews?.reduce(
+          (sum: any, review: any) => sum + review?.rating,
+          0
+        ) / approvedReviews?.length
+      : 0;
   const sampleTestimonials = [
     {
       title: "Great Work",
@@ -80,38 +85,42 @@ const TourDetails = ({ tour }: { tour: any }) => {
     },
   ];
   const sampleFaqData = [
-  {
-    id: "item-1",
-    question: "Quels sont les modes de paiement acceptés ?",
-    answer: "Nous acceptons les cartes de crédit Visa, MasterCard, American Express, ainsi que PayPal. Les virements bancaires sont également possibles pour les commandes importantes.",
-  },
-  {
-    id: "item-2",
-    question: "Quels sont les délais de livraison ?",
-    answer: "Les délais de livraison varient en fonction de votre localisation. En général, comptez 2 à 5 jours ouvrables pour la France métropolitaine et 5 à 10 jours pour l'international. Vous recevrez un numéro de suivi dès l'expédition.",
-  },
-  {
-    id: "item-3",
-    question: "Comment puis-je retourner un article ?",
-    answer: "Vous disposez de 30 jours après réception de votre commande pour retourner un article. Veuillez consulter notre politique de retour sur le site pour connaître la procédure détaillée et les conditions.",
-  },
-  {
-    id: "item-4",
-    question: "Proposez-vous des réductions pour les étudiants ?",
-    answer: "Oui, nous proposons une réduction de 10% pour les étudiants sur présentation d'un justificatif valide. Contactez notre service client pour obtenir votre code de réduction.",
-  },
-];
-const sampleAvailableDates = [
-  { value: "08-15-juin-9500", label: "08 - 15 Juin (9500 dh)" },
-  { value: "15-22-juin-9700", label: "15 - 22 Juin (9700 dh)" },
-  { value: "22-29-juin-9800", label: "22 - 29 Juin (9800 dh)" },
-];
+    {
+      id: "item-1",
+      question: "Quels sont les modes de paiement acceptés ?",
+      answer:
+        "Nous acceptons les cartes de crédit Visa, MasterCard, American Express, ainsi que PayPal. Les virements bancaires sont également possibles pour les commandes importantes.",
+    },
+    {
+      id: "item-2",
+      question: "Quels sont les délais de livraison ?",
+      answer:
+        "Les délais de livraison varient en fonction de votre localisation. En général, comptez 2 à 5 jours ouvrables pour la France métropolitaine et 5 à 10 jours pour l'international. Vous recevrez un numéro de suivi dès l'expédition.",
+    },
+    {
+      id: "item-3",
+      question: "Comment puis-je retourner un article ?",
+      answer:
+        "Vous disposez de 30 jours après réception de votre commande pour retourner un article. Veuillez consulter notre politique de retour sur le site pour connaître la procédure détaillée et les conditions.",
+    },
+    {
+      id: "item-4",
+      question: "Proposez-vous des réductions pour les étudiants ?",
+      answer:
+        "Oui, nous proposons une réduction de 10% pour les étudiants sur présentation d'un justificatif valide. Contactez notre service client pour obtenir votre code de réduction.",
+    },
+  ];
+  const sampleAvailableDates = [
+    { value: "08-15-juin-9500", label: "08 - 15 Juin (9500 dh)" },
+    { value: "15-22-juin-9700", label: "15 - 22 Juin (9700 dh)" },
+    { value: "22-29-juin-9800", label: "22 - 29 Juin (9800 dh)" },
+  ];
 
-const sampleHotels = [
-  { value: "Fuar Hotel 4*", label: "Fuar Hotel 4*" },
-  { value: "Park Bosphorus 5*", label: "Park Bosphorus 5*" },
-  { value: "Autre Hotel", label: "Autre Hotel (à préciser)" },
-];
+  const sampleHotels = [
+    { value: "Fuar Hotel 4*", label: "Fuar Hotel 4*" },
+    { value: "Park Bosphorus 5*", label: "Park Bosphorus 5*" },
+    { value: "Autre Hotel", label: "Autre Hotel (à préciser)" },
+  ];
   const plugin = React.useRef(
     Autoplay({ delay: 2000, stopOnInteraction: true }) // Optional Autoplay
   );
@@ -148,16 +157,18 @@ const sampleHotels = [
   }
   return (
     <div className="relative">
-          {tour.showDiscount && tour.priceOriginal !== tour.priceDiscounted && ( <DiscountTimerProduct endDate={tour.createdAt.toString()}/>)}
+      {tour.showDiscount && tour.priceOriginal !== tour.priceDiscounted && (
+        <DiscountTimerProduct endDate={tour.createdAt.toString()} />
+      )}
       <div className="bg-[#F6F3F2] p-4 md:p-8 lg:p-12">
         {/* Breadcrumbs */}
         <nav className="mb-4 text-sm text-gray-500">
           <span className="text-red-600 hover:underline cursor-pointer">
-            voyage
+            maroc
           </span>
           <span className="mx-2">&gt;</span>
           <span className="text-red-600 hover:underline cursor-pointer">
-            maroc
+            {tour.destinations[0]?.name}
           </span>
           <span className="mx-2">&gt;</span>
           <span>{tour.title}</span>
@@ -167,23 +178,33 @@ const sampleHotels = [
           {/* Colonne de gauche : Informations */}
           <div className="lg:w-1/2 lg:py-6">
             <p className="text-green-700 font-semibold mb-2">
-              Maroc - Haut Atlas
+              Maroc - {tour.destinations[0]?.name}
             </p>
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
               {tour.title}
             </h1>
 
             {/* Notation */}
-            <div className="flex items-center mb-6">
-              <div className="flex mr-2">
-                {[...Array(5)].map((_, i) => (
-                  <StarIcon key={i} filled={i < rating} />
-                ))}
+            {tour.showReviews && (
+              <div className="flex items-center mb-6">
+                <div className="flex mr-2">
+                 {[1, 2, 3, 4, 5].map((star) => {
+                const fillValue = Math.max(0, Math.min(1, averageRating - star + 1));
+                return (
+                  <StarIcon 
+                    key={star} 
+                    filled={fillValue} 
+                    className="mr-0.5"
+                  />
+                );
+              })}
+                </div>
+                <span className="text-gray-600 text-sm ml-1">
+                  ({reviewCount} {reviewCount === 1 ? "avis" : "avis"}) •{" "}
+                  {averageRating.toFixed(1)}/5
+                </span>
               </div>
-              <span className="text-gray-600 text-sm">
-                ({reviewCount} Note)
-              </span>
-            </div>
+            )}
 
             {/* Description */}
             <div>
@@ -217,8 +238,8 @@ const sampleHotels = [
           <div className="flex items-center gap-2 bg-[#47663B] text-white px-8 py-8 rounded font-semibold lg:justify-center justify-between">
             <div className="flex items-center gap-2">
               <img src={"/icons/money.png"} className="w-7 h-7" />{" "}
-            {/* Replace with money icon */}
-            <span>{tour.priceDiscounted}</span>
+              {/* Replace with money icon */}
+              <span>{tour.priceDiscounted}</span>
             </div>
             <Link
               href={"#"}
@@ -441,9 +462,9 @@ const sampleHotels = [
                 <CarouselPrevious className="absolute left-[-20px] top-1/2 -translate-y-1/2 bg-lime-400 hover:bg-lime-500 text-white border-none rounded-full w-8 h-8" />
                 <CarouselNext className="absolute right-[-20px] top-1/2 -translate-y-1/2 bg-lime-400 hover:bg-lime-500 text-white border-none rounded-full w-8 h-8" />
               </Carousel>
-              <ReviewModal tourId={tour.id}/>
+              <ReviewModal tourId={tour.id} />
             </div>
-            <BookingSteps advance={tour?.advancedPrice}/>
+            <BookingSteps advance={tour?.advancedPrice} />
           </div>
         </div>
       </div>
@@ -494,10 +515,10 @@ const sampleHotels = [
         </div>
       </div>
       <ReservationSection
-         availableDates={sampleAvailableDates}
-         hotels={sampleHotels}
-         imageSrc="/path/to/your/image.jpg" // Provide image path
-       />
+        availableDates={sampleAvailableDates}
+        hotels={sampleHotels}
+        imageSrc="/path/to/your/image.jpg" // Provide image path
+      />
       <div className="bg-[#F6F3F2] p-6 rounded-lg shadow-sm mb-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-8 flex items-center justify-center">
           <CalendarIcon />
@@ -559,23 +580,54 @@ const sampleHotels = [
         </div>
       </div>
       <FaqSection faqData={sampleFaqData} />
-       
     </div>
   );
 };
 
 export default TourDetails;
 
-const StarIcon = (filled: any) => (
-  <svg
-    className={`w-5 h-5 ${filled.filled ? "text-yellow-400" : "text-gray-300"}`}
-    fill="currentColor"
-    viewBox="0 0 20 20"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-  </svg>
-);
+const StarIcon = ({
+  filled,
+  className = "",
+}: {
+  filled: number;
+  className?: string;
+}) => {
+  // filled can be 0 (empty), 0.5 (half), or 1 (full)
+  return (
+    <div
+      className={`relative ${className}`}
+      style={{ width: "1.25rem", height: "1.25rem" }}
+    >
+      {/* Gray background star (always shows) */}
+      <svg
+        className="absolute w-full h-full text-gray-300"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+      </svg>
+
+      {/* Yellow foreground star (clipped based on fill percentage) */}
+      {filled > 0 && (
+        <div
+          className="absolute overflow-hidden"
+          style={{ width: `${filled * 100}%`, height: "100%" }}
+        >
+          <svg
+            className="w-full h-full text-yellow-400"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+          </svg>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const TestimonialCard = ({ review }: { review: any }) => {
   return (
@@ -583,36 +635,37 @@ const TestimonialCard = ({ review }: { review: any }) => {
       <CardContent className="p-6 flex flex-col items-start text-left">
         <div className="flex justify-between items-center w-full mb-3">
           <h3 className="text-lg font-semibold text-orange-600">
-            {review.title}
+            {review?.title}
           </h3>
           <div className="flex">
-            {[...Array(5)].map((_, i) => (
-              <StarIcon key={i} filled={i < review.rating} />
-            ))}
+            
           </div>
         </div>
         <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-          &quot;{review.text}&quot;
+          &quot;{review?.text}&quot;
         </p>
         <div className="flex items-center mt-auto pt-4 border-t border-gray-100 w-full">
           <img
             src="/icons/user.png" // Replace with actual image path or use next/image
-            alt={review.name}
+            alt={review?.name}
             className="w-10 h-10 rounded-full mr-3 object-cover"
             // Example with next/image:
             // import Image from 'next/image';
-            // <Image src={review.avatarUrl} alt={review.name} width={40} height={40} className="rounded-full mr-3" />
+            // <Image src={review?.avatarUrl} alt={review?.name} width={40} height={40} className="rounded-full mr-3" />
           />
           <div>
-            <p className="font-semibold text-gray-800 text-sm">{review.name}</p>
-            <p className="text-gray-500 text-xs">{review.role}</p>
+            <p className="font-semibold text-gray-800 text-sm">{review?.name}</p>
+            <p className="text-gray-500 text-xs">{review?.role}</p>
           </div>
         </div>
       </CardContent>
     </Card>
   );
 };
-const FaqSection = ({ faqData, title = "Questions fréquemment posées" }:any) => {
+const FaqSection = ({
+  faqData,
+  title = "Questions fréquemment posées",
+}: any) => {
   return (
     <div className="w-full max-w-3xl mx-auto p-4 md:p-8 font-sans">
       <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-8 flex items-center justify-center">
@@ -623,7 +676,7 @@ const FaqSection = ({ faqData, title = "Questions fréquemment posées" }:any) =
 
       {/* Shadcn Accordion Component */}
       <Accordion type="single" collapsible className="w-full space-y-3">
-        {faqData.map((item:any) => (
+        {faqData.map((item: any) => (
           <AccordionItem
             key={item.id}
             value={item.id} // Use unique ID for value
@@ -644,20 +697,22 @@ const FaqSection = ({ faqData, title = "Questions fréquemment posées" }:any) =
     </div>
   );
 };
-const BookingSteps = ({advance}:{advance:any}) => {
-
+const BookingSteps = ({ advance }: { advance: any }) => {
   const rib = "007 810 0004494000304008 16";
   const phoneNumber = "0628324880";
   const email = "happy.trip.voyage@gmail.com";
 
   // Basic copy to clipboard function
-  const copyToClipboard = (text:any) => {
-    navigator.clipboard.writeText(text).then(() => {
-      toast.info(`"${text}" copié dans le presse-papiers !`); // Simple feedback
-    }).catch(err => {
-      console.error('Erreur de copie: ', err);
-      toast.info('Erreur lors de la copie.');
-    });
+  const copyToClipboard = (text: any) => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        toast.info(`"${text}" copié dans le presse-papiers !`); // Simple feedback
+      })
+      .catch((err) => {
+        console.error("Erreur de copie: ", err);
+        toast.info("Erreur lors de la copie.");
+      });
   };
 
   return (
@@ -666,7 +721,9 @@ const BookingSteps = ({advance}:{advance:any}) => {
         Comment faire la réservation
       </h2>
 
-      <p className="text-center text-sm text-gray-600 mb-8">La réservation est ouverte à la limite des places disponibles.</p>
+      <p className="text-center text-sm text-gray-600 mb-8">
+        La réservation est ouverte à la limite des places disponibles.
+      </p>
 
       {/* Steps Section */}
       <div className="space-y-2 mb-10">
@@ -676,9 +733,12 @@ const BookingSteps = ({advance}:{advance:any}) => {
             <PhoneIcon />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-1">Étape 1 : Vérifier la disponibilité</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-1">
+              Étape 1 : Vérifier la disponibilité
+            </h3>
             <p className="text-gray-700 text-sm">
-              Contactez le numéro du club ({phoneNumber}) pour vérifier la disponibilité des places avant de procéder.
+              Contactez le numéro du club ({phoneNumber}) pour vérifier la
+              disponibilité des places avant de procéder.
             </p>
           </div>
         </div>
@@ -689,15 +749,24 @@ const BookingSteps = ({advance}:{advance:any}) => {
             <BanknoteIcon />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-1">Étape 2 : Effectuer le virement</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-1">
+              Étape 2 : Effectuer le virement
+            </h3>
             <p className="text-gray-700 text-sm mb-2">
-              Faites la réservation par virement bancaire de <strong>{advance}dh</strong> au RIB du club.
+              Faites la réservation par virement bancaire de{" "}
+              <strong>{advance}dh</strong> au RIB du club.
             </p>
             <div className="text-sm bg-gray-100 p-3 rounded border border-gray-200">
-              <p className="font-medium text-gray-600 mb-1">Banque: Attijariwafa Bank</p>
+              <p className="font-medium text-gray-600 mb-1">
+                Banque: Attijariwafa Bank
+              </p>
               <div className="flex items-center">
                 <p className="font-mono text-gray-800 mr-2">RIB: {rib}</p>
-                <button className="cursor-pointer" onClick={() => copyToClipboard(rib)} title="Copier le RIB">
+                <button
+                  className="cursor-pointer"
+                  onClick={() => copyToClipboard(rib)}
+                  title="Copier le RIB"
+                >
                   <CopyIcon />
                 </button>
               </div>
@@ -708,15 +777,19 @@ const BookingSteps = ({advance}:{advance:any}) => {
         {/* Step 3: Send Proof */}
         <div className="flex items-start space-x-4 p-4 bg-white rounded-lg border border-teal-100">
           <div className="flex-shrink-0 pt-1">
-             <img src={"/icons/whatsapp.png"} className="w-7 h-7" />
+            <img src={"/icons/whatsapp.png"} className="w-7 h-7" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-1">Étape 3 : Envoyer le reçu</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-1">
+              Étape 3 : Envoyer le reçu
+            </h3>
             <p className="text-gray-700 text-sm mb-2">
-              Renvoyez le reçu du virement via Whatsapp ({phoneNumber}) avec le nom et prénom du participant.
+              Renvoyez le reçu du virement via Whatsapp ({phoneNumber}) avec le
+              nom et prénom du participant.
             </p>
             <p className="text-xs text-red-600 font-medium">
-              <strong>Important :</strong> N&apos;oubliez pas de demander au banquier de s&apos;assurer que le compte est au nom de Ayoub.
+              <strong>Important :</strong> N&apos;oubliez pas de demander au
+              banquier de s&apos;assurer que le compte est au nom de Ayoub.
             </p>
           </div>
         </div>
@@ -727,9 +800,13 @@ const BookingSteps = ({advance}:{advance:any}) => {
             <InfoIcon />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-1">Information importante</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-1">
+              Information importante
+            </h3>
             <p className="text-gray-700 text-sm">
-              Le club se réserve le droit de modifier le programme en s&apos;assurant de la sécurité des Happy Trippers selon les circonstances du voyage.
+              Le club se réserve le droit de modifier le programme en
+              s&apos;assurant de la sécurité des Happy Trippers selon les
+              circonstances du voyage.
             </p>
           </div>
         </div>
@@ -738,10 +815,11 @@ const BookingSteps = ({advance}:{advance:any}) => {
       {/* Contact Info */}
       <div className="text-center border-t pt-6 mt-8">
         <h3 className="text-lg font-semibold text-gray-800 mb-3">Contact</h3>
-        <p className="text-sm text-gray-600 mb-1">GSM/Whatsapp: {phoneNumber}</p>
+        <p className="text-sm text-gray-600 mb-1">
+          GSM/Whatsapp: {phoneNumber}
+        </p>
         <p className="text-sm text-gray-600">Email: {email}</p>
       </div>
     </div>
   );
 };
-

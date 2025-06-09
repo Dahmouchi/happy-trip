@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import Link from "next/link";
@@ -20,6 +21,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import React from "react";
+import { redirect } from "next/navigation";
+import { Destination } from "@prisma/client";
 // const components: { title: string; href: string; description: string }[] = [
 //   {
 //     title: "Alert Dialog",
@@ -29,31 +32,21 @@ import React from "react";
 //   },
 // ];
 
-export function Navbar() {
+export function Navbar({
+  nationalDestinations,
+  internationalDestinations,
+}: {
+  nationalDestinations: Destination[];
+  internationalDestinations: Destination[];
+}) {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-  const [selectedDestinationType, setSelectedDestinationType] = React.useState<"national" | "international">("national");
+  const [selectedDestinationType, setSelectedDestinationType] = React.useState<
+    "national" | "international"
+  >("national");
 
   // Example destination data, replace with your actual data
- const nationalDestinations = [
-  { id: "1", name: "Tous Maroc" },
-  { id: "2", name: "Parc Toubkal" },
-  { id: "3", name: "Haut Atlas" },
-  { id: "4", name: "Méditerranée" },
-  { id: "5", name: "Atlantique" },
-  { id: "6", name: "Moyen Atlas" },
-  { id: "7", name: "Dakhla et Région"},
-  { id: "8", name: "Rif" },
-  { id: "9", name: "Anti Atlas et Souss" },
-  { id: "10", name: "Sahara-Draa & Tafilalet" },
-  { id: "11", name: "Oriental" },
-  { id: "12", name: "Autres" },
-]
 
-const internationalDestinations = [
-  { id: "1", name: "Tous Monde" },
-  { id: "2", name: "Turquie" },
-  { id: "3", name: "Azerbaïdjan" },
-]
+
 
   return (
     <header className="relative flex items-center justify-between px-6 py-4 shadow-md bg-white">
@@ -73,101 +66,112 @@ const internationalDestinations = [
               Accueil
             </NavigationMenuLink>
           </NavigationMenuItem>
-            <NavigationMenuItem>
+          <NavigationMenuItem>
             <NavigationMenuTrigger>Destinations</NavigationMenuTrigger>
             <NavigationMenuContent>
               <div className="flex flex-col w-[300px] p-4">
-              <div className="flex gap-2 mb-4">
-                <Button
-                variant="outline"
-                size="sm"
-                className={cn(
-                  "flex-1",
-                  selectedDestinationType === "national" && "bg-[#8EBD22] text-white"
-                )}
-                onClick={() => setSelectedDestinationType("national")}
-                >
-                National
-                </Button>
-                <Button
-                variant="outline"
-                size="sm"
-                className={cn(
-                  "flex-1",
-                  selectedDestinationType === "international" && "bg-[#8EBD22] text-white"
-                )}
-                onClick={() => setSelectedDestinationType("international")}
-                >
-                International
-                </Button>
-              </div>
-              <ul className="flex flex-col gap-2">
-                {(selectedDestinationType === "national"
-                ? nationalDestinations
-                : internationalDestinations
-                ).map((destination) => (
-                <li key={destination.id}>
-                  <NavigationMenuLink asChild>
-                  <Link
-                    href={`/${selectedDestinationType}/${destination.id}`}
+                <div className="flex gap-2 mb-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => redirect("/destination/national")}
                     className={cn(
-                    "block select-none rounded-md p-2 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                      "flex-1",
+                      selectedDestinationType === "national" &&
+                        "bg-[#8EBD22] text-white"
                     )}
+                    onMouseEnter={() => setSelectedDestinationType("national")}
                   >
-                    <div className="text-sm font-medium leading-none">{destination.name}</div>
-                  </Link>
-                  </NavigationMenuLink>
-                </li>
-                ))}
-              </ul>
+                    National
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => redirect("/destination/international")}
+                    className={cn(
+                      "flex-1",
+                      selectedDestinationType === "international" &&
+                        "bg-[#8EBD22] text-white"
+                    )}
+                    onMouseEnter={() =>
+                      setSelectedDestinationType("international")
+                    }
+                  >
+                    International
+                  </Button>
+                </div>
+                <ul className="flex flex-col gap-2">
+                  {(selectedDestinationType === "national"
+                    ? nationalDestinations
+                    : internationalDestinations
+                  ).map((destination) => (
+                    <li key={destination.id}>
+                      <NavigationMenuLink asChild>
+                        <Link
+                          href={`/destination/${selectedDestinationType}/d/${destination.id}`}
+                          className={cn(
+                            "block select-none rounded-md p-2 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          )}
+                        >
+                          <div className="text-sm font-medium leading-none">
+                            {destination.name}
+                          </div>
+                        </Link>
+                      </NavigationMenuLink>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuTrigger >Voyages</NavigationMenuTrigger>
+            <NavigationMenuTrigger>Voyages</NavigationMenuTrigger>
             <NavigationMenuContent className="w-[500px] md:w-[600px] lg:w-[800px]">
               <div className="flex justify-center">
-              <div className="grid grid-cols-4 gap-4 p-4 w-[500px] md:w-[500px] lg:w-[800px]">
-                {[
-                {
-                  type: "Voyages en Groupe",
-                  href: "/voyages/groupe",
-                  image: "/voyages/groupe.jpg",
-                },
-                {
-                  type: "Comité d'entreprise",
-                  href: "/voyages/Comité-dentreprise",
-                  image: "/voyages/comite d'entreprise.jpg",
-                },
-                {
-                  type: "Voyage sur mesure",
-                  href: "/voyages/mesure",
-                  image: "/voyages/mesure.jpg",
-                },
-                {
-                  type: "Voyage Team Building",
-                  href: "/voyages/team-building",
-                  image: "/voyages/team-building.jpg",
-                },
-                ].map((voyage) => (
-                <NavigationMenuLink asChild key={voyage.type}>
-                  <Link
-                  href={voyage.href}
-                  className="flex flex-col items-center rounded-md p-3 hover:bg-accent transition-colors"
-                  >
-                  <img
-                    src={voyage.image}
-                    alt={voyage.type}
-                    className="w-56 h-40 object-cover rounded mb-2"
-                  />
-                  <span className="text-sm font-medium text-center">{voyage.type}</span>
-                  <p className="line-clamp-2 text-xs text-muted-foreground">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus vel vitae vero!
-                  </p>
-                  </Link>
-                </NavigationMenuLink>
-                ))}
-              </div>
+                <div className="grid grid-cols-4 gap-4 p-4 w-[500px] md:w-[500px] lg:w-[800px]">
+                  {[
+                    {
+                      type: "Voyages en Groupe",
+                      href: "/voyages/groupe",
+                      image: "/voyages/groupe.jpg",
+                    },
+                    {
+                      type: "Comité d'entreprise",
+                      href: "/voyages/Comité-dentreprise",
+                      image: "/voyages/comite d'entreprise.jpg",
+                    },
+                    {
+                      type: "Voyage sur mesure",
+                      href: "/voyages/mesure",
+                      image: "/voyages/mesure.jpg",
+                    },
+                    {
+                      type: "Voyage Team Building",
+                      href: "/voyages/team-building",
+                      image: "/voyages/team-building.jpg",
+                    },
+                  ].map((voyage) => (
+                    <NavigationMenuLink asChild key={voyage.type}>
+                      <Link
+                        href={voyage.href}
+                        className="flex flex-col items-center rounded-md p-3 hover:bg-accent transition-colors"
+                      >
+                        <img
+                          src={voyage.image}
+                          alt={voyage.type}
+                          className="w-56 h-40 object-cover rounded mb-2"
+                        />
+                        <span className="text-sm font-medium text-center">
+                          {voyage.type}
+                        </span>
+                        <p className="line-clamp-2 text-xs text-muted-foreground">
+                          Lorem ipsum dolor sit amet consectetur adipisicing
+                          elit. Natus vel vitae vero!
+                        </p>
+                      </Link>
+                    </NavigationMenuLink>
+                  ))}
+                </div>
               </div>
             </NavigationMenuContent>
           </NavigationMenuItem>
@@ -175,47 +179,50 @@ const internationalDestinations = [
             <NavigationMenuTrigger>Activités</NavigationMenuTrigger>
             <NavigationMenuContent className="w-[500px] md:w-[600px] lg:w-[800px]">
               <div className="flex justify-center">
-              <div className="grid grid-cols-4 gap-4 p-4 w-[500px] md:w-[500px] lg:w-[800px]">
-                {[
-                {
-                  type: "Randonnée",
-                  href: "/activités/randonnée",
-                  image: "/voyages/randonnee.jpg",
-                },
-                {
-                  type: "Montagne",
-                  href: "/activités/montagne",
-                  image: "/voyages/montagne.jpg",
-                },
-                {
-                  type: "Baignade",
-                  href: "/activités/baignade",
-                  image: "/voyages/baignade.jpg",
-                },
-                {
-                  type: "Bivouac",
-                  href: "/activités/bivouac",
-                  image: "/voyages/bivouac.jpg",
-                },
-                ].map((voyage) => (
-                <NavigationMenuLink asChild key={voyage.type}>
-                  <Link
-                  href={voyage.href}
-                  className="flex flex-col items-center rounded-md p-3 hover:bg-accent transition-colors"
-                  >
-                  <img
-                    src={voyage.image}
-                    alt={voyage.type}
-                    className="w-56 h-40 object-cover rounded mb-2"
-                  />
-                  <span className="text-sm font-medium text-center">{voyage.type}</span>
-                  <p className="line-clamp-2 text-xs text-muted-foreground">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus vel vitae vero!
-                  </p>
-                  </Link>
-                </NavigationMenuLink>
-                ))}
-              </div>
+                <div className="grid grid-cols-4 gap-4 p-4 w-[500px] md:w-[500px] lg:w-[800px]">
+                  {[
+                    {
+                      type: "Randonnée",
+                      href: "/activités/randonnée",
+                      image: "/voyages/randonnee.jpg",
+                    },
+                    {
+                      type: "Montagne",
+                      href: "/activités/montagne",
+                      image: "/voyages/montagne.jpg",
+                    },
+                    {
+                      type: "Baignade",
+                      href: "/activités/baignade",
+                      image: "/voyages/baignade.jpg",
+                    },
+                    {
+                      type: "Bivouac",
+                      href: "/activités/bivouac",
+                      image: "/voyages/bivouac.jpg",
+                    },
+                  ].map((voyage) => (
+                    <NavigationMenuLink asChild key={voyage.type}>
+                      <Link
+                        href={voyage.href}
+                        className="flex flex-col items-center rounded-md p-3 hover:bg-accent transition-colors"
+                      >
+                        <img
+                          src={voyage.image}
+                          alt={voyage.type}
+                          className="w-56 h-40 object-cover rounded mb-2"
+                        />
+                        <span className="text-sm font-medium text-center">
+                          {voyage.type}
+                        </span>
+                        <p className="line-clamp-2 text-xs text-muted-foreground">
+                          Lorem ipsum dolor sit amet consectetur adipisicing
+                          elit. Natus vel vitae vero!
+                        </p>
+                      </Link>
+                    </NavigationMenuLink>
+                  ))}
+                </div>
               </div>
             </NavigationMenuContent>
           </NavigationMenuItem>
@@ -289,7 +296,8 @@ const internationalDestinations = [
                         size="sm"
                         className={cn(
                           "flex-1",
-                          selectedDestinationType === "national" && "bg-[#8EBD22] text-white"
+                          selectedDestinationType === "national" &&
+                            "bg-[#8EBD22] text-white"
                         )}
                         onClick={() => setSelectedDestinationType("national")}
                       >
@@ -300,9 +308,12 @@ const internationalDestinations = [
                         size="sm"
                         className={cn(
                           "flex-1",
-                          selectedDestinationType === "international" && "bg-[#8EBD22] text-white"
+                          selectedDestinationType === "international" &&
+                            "bg-[#8EBD22] text-white"
                         )}
-                        onClick={() => setSelectedDestinationType("international")}
+                        onClick={() =>
+                          setSelectedDestinationType("international")
+                        }
                       >
                         International
                       </Button>
@@ -323,7 +334,8 @@ const internationalDestinations = [
                             <div>
                               <div>{destination.name}</div>
                               <p className="line-clamp-2 text-xs text-muted-foreground">
-                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus vel vitae vero!
+                                Lorem ipsum dolor sit amet consectetur
+                                adipisicing elit. Natus vel vitae vero!
                               </p>
                             </div>
                           </Link>
@@ -377,7 +389,8 @@ const internationalDestinations = [
                         <div>
                           <div className="text-base">{voyage.type}</div>
                           <p className="line-clamp-2 text-xs text-muted-foreground">
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus vel vitae vero!
+                            Lorem ipsum dolor sit amet consectetur adipisicing
+                            elit. Natus vel vitae vero!
                           </p>
                         </div>
                       </Link>
@@ -429,7 +442,8 @@ const internationalDestinations = [
                         <div>
                           <div className="text-base">{activity.type}</div>
                           <p className="line-clamp-2 text-xs text-muted-foreground">
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus vel vitae vero!
+                            Lorem ipsum dolor sit amet consectetur adipisicing
+                            elit. Natus vel vitae vero!
                           </p>
                         </div>
                       </Link>
