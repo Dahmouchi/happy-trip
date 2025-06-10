@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // app/destination/national/page.tsx
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
@@ -5,19 +6,13 @@ import HeroSub from "../../_components/hero-sub";
 import { SearchAndViewControls } from "../../_components/DisplayMode";
 import { ToursDisplay } from "../../_components/National";
 
-interface PageProps {
-  searchParams: {
-    destination?: string;
-    search?: string;
-    view?: 'grid' | 'carousel';
-  };
-}
 
-export default async function NationalToursPage({ searchParams }: PageProps) {
+
+export default async function NationalToursPage(destinations?: any,search?: any,view?: any) {
   // Get query parameters
-  const destinationId = searchParams.destination;
-  const searchQuery = searchParams.search || '';
-  const displayMode = searchParams.view === 'carousel' ? 'carousel' : 'grid';
+  const destinationId = destinations?.destination;
+  const searchQuery = search?.search || "";
+  const displayMode = view?.view === "carousel" ? "carousel" : "grid";
 
   // Fetch data
   const [sections, allDestinations, tours] = await Promise.all([
@@ -33,7 +28,7 @@ export default async function NationalToursPage({ searchParams }: PageProps) {
           destinations: { some: { id: destinationId } },
         }),
         ...(searchQuery && {
-          title: { contains: searchQuery, mode: 'insensitive' },
+          title: { contains: searchQuery, mode: "insensitive" },
         }),
       },
       orderBy: { createdAt: "asc" },
@@ -42,8 +37,7 @@ export default async function NationalToursPage({ searchParams }: PageProps) {
   ]);
 
   // Handle 404 cases
-  if (destinationId && tours.length === 0) return notFound();
-  
+
   const destination = destinationId
     ? await prisma.destination.findUnique({ where: { id: destinationId } })
     : null;
@@ -53,33 +47,51 @@ export default async function NationalToursPage({ searchParams }: PageProps) {
   const breadcrumbLinks = [
     { href: "/", text: "Home" },
     { href: "/destination/national", text: "National" },
-    ...(destination ? [{
-      href: `/destination/national?destination=${destination.id}`,
-      text: destination.name,
-    }] : []),
+    ...(destination
+      ? [
+          {
+            href: `/destination/national?destination=${destination.id}`,
+            text: destination.name,
+          },
+        ]
+      : []),
   ];
 
   return (
     <div>
       <HeroSub
-        title={destination ? `Les voyages nationaux - ${destination.name}` : "Les voyages nationaux"}
-        description={destination 
-          ? `Découvrez les trésors cachés de ${destination.name}.`
-          : "Découvrez les trésors cachés et les paysages spectaculaires de votre propre pays."}
+        title={
+          destination
+            ? `Les voyages nationaux - ${destination.name}`
+            : "Les voyages nationaux"
+        }
+        description={
+          destination
+            ? `Découvrez les trésors cachés de ${destination.name}.`
+            : "Découvrez les trésors cachés et les paysages spectaculaires de votre propre pays."
+        }
         breadcrumbLinks={breadcrumbLinks}
       />
 
       <SearchAndViewControls
-        destinations={allDestinations} 
-        currentDestinationId={destinationId} 
+        destinations={allDestinations}
+        currentDestinationId={destinationId}
       />
 
       {(sections?.national ?? true) && (
-        <ToursDisplay
-          tours={tours} 
-          displayMode={displayMode}
-          title={false}
-        />
+        <div>
+          {tours.length === 0 ? (
+            <div className="text-center text-gray-500 text-lg py-10">
+              Aucune excursion trouvée pour cette destination.
+            </div>
+          ) : (
+            <ToursDisplay
+              tours={tours}
+              displayMode={displayMode}
+              title={false}
+            />
+          )}
+        </div>
       )}
     </div>
   );

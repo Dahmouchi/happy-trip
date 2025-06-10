@@ -217,7 +217,7 @@ const averageRating = reviewCount > 0
             <div className="lg:block hidden">
               {tour.showDiscount &&
                 tour.priceOriginal !== tour.priceDiscounted && (
-                  <DiscountTimerProduct endDate={tour.createdAt.toString()} />
+                  <DiscountTimerProduct endDate={tour.discountEndDate.toString()} />
                 )}
             </div>
             <img

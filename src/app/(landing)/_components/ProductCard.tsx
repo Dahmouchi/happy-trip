@@ -26,7 +26,7 @@ export function PromotionCard({ tour }: { tour: any }) {
           }}
         ></div>
         {tour.showDiscount && (
-          <DiscountBadge endDate={tour.createdAt.toString()} />
+          <DiscountBadge endDate={tour.discountEndDate.toString()} />
         )}
         <div className="w-full h-1/3 bg-gradient-to-t from-white to-white/0 absolute bottom-0 z-0"></div>
           {tour.showReviews && (
