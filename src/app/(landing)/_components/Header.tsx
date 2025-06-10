@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
@@ -113,7 +112,7 @@ export function Navbar({
                     <li key={destination.id}>
                       <NavigationMenuLink asChild>
                         <Link
-                          href={`/destination/${selectedDestinationType}?destination=${destination.id}`}
+                          href={`/destination/${selectedDestinationType}?destinations=${destination.id}`}
                           className={cn(
                             "block select-none rounded-md p-2 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                           )}
@@ -163,44 +162,22 @@ export function Navbar({
             <NavigationMenuContent className="w-[500px] md:w-[600px] lg:w-[800px]">
               <div className="flex justify-center">
                 <div className="grid grid-cols-4 gap-4 p-4 w-[500px] md:w-[500px] lg:w-[800px]">
-                  {[
-                    {
-                      type: "Randonnée",
-                      href: "/activités/randonnée",
-                      image: "/voyages/randonnee.jpg",
-                    },
-                    {
-                      type: "Montagne",
-                      href: "/activités/montagne",
-                      image: "/voyages/montagne.jpg",
-                    },
-                    {
-                      type: "Baignade",
-                      href: "/activités/baignade",
-                      image: "/voyages/baignade.jpg",
-                    },
-                    {
-                      type: "Bivouac",
-                      href: "/activités/bivouac",
-                      image: "/voyages/bivouac.jpg",
-                    },
-                  ].map((voyage) => (
-                    <NavigationMenuLink asChild key={voyage.type}>
+                  {nature?.map((voyage) => (
+                    <NavigationMenuLink asChild key={voyage.name}>
                       <Link
-                        href={voyage.href}
+                        href={voyage.id}
                         className="flex flex-col items-center rounded-md p-3 hover:bg-accent transition-colors"
                       >
                         <img
-                          src={voyage.image}
-                          alt={voyage.type}
+                          src={voyage.imageUrl}
+                          alt={voyage.id}
                           className="w-56 h-40 object-cover rounded mb-2"
                         />
                         <span className="text-sm font-medium text-center">
-                          {voyage.type}
+                          {voyage.name}
                         </span>
                         <p className="line-clamp-2 text-xs text-muted-foreground">
-                          Lorem ipsum dolor sit amet consectetur adipisicing
-                          elit. Natus vel vitae vero!
+                          {voyage.description}
                         </p>
                       </Link>
                     </NavigationMenuLink>

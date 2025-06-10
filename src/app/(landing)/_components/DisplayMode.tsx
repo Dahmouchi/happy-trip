@@ -48,9 +48,9 @@ export function SearchAndViewControls({
     const params = new URLSearchParams(searchParams.toString());
 
     if (selectedId) {
-      params.set("destination", selectedId);
+      params.set("destinations", selectedId);
     } else {
-      params.delete("destination");
+      params.delete("destinations");
     }
 
     router.replace(`${pathname}?${params.toString()}`);
@@ -63,7 +63,7 @@ export function SearchAndViewControls({
           {/* Search and Filter Section */}
 
           <div className="w-full md:w-auto flex-1">
-            <div className="flex items-center justify-between flex-col lg:flex-row">
+            <div className="flex lg:items-center justify-between flex-col lg:flex-row gap-2">
               {/* Search Input */}
               <div>
                 <label

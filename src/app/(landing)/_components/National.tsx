@@ -36,7 +36,7 @@ export function ToursDisplay({
         </h1>
       </div>
       }
-      <div className="w-full px-24">
+      <div className="w-full lg:px-24">
         {displayMode === 'carousel' ? (
         <Carousel opts={{ align: "center" }}>
           <CarouselContent className="px-8">
@@ -56,9 +56,9 @@ export function ToursDisplay({
           </div>
         </Carousel>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-3">
           {tours.map((tour) => (
-            <div key={tour.id}>
+            <div key={tour.id} className="">
               <PromotionCard tour={tour} />
             </div>
           ))}

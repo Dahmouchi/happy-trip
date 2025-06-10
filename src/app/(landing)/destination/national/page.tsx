@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // app/destination/national/page.tsx
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
@@ -7,12 +7,18 @@ import { SearchAndViewControls } from "../../_components/DisplayMode";
 import { ToursDisplay } from "../../_components/National";
 
 
+export default async function NationalToursPage(props: {
+  searchParams: Promise<{
+    destinations?: string;
+    search?: string;
+    view?: "grid" | "carousel";
+  }>;
+}) {
+  const searchParams = await props.searchParams;
 
-export default async function NationalToursPage(destinations?: any,search?: any,view?: any) {
-  // Get query parameters
-  const destinationId = destinations?.destination;
-  const searchQuery = search?.search || "";
-  const displayMode = view?.view === "carousel" ? "carousel" : "grid";
+  const destinationId = searchParams.destinations;
+  const searchQuery = searchParams.search || "";
+  const displayMode = searchParams.view === "carousel" ? "carousel" : "grid";
 
   // Fetch data
   const [sections, allDestinations, tours] = await Promise.all([
@@ -38,20 +44,20 @@ export default async function NationalToursPage(destinations?: any,search?: any,
 
   // Handle 404 cases
 
-  const destination = destinationId
+  const destinationT = destinationId
     ? await prisma.destination.findUnique({ where: { id: destinationId } })
     : null;
-  if (destinationId && !destination) return notFound();
+  if (destinationId && !destinationT) return notFound();
 
   // Breadcrumbs
   const breadcrumbLinks = [
     { href: "/", text: "Home" },
     { href: "/destination/national", text: "National" },
-    ...(destination
+    ...(destinationT
       ? [
           {
-            href: `/destination/national?destination=${destination.id}`,
-            text: destination.name,
+            href: `/destination/national?destination=${destinationT.id}`,
+            text: destinationT.name,
           },
         ]
       : []),
@@ -61,13 +67,13 @@ export default async function NationalToursPage(destinations?: any,search?: any,
     <div>
       <HeroSub
         title={
-          destination
-            ? `Les voyages nationaux - ${destination.name}`
+          destinationT
+            ? `Les voyages nationaux - ${destinationT.name}`
             : "Les voyages nationaux"
         }
         description={
-          destination
-            ? `Découvrez les trésors cachés de ${destination.name}.`
+          destinationT
+            ? `Découvrez les trésors cachés de ${destinationT.name}.`
             : "Découvrez les trésors cachés et les paysages spectaculaires de votre propre pays."
         }
         breadcrumbLinks={breadcrumbLinks}
@@ -77,11 +83,10 @@ export default async function NationalToursPage(destinations?: any,search?: any,
         destinations={allDestinations}
         currentDestinationId={destinationId}
       />
-
       {(sections?.national ?? true) && (
         <div>
           {tours.length === 0 ? (
-            <div className="text-center text-gray-500 text-lg py-10">
+            <div className="text-center text-gray-500 text-lg lg:py-10">
               Aucune excursion trouvée pour cette destination.
             </div>
           ) : (
