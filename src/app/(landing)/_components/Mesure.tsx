@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { MoveRight } from "lucide-react";
 import React from "react";
 
@@ -44,7 +45,7 @@ const Mesure = () => {
       <img
             src="/muse.jpg"
             alt=""
-            className="w-full h-auto h-auto  place-content-center mt-4"
+            className="w-full h-auto  place-content-center mt-4"
           />
     </div>
   );

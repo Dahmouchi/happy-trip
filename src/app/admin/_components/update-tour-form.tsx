@@ -852,7 +852,7 @@ export function UpdateTourForm({
                         <FormLabel>Lien Google Maps</FormLabel>
                         <FormControl>
                           <Input
-                            type="url"
+                            type="text"
                             placeholder="Entrez le lien Google Maps de l'emplacement"
                             {...field}
                             value={field.value || ""}
@@ -876,7 +876,7 @@ export function UpdateTourForm({
                         <FormLabel>Lien de la vidéo</FormLabel>
                         <FormControl>
                           <Input
-                            type="url"
+                            type="text"
                             placeholder="Entrez le lien de la vidéo du circuit"
                             {...field}
                             value={field.value || ""}

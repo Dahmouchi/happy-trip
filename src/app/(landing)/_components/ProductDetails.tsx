@@ -125,9 +125,9 @@ const averageRating = reviewCount > 0
     Autoplay({ delay: 2000, stopOnInteraction: true }) // Optional Autoplay
   );
   const includes =
-    tour.inclus?.split(",").map((item: any) => item.trim()) || [];
+    tour.inclus?.split(";").map((item: any) => item.trim()) || [];
   const excludes =
-    tour.exclus?.split(",").map((item: any) => item.trim()) || [];
+    tour.exclus?.split(";").map((item: any) => item.trim()) || [];
 
   function formatDate(date: Date): string {
     return date.toLocaleDateString("fr-FR", {
@@ -337,10 +337,12 @@ const averageRating = reviewCount > 0
                     {includes.map((item: any, index: any) => (
                       <div
                         key={`inc-${index}`}
-                        className="flex items-center gap-2 mt-2"
+                        className="flex items-start gap-2 mt-2"
                       >
-                        <BadgeCheck />
-                        <p>{item}</p>
+                        <span className="pt-1">
+                          <BadgeCheck className="w-6 h-6 min-w-[20px] min-h-[20px]" />
+                        </span>
+                        <p className="break-words">{item}</p>
                       </div>
                     ))}
                   </ul>
@@ -573,12 +575,13 @@ const averageRating = reviewCount > 0
         <h2 className="text-2xl font-bold text-gray-800 mb-8 flex items-center gap-3 justify-center">
           <MapPinHouse />
           Localisation
+          
         </h2>
         {/* Map Placeholder - Replace with actual map embed or component */}
         <div className="mb-3 rounded overflow-hidden border border-gray-200 w-full">
-          <iframe
+         <iframe
             className="w-full rounded-xl"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d51271.71670318516!2d-6.414428730714333!3d32.330897606129994!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xda38649419c7fc1%3A0x6236b3e9a12bafd9!2sB%C3%A9ni%20Mellal!5e1!3m2!1sfr!2sma!4v1749171732402!5m2!1sfr!2sma"
+            src= {tour.googleMapsUrl}
             width={600}
             height={450}
             style={{ border: 0 }}
@@ -586,6 +589,7 @@ const averageRating = reviewCount > 0
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
           />
+
         </div>
       </div>
       <FaqSection faqData={sampleFaqData} />

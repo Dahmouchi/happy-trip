@@ -837,7 +837,7 @@ export function AddTourForm({
                         <FormLabel>Lien Google Maps</FormLabel>
                         <FormControl>
                           <Input
-                            type="url"
+                            type="text"
                             placeholder="Entrez le lien Google Maps de l'emplacement"
                             {...field}
                           />
@@ -860,7 +860,7 @@ export function AddTourForm({
                         <FormLabel>Lien vidéo YouTube</FormLabel>
                         <FormControl>
                           <Input
-                            type="url"
+                            type="text"
                             placeholder="Entrez le lien de la vidéo YouTube"
                             {...field}
                           />
