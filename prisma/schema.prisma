@@ -94,6 +94,7 @@ model Tour {
   priceOriginal      Int?
   priceDiscounted    Int?
   advancedPrice     Int? // e.g., 1000 for 1000€
+  discountEndDate   DateTime? // Date until the discount is valid
   dateCard           String? //this date for card view
   durationDays       Int?
   durationNights     Int?

@@ -94,6 +94,11 @@ const tourSchema = z.object({
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
     z.number().min(0, "Le prix doit être positif").optional()
   ),
+  discountEndDate: z
+    .date()
+    .optional()
+    .or(z.literal(""))
+    .transform((val) => (val === "" ? undefined : val)),
   advancedPrice: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
@@ -213,6 +218,7 @@ export function AddTourForm({
       type: "NATIONAL",
       priceOriginal: undefined,
       priceDiscounted: undefined,
+      discountEndDate: undefined,
       advancedPrice: 0,
       dateCard: "",
       durationDays: undefined,
@@ -1046,7 +1052,7 @@ export function AddTourForm({
                               readOnly
                               value={
                               field.value !== 0
-                                ? 100 - Math.round(field.value ?? 0)
+                                ?  Math.round(field.value ?? 0)
                                 : Math.round(field.value ?? 0)
                               }
                               placeholder="Calculé automatiquement"
@@ -1070,6 +1076,39 @@ export function AddTourForm({
                               {...field}
                             />
                           </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* discount end date */}
+                    <FormField
+                      control={form.control}
+                      name="discountEndDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Date de fin de la réduction</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="date"
+                              placeholder="Sélectionnez la date de fin de la réduction"
+                              value={
+                                field.value instanceof Date
+                                  ? field.value.toISOString().split("T")[0]
+                                  : field.value || ""
+                              }
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                field.onChange(val ? new Date(val) : undefined);
+                              }}
+                              onBlur={field.onBlur}
+                              name={field.name}
+                              ref={field.ref}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Indiquez la date à laquelle la réduction prend fin.
+                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
