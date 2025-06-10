@@ -99,7 +99,7 @@ export function DataTable<TData, TValue>({
                   if (cell.column.id === 'priceOriginal') {
                     return (
                       <TableCell key={cell.id}>
-                        <div className="bg-lime-600 text-center text-white font-bold rounded-lg px-0.5">
+                        <div className="bg-lime-600 text-center text-white font-bold rounded-lg p-0.5">
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </div>
                       </TableCell>

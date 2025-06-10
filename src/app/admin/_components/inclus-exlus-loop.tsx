@@ -83,14 +83,13 @@ const StringLoop: React.FC<StringLoopProps> = ({ title, type, description, value
                   className="flex items-center justify-between p-2 rounded bg-white border"
                 >
                   <span className="text-sm truncate flex-1 mr-2">{string}</span>
-                  <Button
+                    <div
                     onClick={() => removeString(index)}
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 text-red-500"
-                  >
+                    className="h-6 w-6 flex items-center justify-center cursor-pointer text-red-500 hover:bg-gray-100 rounded"
+                    title="Supprimer"
+                    >
                     <Trash2 className="w-3 h-3" />
-                  </Button>
+                    </div>
                 </div>
               ))}
             </div>
