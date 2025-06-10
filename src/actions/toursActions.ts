@@ -8,8 +8,9 @@ import sharp from "sharp";
 import { Video } from "lucide-react";
 import { act } from "react";
 import axios from "axios";
-
-
+import { getEmbedGoogleMapsUrl } from "@/utils/getEmbedGoogleMapsUrl";
+import { getYouTubeEmbedUrl } from "@/utils/getYouTubeEmbedUrl";
+import { uploadImage} from "@/utils/uploadImage";
 
 
 const prisma = new PrismaClient()
@@ -89,106 +90,10 @@ const tourSchema = z.object({
 
 export type TourFormData = z.infer<typeof tourSchema>
  
- async function uploadImage(imageURL: File): Promise<string> {
-     
-      const image = imageURL ;
-      const quality = 80;
 
-      // Step 1: Generate unique filename
-      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-      const filename = `${timestamp}-${image.name}`;
-
-      // Step 2: Read and compress the image with sharp
-      const arrayBuffer = await image.arrayBuffer();
-      const compressedBuffer = await sharp(arrayBuffer)
-        .resize(1200) // Resize width to 1200px, keeping aspect ratio
-        .jpeg({ quality }) // or .png({ compressionLevel: 9 }) if needed
-        .toBuffer();
-
-      // Step 3: Upload the file
-      const fileContent = Buffer.from(compressedBuffer);
-      const uploadResponse = await uploadFile(fileContent, filename, image.type);
-
-      // Step 4: Return the public URL
-      const imageUrl = getFileUrl(uploadResponse.Key); // Key is usually the filename or path
-      return (imageUrl);
-  }
-
-
-
-
-/**
- * Converts a Google Maps short link or place URL to an embeddable URL without using an API key.
- */
-
-
-
-
-export async function getEmbedGoogleMapsUrl(originalUrl: string): Promise<string | null> {
-  try {
-    // Resolve redirects for short URLs (e.g., maps.app.goo.gl)
-    const response = await axios.get(originalUrl, {
-      maxRedirects: 5,
-      validateStatus: (status) => status >= 200 && status < 400,
-    });
-
-    const finalUrl = response.request.res.responseUrl || response.config.url;
-
-    // Case 1: URL has coordinates like @lat,lng
-    const coordsMatch = finalUrl.match(/@([-0-9.]+),([-0-9.]+)/);
-    if (coordsMatch) {
-      const [, lat, lng] = coordsMatch;
-      return `https://www.google.com/maps?q=${lat},${lng}&output=embed`;
-    }
-
-    // Case 2: Place name in URL
-    const placeMatch = finalUrl.match(/\/place\/([^/?]+)/);
-    if (placeMatch) {
-      const placeName = decodeURIComponent(placeMatch[1].replace(/\+/g, " "));
-      return `https://www.google.com/maps?q=${placeName}&output=embed`;
-    }
-
-    // Case 3: Already a Google Maps URL
-    if (finalUrl.includes("google.com/maps")) {
-      return finalUrl.includes("output=embed")
-        ? finalUrl
-        : finalUrl + "&output=embed";
-    }
-
-    return null;
-  } catch (err) {
-    console.error("Error resolving Google Maps link:", err);
-    return null;
-  }
-}
-
-export async function getYouTubeEmbedUrl(url: string): Promise<string | null> {
-  const regex =
-    /(?:youtube\.com\/.*v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-
-  const match = url.match(regex);
-  if (match && match[1]) {
-    const videoId = match[1];
-    return `https://www.youtube.com/embed/${videoId}`;
-  }
-
-  return null;
-}
-
-
-
-
-
-
-
-  
+ 
 
   export async function addTour(formData: TourFormData) {
-
-
-   
-
-
   try {
     // Validate the form data
     const validatedData = tourSchema.parse(formData)
