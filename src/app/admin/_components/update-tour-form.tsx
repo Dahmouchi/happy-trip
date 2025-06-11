@@ -263,20 +263,21 @@ export function UpdateTourForm({
 
   useEffect(() => {
     // Main image (imageURL)
-    if (cardImage) {
-      form.setValue("imageURL", cardImage[0]);
-    } else {
-      form.setValue("imageURL", undefined);
-    }
+     if (cardImage && cardImage.length > 0) {
+    form.setValue("imageURL", cardImage[0]);
+  } else if (initialData?.imageURL) {
+    form.setValue("imageURL", initialData.imageURL);
+    setCardImage(initialData.imageURL); // show existing images on load
+  }
 
     // Gallery images
     if (gallery && gallery.length > 0) {
-      const imageObjects = gallery.map((file) => ({ link: file }));
+      const imageObjects = (initialData.images || []).concat(
+        gallery.map((file) => ({ link: file }))
+      );
       form.setValue("images", imageObjects);
-    } else {
-      form.setValue("images", []);
     }
-  }, [cardImage, gallery, form]);
+  }, [cardImage, gallery, form, initialData]);
 
   async function onSubmit(values: z.infer<typeof tourSchema>) {
     try {
@@ -288,12 +289,9 @@ export function UpdateTourForm({
         programs,
         dates,
         images,
-        inclus: Array.isArray(values.arrayInclus)
-          ? values.arrayInclus.join(";")
-          : values.inclus,
-        exclus: Array.isArray(values.arrayExlus)
-          ? values.arrayExlus.join(";")
-          : values.exclus,
+        inclus: values.arrayInclus.join(";"),
+      
+        exclus: values.arrayExlus.join(";"),
       };
 
       const result = await updateTour(tourId, formData);
@@ -648,7 +646,6 @@ export function UpdateTourForm({
                     />
 
                     {/* services */}
-
                     <FormField
                       control={form.control}
                       name="services"
@@ -672,16 +669,16 @@ export function UpdateTourForm({
                                         )
                                         .map((service: any) => service.name)
                                         .join(", ")
-                                    : "Sélectionnez la/les service(s)"}
+                                    : "Sélectionnez le(s) service(s)"}
                                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
                               </PopoverTrigger>
                               <PopoverContent className="p-0">
                                 <Command>
-                                  <CommandInput placeholder="Rechercher une service..." />
+                                  <CommandInput placeholder="Rechercher un service..." />
                                   <CommandList>
                                     <CommandEmpty>
-                                      Aucune service trouvée.
+                                      Aucun service trouvé.
                                     </CommandEmpty>
                                     <CommandGroup>
                                       {services.map((service: any) => (
@@ -727,14 +724,13 @@ export function UpdateTourForm({
                             </Popover>
                           </FormControl>
                           <FormDescription>
-                            Sélectionnez toutes les services associées à ce
+                            Sélectionnez tous les services associés à ce
                             circuit
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    
                   </div>
 
 
@@ -746,7 +742,7 @@ export function UpdateTourForm({
                       <FormItem>
                         <FormLabel>Images du circuit</FormLabel>
                         <FormDescription>
-                          Ajoutez les URLs de 9 images pour ce circuit
+                          Ajoutez l&apos;URLs de l&apos;images pour ce circuit
                         </FormDescription>
 
                         <FileUploader
@@ -833,7 +829,7 @@ export function UpdateTourForm({
                             <Input
                               placeholder="Entrez le type d'hébergement"
                               {...field}
-                              value={field.value || ""}
+                              value={field.value ?? ""}
                             />
                           </FormControl>
                           <FormMessage />
@@ -855,7 +851,7 @@ export function UpdateTourForm({
                             type="text"
                             placeholder="Entrez le lien Google Maps de l'emplacement"
                             {...field}
-                            value={field.value || ""}
+                            value={field.value ?? ""}
                           />
                         </FormControl>
                         <FormDescription>
@@ -879,7 +875,7 @@ export function UpdateTourForm({
                             type="text"
                             placeholder="Entrez le lien de la vidéo du circuit"
                             {...field}
-                            value={field.value || ""}
+                            value={field.value ?? ""}
                           />
                         </FormControl>
                         <FormDescription>
@@ -1274,8 +1270,8 @@ export function UpdateTourForm({
                   <StringLoop
                     title="Inclus"
                     type="inclus"
+                    value={form.watch("arrayInclus")}
                     description="Liste des éléments inclus dans le circuit"
-                    // value={form.watch("arrayInclus")}
                     onChange={(value) => {
                       form.setValue("arrayInclus", value);
                     }}
@@ -1285,7 +1281,7 @@ export function UpdateTourForm({
                     title="Exclus"
                     type="exclus"
                     description="Liste des éléments exclus du circuit"
-                    // value={form.watch("arrayExlus")}
+                    value={form.watch("arrayExlus")}
                     onChange={(value) => {
                       form.setValue(
                         "arrayExlus",

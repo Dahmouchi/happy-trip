@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 
 
@@ -18,7 +17,7 @@ interface StringLoopProps {
 }
 
 const StringLoop: React.FC<StringLoopProps> = ({ title, type, description, value, onChange }) => {
-  const [strings, setStrings] = useState<string[]>([]);
+const [strings, setStrings] = useState<string[]>(value ?? []);
   const [inputValue, setInputValue] = useState<string>('');
     
 
@@ -26,7 +25,7 @@ const StringLoop: React.FC<StringLoopProps> = ({ title, type, description, value
     onChange(strings);
   }, [strings]);
 
-
+  
   const addString = (newString: string) => {
     setStrings(prev => [...prev, newString]);
   };

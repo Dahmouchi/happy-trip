@@ -1,4 +1,6 @@
 export async function getYouTubeEmbedUrl(url: string): Promise<string | null> {
+  if (url.includes('youtube.com/embed')) 
+    return url;
   const regex =
     /(?:youtube\.com\/.*v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
 

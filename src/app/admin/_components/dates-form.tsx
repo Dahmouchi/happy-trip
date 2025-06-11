@@ -73,14 +73,18 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
                   </div>
                   <p className="text-gray-600 text-sm leading-relaxed">{dateEntry.description}</p>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
+                <div
                   onClick={() => handleRemoveDate(dateEntry.id)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-red-500 hover:text-red-700 hover:bg-red-50"
+                  className="cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-red-500 hover:text-red-700 hover:bg-red-50 rounded p-1"
+                  title="Supprimer"
+                  role="button"
+                  tabIndex={0}
+                  onKeyPress={e => {
+                  if (e.key === 'Enter' || e.key === ' ') handleRemoveDate(dateEntry.id);
+                  }}
                 >
                   <X className="w-4 h-4" />
-                </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

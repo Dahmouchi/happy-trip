@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus, X, Upload, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,7 @@ interface Program {
   id: string;
   title: string;
   description: string;
-  image: File | null;
+  image: File | string | null;
   imagePreview?: string;
 }
 
@@ -28,6 +28,18 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
     image: null,
     imagePreview: undefined,
   });
+
+  // Generate image previews for programs loaded from parent
+  useEffect(() => {
+    const updated = programs.map((p) => {
+      if (typeof p.image === "string") {
+        return { ...p, imagePreview: p.image };
+      }
+      return p;
+    });
+    onChange(updated);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleAddProgram = () => {
     if (newProgram.title.trim() && newProgram.description.trim()) {
@@ -66,7 +78,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
   };
 
   return (
-    <div className="space-y-6 ">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <span className="text-sm text-gray-500">
           {programs.length} programme(s)
@@ -74,7 +86,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
       </div>
 
       {/* Programs List */}
-      <div className="space-y-4 ">
+      <div className="space-y-4">
         {programs.map((program, index) => (
           <Card
             key={program.id}
@@ -112,9 +124,9 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                   role="button"
                   tabIndex={0}
                   onKeyPress={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    handleRemoveProgram(program.id);
-                  }
+                    if (e.key === "Enter" || e.key === " ") {
+                      handleRemoveProgram(program.id);
+                    }
                   }}
                 >
                   <X className="w-4 h-4" />
@@ -127,7 +139,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
 
       {/* Add Program Form */}
       {showAddForm && (
-        <Card className="border-2 border-dashed border-lime-200 ">
+        <Card className="border-2 border-dashed border-lime-200">
           <CardContent className="p-6">
             <h4 className="font-semibold text-gray-900 mb-4">
               Ajouter Nouveau Programme
@@ -146,7 +158,6 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                       title: e.target.value,
                     }))
                   }
-                  className="w-full"
                 />
               </div>
 
@@ -172,7 +183,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                     <div className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                       <Upload className="w-4 h-4 text-gray-500" />
                       <span className="text-sm text-gray-700">
-                        Choisie une Image
+                        Choisir une Image
                       </span>
                     </div>
                     <input
@@ -190,7 +201,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                         className="w-12 h-12 object-cover rounded-lg border"
                       />
                       <span className="text-sm text-green-600">
-                        Image selectionnee
+                        Image sélectionnée
                       </span>
                     </div>
                   )}
@@ -201,7 +212,8 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                 <Button
                   onClick={handleAddProgram}
                   disabled={
-                    !newProgram.title.trim() || !newProgram.description.trim()
+                    !newProgram.title.trim() ||
+                    !newProgram.description.trim()
                   }
                   className="bg-lime-600 hover:bg-lime-700 text-white"
                 >
@@ -219,7 +231,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                     });
                   }}
                 >
-                  Annuller
+                  Annuler
                 </Button>
               </div>
             </div>
@@ -232,7 +244,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
         <Button
           onClick={() => setShowAddForm(true)}
           variant="outline"
-          className="w-full border-2 border-dashed border-gray-300 hover:lime-blue-400 hover:bg-lime-50 transition-all duration-200 py-8"
+          className="w-full border-2 border-dashed border-gray-300 hover:bg-lime-50 transition-all duration-200 py-8"
         >
           <Plus className="w-5 h-5 mr-2 text-gray-500" />
           <span className="text-gray-600">Ajouter un Programme</span>
