@@ -136,19 +136,19 @@ export function Navbar({
                   {voyage?.map((voyage) => (
                     <NavigationMenuLink asChild key={voyage.id}>
                       <Link
-                        href={""}
+                        href={`/category/${voyage.id}`}
                         className="flex flex-col items-center rounded-md p-3 hover:bg-accent transition-colors"
                       >
                         <img
                           src={voyage.imageUrl}
-                          alt={voyage.id}
+                          alt={voyage.name}
                           className="w-56 h-40 object-cover rounded mb-2"
                         />
                         <span className="text-sm font-medium text-center">
                           {voyage.name}
                         </span>
                         <p className="line-clamp-2 text-xs text-muted-foreground">
-                         {voyage.description}
+                          {voyage.description}
                         </p>
                       </Link>
                     </NavigationMenuLink>
@@ -165,7 +165,7 @@ export function Navbar({
                   {nature?.map((voyage) => (
                     <NavigationMenuLink asChild key={voyage.name}>
                       <Link
-                        href={voyage.id}
+                        href={`/nature/${voyage.id}`}
                         className="flex flex-col items-center rounded-md p-3 hover:bg-accent transition-colors"
                       >
                         <img

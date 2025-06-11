@@ -105,14 +105,20 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                     className="safe-html text-gray-600 text-sm"
                   />
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
+                <div
                   onClick={() => handleRemoveProgram(program.id)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-red-500 hover:text-red-700 hover:bg-red-50"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-red-500 hover:text-red-700 hover:bg-red-50 cursor-pointer rounded p-1"
+                  title="Supprimer le programme"
+                  role="button"
+                  tabIndex={0}
+                  onKeyPress={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    handleRemoveProgram(program.id);
+                  }
+                  }}
                 >
                   <X className="w-4 h-4" />
-                </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
