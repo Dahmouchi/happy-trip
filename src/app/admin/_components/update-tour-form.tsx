@@ -208,7 +208,7 @@ export function UpdateTourForm({
   tourId,
 }: any) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [cardImage, setCardImage] = useState<File[] | null>(null);
+  const [cardImage, setCardImage] = useState<File[]>([]);
   const [gallery, setGallery] = useState<File[] | null>(null);
 
   const form = useForm<z.infer<typeof tourSchema>>({
@@ -263,12 +263,10 @@ export function UpdateTourForm({
 
   useEffect(() => {
     // Main image (imageURL)
-     if (cardImage && cardImage.length > 0) {
-    form.setValue("imageURL", cardImage[0]);
-  } else if (initialData?.imageURL) {
-    form.setValue("imageURL", initialData.imageURL);
-    setCardImage(initialData.imageURL); // show existing images on load
-  }
+    if (cardImage.length > 0) {
+    // New image selected
+      form.setValue("imageURL", cardImage[0]);
+    }
 
     // Gallery images
     if (gallery && gallery.length > 0) {
@@ -742,12 +740,18 @@ export function UpdateTourForm({
                       <FormItem>
                         <FormLabel>Images du circuit</FormLabel>
                         <FormDescription>
-                          Ajoutez l&apos;URLs de l&apos;images pour ce circuit
+                          Ajoutez l&apos;URL de l&apos;image pour ce circuit
                         </FormDescription>
 
                         <FileUploader
                           value={cardImage}
-                          onValueChange={setCardImage}
+                          onValueChange={(value: File[] | null) => {
+                            const files = value ?? [];
+                            setCardImage(files); // update state with selected files
+                            if (files.length > 0) {
+                              form.setValue("imageURL", files[0]); // set form field
+                            }
+                          }}
                           dropzoneOptions={{
                             maxFiles: 1,
                             maxSize: 1 * 1024 * 1024,
@@ -762,17 +766,14 @@ export function UpdateTourForm({
                         >
                           <FileInput className="border-2 border-dashed p-6 text-center hover:bg-gray-50">
                             <p className="text-gray-500">
-                              Glissez-déposez vos fichiers ici ou cliquez pour
-                              parcourir.
+                              Glissez-déposez vos fichiers ici ou cliquez pour parcourir.
                             </p>
                           </FileInput>
 
                           <FileUploaderContent className="mt-4">
                             {cardImage?.map((file, index) => (
                               <FileUploaderItem key={index} index={index}>
-                                <span className="truncate max-w-[200px]">
-                                  {file.name}
-                                </span>
+                                <span className="truncate max-w-[200px]">{file.name}</span>
                               </FileUploaderItem>
                             ))}
                           </FileUploaderContent>

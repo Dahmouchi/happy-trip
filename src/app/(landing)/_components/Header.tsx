@@ -208,7 +208,7 @@ export function Navbar({
       {/* Mobile Menu Button */}
       <div className="flex items-center gap-4">
         {/* CTA Button */}
-        <Link href="/login">
+        <Link href="/login-client">
           <Button className="bg-white text-black hover:bg-white hover:text-black hover:cursor-pointer shadow-none">
             Login
           </Button>

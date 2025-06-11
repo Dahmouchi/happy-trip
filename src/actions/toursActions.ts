@@ -271,6 +271,7 @@ export async function getTourById(tourId: string) {
         destinations: true,
         categories: true,
         natures: true,
+        services: true,
         programs: true,
         images: true,
         dates: true,
