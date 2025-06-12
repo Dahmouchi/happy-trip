@@ -14,21 +14,21 @@ export default async function AllNaturesPage({
     const searchQuery = searchParams.search || "";
     const displayMode = searchParams.view === "carousel" ? "carousel" : "grid";
 
-    // Fetch all natures
-    const allNatures = await prisma.nature.findMany({
-        orderBy: { name: "asc" },
-    });
-
-    // Fetch all tours (optionally filtered by search)
-    const tours = await prisma.tour.findMany({
-        where: {
-            ...(searchQuery && {
-                title: { contains: searchQuery, mode: "insensitive" },
-            }),
-        },
-        orderBy: { createdAt: "asc" },
-        include: { natures: true, reviews: true },
-    });
+    // Fetch all natures and tours in parallel
+    const [allNatures, tours] = await Promise.all([
+        prisma.nature.findMany({
+            orderBy: { name: "asc" },
+        }),
+        prisma.tour.findMany({
+            where: {
+                ...(searchQuery && {
+                    title: { contains: searchQuery, mode: "insensitive" },
+                }),
+            },
+            orderBy: { createdAt: "asc" },
+            include: { natures: true, reviews: true },
+        }),
+    ]);
 
     // Breadcrumb
     const breadcrumbLinks = [

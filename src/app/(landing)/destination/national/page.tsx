@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 // app/destination/national/page.tsx
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
