@@ -20,7 +20,7 @@ export function PromotionCard({ tour }: { tour: any }) {
     <div className="max-w-sm h-full flex flex-col justify-between rounded-lg overflow-hidden shadow-lg border border-gray-200 bg-white">
       <div className="w-full h-[40vh] bg-green-500 relative bg-cover bg-center group">
         <div
-          className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-500 "
           style={{
             backgroundImage: `url(${tour?.imageUrl || "/images/product.jpg"})`,
           }}
