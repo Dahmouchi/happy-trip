@@ -47,7 +47,7 @@ export default async function CategoryToursPage(props: {
   // Breadcrumbs
   const breadcrumbLinks = [
     { href: "/", text: "Home" },
-    { href: "/category/national", text: "National" },
+    { href: "/category/", text: "voyages" },
     ...(categoryT
       ? [
           {
