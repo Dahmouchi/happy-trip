@@ -59,7 +59,7 @@ export default async function NatureToursPage(props: {
     return (
         <div>
             <HeroSub
-                title={`Voyages - ${NatureT?.name}`}
+                title={`Activité - ${NatureT?.name}`}
                 description={`Découvrez les voyages pour l'activité ${NatureT?.name}.`}
                 breadcrumbLinks={breadcrumbLinks}
             />

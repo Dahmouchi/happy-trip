@@ -153,8 +153,7 @@ const Blogs = async () => {
       status: true,
     },
   });
-  console.log(blog)
-  return <div> <BlogPage
+  return <div > <BlogPage
        blogs={blog} 
        categories={sampleCategories} 
      /></div>;
