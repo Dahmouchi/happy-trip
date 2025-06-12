@@ -136,7 +136,7 @@ export function Navbar({
                   {voyage?.map((voyage) => (
                     <NavigationMenuLink asChild key={voyage.id}>
                       <Link
-                        href={`/category/${voyage.id}`}
+                        href={`/category?categorys=${voyage.id}`}
                         className="flex flex-col items-center rounded-md p-3 hover:bg-accent transition-colors"
                       >
                         <img
@@ -165,7 +165,7 @@ export function Navbar({
                   {nature?.map((voyage) => (
                     <NavigationMenuLink asChild key={voyage.name}>
                       <Link
-                        href={`/nature/${voyage.id}`}
+                        href={`/nature?natures=${voyage.id}`}
                         className="flex flex-col items-center rounded-md p-3 hover:bg-accent transition-colors"
                       >
                         <img

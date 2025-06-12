@@ -43,16 +43,19 @@ export function CategorySearchAndViewControls({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchQuery, displayMode]);
 
-    const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedId = e.target.value;
+   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedId = e.target.value;
+    const params = new URLSearchParams(searchParams.toString());
 
-        // Retain search + view when changing category
-        const params = new URLSearchParams(searchParams.toString());
-        const queryString = params.toString();
-        const url = `/category/${selectedId}${queryString ? `?${queryString}` : ""}`;
+    if (selectedId) {
+      params.set("categorys", selectedId);
+    } else {
+      params.delete("categorys");
+    }
 
-        router.push(url);
-    };
+    router.replace(`${pathname}?${params.toString()}`);
+  };
+
 
     return (
         <div className="sticky top-0 z-10 bg-[#83CD20] backdrop-blur-md border-b border-gray-100 shadow-sm">
