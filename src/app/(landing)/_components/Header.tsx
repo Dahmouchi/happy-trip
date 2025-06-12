@@ -188,7 +188,7 @@ export function Navbar({
           </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuLink
-              href="/"
+              href="/blogs"
               className={navigationMenuTriggerStyle()}
             >
               Blogs

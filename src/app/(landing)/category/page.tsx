@@ -19,7 +19,7 @@ export default async function CategoryToursPage(props: {
   const displayMode = searchParams.view === "carousel" ? "carousel" : "grid";
   // Fetch data
   const [sections, allCategories, tours] = await Promise.all([
-    prisma.landing.findUnique({ where: { id: "cmawhz4xm00000sh04egnpnpd" } }),
+    prisma.landing.findFirst({}),
     prisma.category.findMany({
       orderBy: { name: "asc" },
     }),

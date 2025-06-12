@@ -66,7 +66,16 @@ model Landing {
   trust        Boolean @default(true)
   footer       Boolean @default(true)
 }
-
+model Blog {
+  id          String @id @default(cuid())
+  title       String
+  description String?
+  imageUrl    String?
+  category    String?
+  status      Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
 model Program {
   id          String @id @default(cuid())
   title       String
