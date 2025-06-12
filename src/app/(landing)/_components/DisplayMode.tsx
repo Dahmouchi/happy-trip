@@ -41,7 +41,7 @@ export function SearchAndViewControls({
     }
 
     router.replace(`${pathname}?${params.toString()}`);
-  }, [searchQuery, displayMode]);
+  }, [searchQuery, displayMode, searchParams, router, pathname]);
 
   const handleDestinationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedId = e.target.value;

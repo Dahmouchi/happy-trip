@@ -4,17 +4,15 @@ import HeroSub from "../../_components/hero-sub";
 import { ToursDisplay } from "../../_components/National";
 import { CategorySearchAndViewControls } from "../../_components/DisplayModeCategory";
 
-export default async function CategoryToursPage({
-    params,
-    searchParams,
-}: {
-    params: { id: string };
-    searchParams: {
-        search?: string;
-        view?: "grid" | "carousel";
-    };
+export default async function CategoryToursPage(props: {
+   searchParams: Promise<{
+    categories?: string;
+    search?: string;
+    view?: "grid" | "carousel";
+  }>;
 }) {
-    const categoryId = params.id;
+    const searchParams = await props.searchParams;
+    const categoryId = searchParams.categories;
     const searchQuery = searchParams.search || "";
     const displayMode = searchParams.view === "carousel" ? "carousel" : "grid";
 

@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { Earth, MoveRight } from 'lucide-react'
 import React from 'react'
 
