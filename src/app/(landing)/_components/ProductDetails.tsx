@@ -247,7 +247,11 @@ const averageRating = reviewCount > 0
             <div className="flex items-center gap-2">
               <img src={"/icons/money.png"} className="w-7 h-7" />{" "}
               {/* Replace with money icon */}
-              <span>{tour.priceDiscounted}</span>
+                <span>
+                {tour.type === "INTERNATIONAL" ? "À partir de " : ""}
+                {tour.priceDiscounted}
+                {" MAD"}
+                </span>
             </div>
             <Link
               href={"#"}
@@ -501,33 +505,58 @@ const averageRating = reviewCount > 0
                 <MessageCircle />
                 Les avis
               </h2>
-              <Carousel
-                plugins={[plugin.current]} // Add plugin ref here for autoplay
-                className="w-full"
-                opts={{
-                  align: "start",
-                  loop: true,
-                }}
-                onMouseEnter={plugin.current.stop} // Optional: pause on hover
-                onMouseLeave={plugin.current.reset}
-              >
-                <CarouselContent>
-                  {reviews.map((review: unknown, index: React.Key | null | undefined) => (
-                    <CarouselItem
-                      key={index}
-                      className="md:basis-1/1 lg:basis-1/1"
-                    >
-                      {" "}
-                      {/* Show 1 item at a time */}
-                      <div className="p-1">
-                        <ReviewsCard review={review} />
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="absolute left-[-20px] top-1/2 -translate-y-1/2 bg-lime-400 hover:bg-lime-500 text-white border-none rounded-full w-8 h-8" />
-                <CarouselNext className="absolute right-[-20px] top-1/2 -translate-y-1/2 bg-lime-400 hover:bg-lime-500 text-white border-none rounded-full w-8 h-8" />
-              </Carousel>
+              {approvedReviews.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">
+                  Aucun avis pour ce tour pour le moment.
+                </div>
+              ) : approvedReviews.length > 1 ? (
+                <Carousel
+                  plugins={[plugin.current]} // Add plugin ref here for autoplay
+                  className="w-full"
+                  opts={{
+                    align: "start",
+                    loop: true,
+                  }}
+                  onMouseEnter={plugin.current.stop} // Optional: pause on hover
+                  onMouseLeave={plugin.current.reset}
+                >
+                  <CarouselContent>
+                    {approvedReviews.map((review: Review, index: number) => (
+                      <CarouselItem
+                        key={index}
+                        className="md:basis-1/1 lg:basis-1/1"
+                      >
+                        {/* Show 1 item at a time */}
+                        <div className="p-1">
+                          <ReviewsCard
+                            review={{
+                              name: review.fullName,
+                              message: review.message,
+                              rating: review.rating,
+                              role: "Client",
+                              avatarUrl: "/home/ubuntu/upload/image.png",
+                            }}
+                          />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious className="absolute left-[-20px] top-1/2 -translate-y-1/2 bg-lime-400 hover:bg-lime-500 text-white border-none rounded-full w-8 h-8" />
+                  <CarouselNext className="absolute right-[-20px] top-1/2 -translate-y-1/2 bg-lime-400 hover:bg-lime-500 text-white border-none rounded-full w-8 h-8" />
+                </Carousel>
+              ) : (
+                <div className="w-full">
+                  <ReviewsCard
+                    review={{
+                      name: approvedReviews[0].fullName,
+                      message: approvedReviews[0].message,
+                      rating: approvedReviews[0].rating,
+                      role: "Client",
+                      avatarUrl: "/home/ubuntu/upload/image.png",
+                    }}
+                  />
+                </div>
+              )}
               <ReviewModal tourId={tour.id} />
             </div>
             <BookingSteps advance={tour?.advancedPrice} />
@@ -628,7 +657,7 @@ const StarRatingDisplay = ({ averageRating }: { averageRating: number }) => {
 
 const ReviewsCard = ({ review }: { review: any }) => {
   return (
-    <Card className="mx-2 border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <Card className="mx-2 border border-gray-200 rounded-lg shadow-sm overflow-hidden mb-4">
       <CardContent className="p-6 flex flex-col items-start text-left">
         <div className="flex justify-between items-center w-full mb-3">
             <div className="flex items-center">

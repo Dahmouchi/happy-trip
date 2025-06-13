@@ -50,7 +50,7 @@
     "dompurify": "^3.2.6",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
-    "framer-motion": "^12.17.3",
+    "framer-motion": "^12.18.1",
     "lucide-react": "^0.509.0",
     "next-auth": "^4.24.11",
     "react": "^19.0.0",

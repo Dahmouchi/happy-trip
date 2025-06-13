@@ -71,6 +71,11 @@ const datas = {
       icon: Newspaper,
     },
     {
+      title: "Reviews",
+      url: "/admin/dashboard/reviews",
+      icon: Newspaper,
+    },
+    {
       title: "Settings",
       url: "/admin/dashboard/settings",
       icon: Settings2,

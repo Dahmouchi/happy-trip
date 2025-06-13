@@ -25,7 +25,7 @@ export async function AddReview(fullName: string,message:string,rating:number,to
 }
 
 
-export async function GetReviews(tourId: string) {
+export async function GetReviewsByTourId(tourId: string) {
   if (!tourId) {
     return {success:false, error: "Tour ID is required"};
   }
@@ -35,6 +35,25 @@ export async function GetReviews(tourId: string) {
   })
   return { success: true, data: reviews };
 }
+
+export async function GetAllReviews() {
+  const reviews = await prisma.review.findMany({
+    include: {
+      tour: {
+        select: { title: true },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const enrichedReviews = reviews.map((review) => ({
+    ...review,
+    tourTitle: review.tour?.title || "Tour inconnu",
+  }));
+
+  return { success: true, data: enrichedReviews };
+}
+
 
 export async function DeleteReview(reviewId: string) {
   if (!reviewId) {
@@ -63,5 +82,18 @@ export async function UpdateReview(reviewId:string, data:Review)
       status: data.status
     },
   });
+  return { success: true, data: review };
+}
+
+export async function UpdateReviewStatus(reviewId: string, status: boolean) {
+  if (!reviewId) {
+    return { success: false, error: "Review ID is required" };
+  }
+
+  const review = await prisma.review.update({
+    where: { id: reviewId },
+    data: { status },
+  });
+
   return { success: true, data: review };
 }
