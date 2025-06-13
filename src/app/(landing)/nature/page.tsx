@@ -18,7 +18,7 @@ export default async function NatureToursPage(props: {
   const displayMode = searchParams.view === "carousel" ? "carousel" : "grid";
    // Fetch data
   const [sections, allNatures, tours] = await Promise.all([
-    prisma.landing.findUnique({ where: { id: "cmawhz4xm00000sh04egnpnpd" } }),
+    prisma.landing.findFirst({}),
     prisma.nature.findMany({
       orderBy: { name: "asc" },
     }),
@@ -59,7 +59,7 @@ export default async function NatureToursPage(props: {
     return (
         <div>
             <HeroSub
-                title={`Voyages - ${NatureT?.name}`}
+                title={`Activité - ${NatureT?.name}`}
                 description={`Découvrez les voyages pour l'activité ${NatureT?.name}.`}
                 breadcrumbLinks={breadcrumbLinks}
             />

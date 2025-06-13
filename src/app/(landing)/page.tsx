@@ -11,11 +11,7 @@ import { Landing, Tour } from "@prisma/client";
 import prisma from "@/lib/prisma";
 
 const LandigPage = async () => {
-  const sections: Landing | null = await prisma.landing.findUnique({
-    where: {
-      id: "cmawhz4xm00000sh04egnpnpd",
-    },
-  });
+  const sections: Landing | null = await prisma.landing.findFirst({ });
   const tourNational: Tour[] | null = await prisma.tour.findMany({
     where: {
       type: "NATIONAL",

@@ -31,6 +31,7 @@ import {
   MessageCircle,
   MountainSnow,
   PhoneIcon,
+  Star,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -58,32 +59,40 @@ const averageRating = reviewCount > 0
   ? approvedReviews.reduce((sum:any, review:any) => sum + review.rating, 0) / reviewCount
   : 0;
 
-  const sampleTestimonials = [
-    {
-      title: "Great Work",
-      rating: 5,
-      text: "I think Educrat is the best theme I ever seen this year. Amazing design, easy to customize and a design quality superlative account on its cloud platform for the optimized performance",
-      name: "Courtney Henry",
-      role: "Web Designer",
-      avatarUrl: "/home/ubuntu/upload/image.png", // Replace with actual avatar path
-    },
-    {
-      title: "Excellent Support",
-      rating: 5,
-      text: "The support team was incredibly helpful and responsive. They solved my issue within minutes! Highly recommend.",
-      name: "John Doe",
-      role: "Developer",
-      avatarUrl: "/home/ubuntu/upload/image.png", // Replace with actual avatar path
-    },
-    {
-      title: "Feature Rich",
-      rating: 4,
-      text: "Packed with features and very flexible. Took a little time to learn everything, but worth it.",
-      name: "Jane Smith",
-      role: "Project Manager",
-      avatarUrl: "/home/ubuntu/upload/image.png", // Replace with actual avatar path
-    },
-  ];
+  // const sampleTestimonials = [
+  //   {
+  //     title: "Great Work",
+  //     rating: 5,
+  //     text: "I think Educrat is the best theme I ever seen this year. Amazing design, easy to customize and a design quality superlative account on its cloud platform for the optimized performance",
+  //     name: "Courtney Henry",
+  //     role: "Web Designer",
+  //     avatarUrl: "/home/ubuntu/upload/image.png", // Replace with actual avatar path
+  //   },
+  //   {
+  //     title: "Excellent Support",
+  //     rating: 5,
+  //     text: "The support team was incredibly helpful and responsive. They solved my issue within minutes! Highly recommend.",
+  //     name: "John Doe",
+  //     role: "Developer",
+  //     avatarUrl: "/home/ubuntu/upload/image.png", // Replace with actual avatar path
+  //   },
+  //   {
+  //     title: "Feature Rich",
+  //     rating: 4,
+  //     text: "Packed with features and very flexible. Took a little time to learn everything, but worth it.",
+  //     name: "Jane Smith",
+  //     role: "Project Manager",
+  //     avatarUrl: "/home/ubuntu/upload/image.png", // Replace with actual avatar path
+  //   },
+  // ];
+
+  const reviews = tour.reviews?.map((review: Review) => ({
+    name: review.fullName,
+    message: review.message,
+    rating: review.rating,
+    role: "Client", 
+    avatarUrl: "/home/ubuntu/upload/image.png", 
+  })) || [];
   const sampleFaqData = [
     {
       id: "item-1",
@@ -486,6 +495,7 @@ const averageRating = reviewCount > 0
                 Réserver
               </button>
             </div>
+            {/* Reviews Section */}
             <div className="bg-[#F6F3F2] p-6 md:p-8 rounded-xl border border-slate-200 shadow-lg max-w-2xl mx-auto font-sans">
               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center justify-center">
                 <MessageCircle />
@@ -502,7 +512,7 @@ const averageRating = reviewCount > 0
                 onMouseLeave={plugin.current.reset}
               >
                 <CarouselContent>
-                  {sampleTestimonials.map((review, index) => (
+                  {reviews.map((review: unknown, index: React.Key | null | undefined) => (
                     <CarouselItem
                       key={index}
                       className="md:basis-1/1 lg:basis-1/1"
@@ -510,7 +520,7 @@ const averageRating = reviewCount > 0
                       {" "}
                       {/* Show 1 item at a time */}
                       <div className="p-1">
-                        <TestimonialCard review={review} />
+                        <ReviewsCard review={review} />
                       </div>
                     </CarouselItem>
                   ))}
@@ -616,18 +626,24 @@ const StarRatingDisplay = ({ averageRating }: { averageRating: number }) => {
   );
 };
 
-const TestimonialCard = ({ review }: { review: any }) => {
+const ReviewsCard = ({ review }: { review: any }) => {
   return (
     <Card className="mx-2 border border-gray-200 rounded-lg shadow-sm overflow-hidden">
       <CardContent className="p-6 flex flex-col items-start text-left">
         <div className="flex justify-between items-center w-full mb-3">
-          <h3 className="text-lg font-semibold text-orange-600">
-            {review?.title}
-          </h3>
+            <div className="flex items-center">
+            {[...Array(5)].map((_, i) => (
+              <Star
+              key={i}
+              className={i < review?.rating ? "text-yellow-400" : "text-gray-300"}
+              fill={i < review?.rating ? "#facc15" : "none"}
+              />
+            ))}
+            </div>
           <div className="flex"></div>
         </div>
         <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-          &quot;{review?.text}&quot;
+          &quot;{review?.message}&quot;
         </p>
         <div className="flex items-center mt-auto pt-4 border-t border-gray-100 w-full">
           <img

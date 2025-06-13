@@ -10,6 +10,7 @@ import {
   SwatchBook,
   Tickets,
   PlaneTakeoff,
+  Newspaper
 } from "lucide-react";
 
 import { NavMain } from "./nav-main";
@@ -63,6 +64,11 @@ const datas = {
       title: "Utilisateurs",
       url: "/admin/dashboard/users",
       icon: Users,
+    },
+     {
+      title: "Blogs",
+      url: "/admin/dashboard/blogs",
+      icon: Newspaper,
     },
     {
       title: "Settings",

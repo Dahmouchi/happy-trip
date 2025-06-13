@@ -21,7 +21,7 @@ export default async function NationalToursPage(props: {
 
   // Fetch data
   const [sections, allDestinations, tours] = await Promise.all([
-    prisma.landing.findUnique({ where: { id: "cmawhz4xm00000sh04egnpnpd" } }),
+    prisma.landing.findFirst({}),
     prisma.destination.findMany({
       where: { type: "NATIONAL" },
       orderBy: { name: "asc" },

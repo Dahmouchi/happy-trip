@@ -188,7 +188,7 @@ export function Navbar({
           </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuLink
-              href="/"
+              href="/blogs"
               className={navigationMenuTriggerStyle()}
             >
               Blogs
@@ -285,7 +285,7 @@ export function Navbar({
                       ).map((destination) => (
                         <li key={destination.id}>
                           <Link
-                            href={`/destinations/${selectedDestinationType}/${destination.id}`}
+                            href={`/destination/${selectedDestinationType}?destinations=${destination.id}`}
                             className="text-base py-1 flex items-center gap-3"
                             onClick={() => setMobileMenuOpen(false)}
                           >
@@ -293,10 +293,7 @@ export function Navbar({
                             {/* <img src={destination.image} alt={destination.name} className="w-16 h-12 object-cover rounded" /> */}
                             <div>
                               <div>{destination.name}</div>
-                              <p className="line-clamp-2 text-xs text-muted-foreground">
-                                Lorem ipsum dolor sit amet consectetur
-                                adipisicing elit. Natus vel vitae vero!
-                              </p>
+                            
                             </div>
                           </Link>
                         </li>
@@ -313,44 +310,22 @@ export function Navbar({
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="pl-4 flex flex-col space-y-2 py-2">
-                    {[
-                      {
-                        type: "Voyages en Groupe",
-                        href: "/voyages/groupe",
-                        image: "/voyages/groupe.jpg",
-                      },
-                      {
-                        type: "Comité d'entreprise",
-                        href: "/voyages/Comité-dentreprise",
-                        image: "/voyages/comite d'entreprise.jpg",
-                      },
-                      {
-                        type: "Voyage sur mesure",
-                        href: "/voyages/mesure",
-                        image: "/voyages/mesure.jpg",
-                      },
-                      {
-                        type: "Voyage Team Building",
-                        href: "/voyages/team-building",
-                        image: "/voyages/team-building.jpg",
-                      },
-                    ].map((voyage) => (
+                    {voyage?.map((voyage) => (
                       <Link
-                        key={voyage.type}
-                        href={voyage.href}
+                        key={voyage.id}
+                         href={`/category?categorys=${voyage.id}`}
                         className="flex items-center gap-3 py-2"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <img
-                          src={voyage.image}
-                          alt={voyage.type}
+                          src={voyage.imageUrl}
+                          alt={voyage.id}
                           className="w-16 h-12 object-cover rounded"
                         />
                         <div>
-                          <div className="text-base">{voyage.type}</div>
+                          <div className="text-base">{voyage.name}</div>
                           <p className="line-clamp-2 text-xs text-muted-foreground">
-                            Lorem ipsum dolor sit amet consectetur adipisicing
-                            elit. Natus vel vitae vero!
+                            {voyage.description}
                           </p>
                         </div>
                       </Link>
@@ -366,44 +341,22 @@ export function Navbar({
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="pl-4 flex flex-col space-y-2 py-2">
-                    {[
-                      {
-                        type: "Randonnée",
-                        href: "/activités/randonnée",
-                        image: "/voyages/randonnee.jpg",
-                      },
-                      {
-                        type: "Montagne",
-                        href: "/activités/montagne",
-                        image: "/voyages/montagne.jpg",
-                      },
-                      {
-                        type: "Baignade",
-                        href: "/activités/baignade",
-                        image: "/voyages/baignade.jpg",
-                      },
-                      {
-                        type: "Bivouac",
-                        href: "/activités/bivouac",
-                        image: "/voyages/bivouac.jpg",
-                      },
-                    ].map((activity) => (
+                    {nature?.map((activity) => (
                       <Link
-                        key={activity.type}
-                        href={activity.href}
+                        key={activity.id}
+                        href={`/nature?natures=${activity.id}`}
                         className="flex items-center gap-3 py-2"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <img
-                          src={activity.image}
-                          alt={activity.type}
+                          src={activity.imageUrl}
+                          alt={activity.id}
                           className="w-16 h-12 object-cover rounded"
                         />
                         <div>
-                          <div className="text-base">{activity.type}</div>
+                          <div className="text-base">{activity.name}</div>
                           <p className="line-clamp-2 text-xs text-muted-foreground">
-                            Lorem ipsum dolor sit amet consectetur adipisicing
-                            elit. Natus vel vitae vero!
+                           {activity.description}
                           </p>
                         </div>
                       </Link>
@@ -414,7 +367,7 @@ export function Navbar({
             </Accordion>
 
             <Link
-              href="#"
+              href="/blogs"
               className="text-lg font-medium py-2 border-b border-gray-100"
               onClick={() => setMobileMenuOpen(false)}
             >

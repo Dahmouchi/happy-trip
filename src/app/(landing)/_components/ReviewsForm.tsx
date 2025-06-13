@@ -51,22 +51,22 @@ export function ReviewModal({tourId}:{tourId:any}) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <button className="w-full bg-green-800 text-white py-3 rounded-lg font-semibold hover:bg-green-900 transition-colors cursor-pointer">
-            Ajouter un Commmentaire
+            Ajouter un Commentaire
         </button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Write a Review</DialogTitle>
+            <DialogTitle>Écrire un avis</DialogTitle>
         </DialogHeader>
 
         <Input
-          placeholder="Your full name"
+          placeholder="Votre nom complet"
           value={form.fullName}
           onChange={(e) => setForm({ ...form, fullName: e.target.value })}
         />
 
         <Textarea
-          placeholder="Your message"
+          placeholder="Votre message"
           value={form.message}
           onChange={(e) => setForm({ ...form, message: e.target.value })}
         />
