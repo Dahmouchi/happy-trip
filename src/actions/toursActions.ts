@@ -292,33 +292,202 @@ export async function getTourById(tourId: string) {
 
 
 
-export async function updateTour(tourId: string, formData: TourFormData) {
+// export async function updateTour(tourId: string, formData: TourFormData) {
 
+//   if (!tourId) {
+//     return { success: false, error: "Tour ID is required" };
+//   }
+//   console.log("Updating tour with ID:", tourId);
+//   try {
+//     const validatedData = tourSchema.parse(formData);
+
+//     // Handle image uploads first
+//     const uploadedImages = validatedData.images
+//       ? await Promise.all(
+//           validatedData.images.map(async (image) => ({
+//             url: image.link ? await uploadImage(image.link) : "",
+//           }))
+//         )
+//       : [];
+
+//     const uploadedPrograms = validatedData.programs
+//       ? await Promise.all(
+//           validatedData.programs.map(async (program) => {
+//             let imageUrl = "";
+
+//             if (program.image instanceof File) {
+//               imageUrl = await uploadImage(program.image);
+//             } else if (typeof program.image === "string") {
+//               imageUrl = program.image;
+//             }
+
+//             return {
+//               id: program.id,
+//               title: program.title,
+//               description: program.description,
+//               imageUrl,
+//             };
+//           })
+//         )
+//       : [];
+
+//     const updatedTour = await prisma.tour.update({
+//       where: { id: tourId },
+//       data: {
+//         active: validatedData.active ?? true, // Default to true if not provided
+//         title: validatedData.title,
+//         description: validatedData.description,
+//         type: validatedData.type as TravelType,
+//         priceOriginal: validatedData.priceOriginal,
+//         priceDiscounted: validatedData.priceDiscounted,
+//         discountEndDate: validatedData.discountEndDate,
+//         advancedPrice: validatedData.advancedPrice,
+//         dateCard: validatedData.dateCard,
+//         durationDays: validatedData.durationDays,
+//         durationNights: validatedData.durationNights,
+//         googleMapsUrl: validatedData.googleMapsUrl
+//           ? (await getEmbedGoogleMapsUrl(validatedData.googleMapsUrl)) ?? ""
+//           : "",
+//         videoUrl: validatedData.videoUrl ? (await getYouTubeEmbedUrl(validatedData.videoUrl)) || "" : "", // Convert YouTube URL to embed format
+//         imageUrl: validatedData.imageURL ? await uploadImage(validatedData.imageURL) : "", // Upload image and get URL
+//         inclus: validatedData.inclus,
+//         exclus: validatedData.exclus,
+//         groupType: validatedData.groupType,
+//         groupSizeMax: validatedData.groupSizeMax,
+//         showReviews: validatedData.showReviews,
+//         showDifficulty: validatedData.showDifficulty,
+//         showDiscount: validatedData.showDiscount,
+//         difficultyLevel: validatedData.difficultyLevel,
+//         discountPercent: validatedData.discountPercent,
+//         accommodationType: validatedData.accommodationType,
+
+//         // One-to-many relation updates
+//         dates: validatedData.dates
+//           ? {
+//               deleteMany: {},
+//               create: validatedData.dates.map((d) => ({
+//                 startDate: d.startDate,
+//                 endDate: d.endDate,
+//                 description: d.description,
+//               })),
+//             }
+//           : undefined,
+
+//         destinations: validatedData.destinations
+//           ? {
+//               set: [],
+//               connect: validatedData.destinations.map((id) => ({ id })),
+//             }
+//           : undefined,
+
+//         categories: validatedData.categories
+//           ? {
+//               set: [],
+//               connect: validatedData.categories.map((id) => ({ id })),
+//             }
+//           : undefined,
+
+//         natures: validatedData.natures
+//           ? {
+//               set: [],
+//               connect: validatedData.natures.map((id) => ({ id })),
+//             }
+//           : undefined,
+
+//         services: validatedData.services
+//           ? {
+//               set: [],
+//               connect: validatedData.services.map((id) => ({ id })),
+//             }
+//           : undefined,
+
+//         images: validatedData.images
+//           ? {
+//               deleteMany: {},
+//               create: uploadedImages,
+//             }
+//           : undefined,
+
+//         programs: validatedData.programs
+//           ? {
+//               deleteMany: {},
+//               create: uploadedPrograms.map(({ id, ...data }) => data), // omit `id`
+//             }
+//           : undefined,
+//       },
+//     });
+
+//     return { success: true, data: updatedTour };
+//   } catch (error) {
+//     console.error("Error updating tour:", error);
+//     if (error instanceof z.ZodError) {
+//       return {
+//         success: false,
+//         error: "Validation error",
+//         details: error.errors,
+//       };
+//     }
+//     return {
+//       success: false,
+//       error: "Failed to update tour",
+//     };
+//   }
+// }
+
+
+export async function updateTour(tourId: string, formData: TourFormData) {
   if (!tourId) {
     return { success: false, error: "Tour ID is required" };
   }
+
   console.log("Updating tour with ID:", tourId);
+
   try {
+    // 1. Fetch the existing tour to get current images and imageUrl
+    const existingTour = await prisma.tour.findUnique({
+      where: { id: tourId },
+      include: { images: true },
+    });
+
+    if (!existingTour) {
+      return { success: false, error: "Tour not found" };
+    }
+
+    // 2. Validate and parse the incoming form data
     const validatedData = tourSchema.parse(formData);
 
-    // Handle image uploads first
-    const uploadedImages = validatedData.images
-      ? await Promise.all(
-          validatedData.images.map(async (image) => ({
-            url: image.link ? await uploadImage(image.link) : "",
-          }))
-        )
-      : [];
+    // 3. Handle image uploads: if no images, keep old ones
+    let uploadedImages = existingTour.images; // Default to keep old images if no new ones are provided
+    let newImages: { url: string }[] = [];
 
+    if (validatedData.images && validatedData.images.length > 0) {
+      // Upload new images if provided
+      newImages = await Promise.all(
+        validatedData.images.map(async (image) => ({
+          url: image.link ? await uploadImage(image.link) : "",
+        }))
+      );
+    }
+
+    // 4. Handle main imageUrl: upload new one only if provided
+    let mainImageUrl = existingTour.imageUrl;
+
+    if (validatedData.imageURL) {
+      // Upload and update if a new main image is provided
+      mainImageUrl = await uploadImage(validatedData.imageURL);
+    }
+
+    // 5. Handle program images: upload new ones if provided, otherwise keep old
     const uploadedPrograms = validatedData.programs
       ? await Promise.all(
           validatedData.programs.map(async (program) => {
             let imageUrl = "";
 
+            // If the program has a new image file, upload it
             if (program.image instanceof File) {
               imageUrl = await uploadImage(program.image);
             } else if (typeof program.image === "string") {
-              imageUrl = program.image;
+              imageUrl = program.image; // Otherwise, keep existing image URL
             }
 
             return {
@@ -331,6 +500,7 @@ export async function updateTour(tourId: string, formData: TourFormData) {
         )
       : [];
 
+    // 6. Update the tour in the database with the validated data and uploaded images
     const updatedTour = await prisma.tour.update({
       where: { id: tourId },
       data: {
@@ -348,8 +518,10 @@ export async function updateTour(tourId: string, formData: TourFormData) {
         googleMapsUrl: validatedData.googleMapsUrl
           ? (await getEmbedGoogleMapsUrl(validatedData.googleMapsUrl)) ?? ""
           : "",
-        videoUrl: validatedData.videoUrl ? (await getYouTubeEmbedUrl(validatedData.videoUrl)) || "" : "", // Convert YouTube URL to embed format
-        imageUrl: validatedData.imageURL ? await uploadImage(validatedData.imageURL) : "",
+        videoUrl: validatedData.videoUrl
+          ? (await getYouTubeEmbedUrl(validatedData.videoUrl)) || ""
+          : "", // Convert YouTube URL to embed format
+        imageUrl: mainImageUrl, // Use the new or old image URL
         inclus: validatedData.inclus,
         exclus: validatedData.exclus,
         groupType: validatedData.groupType,
@@ -400,18 +572,19 @@ export async function updateTour(tourId: string, formData: TourFormData) {
               connect: validatedData.services.map((id) => ({ id })),
             }
           : undefined,
-
+        // Update images only if they exist in the formData
         images: validatedData.images
           ? {
               deleteMany: {},
-              create: uploadedImages,
+              create: newImages,
             }
           : undefined,
 
+        // Update programs only if they exist
         programs: validatedData.programs
           ? {
               deleteMany: {},
-              create: uploadedPrograms.map(({ id, ...data }) => data), // omit `id`
+              create: uploadedPrograms.map(({ id, ...data }) => data), // Omit `id`
             }
           : undefined,
       },

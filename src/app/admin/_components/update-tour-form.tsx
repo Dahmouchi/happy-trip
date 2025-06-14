@@ -199,12 +199,12 @@ const tourSchema = z.object({
 });
 
 export function UpdateTourForm({
+  initialData,
   nationalDestinations,
   internationalDestinations,
   categories,
   natures,
   services,
-  initialData,
   tourId,
 }: any) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -270,7 +270,7 @@ export function UpdateTourForm({
 
     // Gallery images
     if (gallery && gallery.length > 0) {
-      const imageObjects = (initialData.images || []).concat(
+        const imageObjects = (initialData.images || []).concat(
         gallery.map((file) => ({ link: file }))
       );
       form.setValue("images", imageObjects);

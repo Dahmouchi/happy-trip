@@ -50,22 +50,23 @@ export const tourColumns = ({ refresh }: { refresh: () => void }): ColumnDef<Tou
               Voir détails / Modifier
             </DropdownMenuItem>
             <DropdownMenuItem
-              className=" p-2 font-medium rounded hover:bg-gray-100 hover:cursor-pointer focus-visible:outline-0"
-             onSelect={async () => {
-                try {
-                  const result = await deleteTour(row.original.id);
-                  if (!result.success)
-                  {
-                    throw new Error("Échec de la suppression du tour");
-                  }
-                  toast.success("Tour supprimé avec succès");
-                  refresh();
-                } catch (error) {
-                  toast.error(`Échec de la suppression du tour : ${String(error)}`);
+              className="p-2 font-medium rounded hover:bg-gray-100 hover:cursor-pointer focus-visible:outline-0"
+              onSelect={async (e) => {
+              e.preventDefault();
+              const confirmed = window.confirm("Êtes-vous sûr de vouloir supprimer ce tour ?");
+              if (!confirmed) return;
+              try {
+                const result = await deleteTour(row.original.id);
+                if (!result.success) {
+                throw new Error("Échec de la suppression du tour");
                 }
+                toast.success("Tour supprimé avec succès");
+                refresh();
+              } catch (error) {
+                toast.error(`Échec de la suppression du tour : ${String(error)}`);
+              }
               }}
             >
-              {/* <Trash2 className="h-4 w-4" /> */}
               Supprimer
             </DropdownMenuItem>
           </DropdownMenuContent>

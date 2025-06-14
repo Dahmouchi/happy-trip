@@ -638,6 +638,7 @@ const averageRating = reviewCount > 0
 
 export default TourDetails;
 import { Rating } from "react-simple-star-rating";
+import WhatsappShare from "./whatsappShare";
 
 const StarRatingDisplay = ({ averageRating }: { averageRating: number }) => {
   return (
@@ -748,6 +749,7 @@ const BookingSteps = ({ advance }: { advance: any }) => {
   };
 
   return (
+   
     <div className="w-full max-w-4xl mx-auto p-6 md:p-8 font-sans bg-[#F6F3F2] rounded-lg shadow border border-slate-200">
       <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-8">
         Comment faire la réservation
@@ -851,6 +853,9 @@ const BookingSteps = ({ advance }: { advance: any }) => {
           GSM/Whatsapp: {phoneNumber}
         </p>
         <p className="text-sm text-gray-600">Email: {email}</p>
+      </div>
+      <div className="text-center mt-6">
+        <WhatsappShare/>
       </div>
     </div>
   );

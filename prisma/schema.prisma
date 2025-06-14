@@ -94,6 +94,14 @@ model Service {
   tours       Tour[] @relation("TourServices") // Relation field for many-to-many with Tour
 }
 
+model hotel {
+  id          String @id @default(cuid())
+  name        String
+  description String?
+  price        Float
+  tours       Tour[] @relation("HotelTours") // Relation field for many-to-many with Tour
+}
+
 model Tour {
   id                 String   @id @default(cuid())
   active             Boolean  @default(true)
@@ -124,6 +132,7 @@ model Tour {
   averageRating      Float    @default(0.0)
   discountPercent    Int?     // e.g. 10 for 10%
   accommodationType    String?  // e.g., "Hôtel", "Auberge", "Camping"
+  hotels            hotel[] @relation("HotelTours") // Relation field for many-to-many with hotel
   services          Service[] @relation("TourServices") // Relation field for many-to-many with Service
   programs          Program[] @relation("TourPrograms")
   dates              TourDate[]
@@ -132,9 +141,32 @@ model Tour {
   natures             Nature[] @relation("NatureTours")
   images             File[]
   reviews            Review[]
+  reservation reservation[]
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+
 }
+
+model reservation {
+  id          String   @id @default(cuid())
+  tourId      String
+  tour        Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName    String
+  email       String
+  phone       String
+  adultCount  Int
+  childCount  Int
+  infantCount Int
+  singleRoom Boolean @default(false)
+  specialRequests String?
+  totalPrice  Float
+  status      Boolean @default(false) // false for pending, true for confirmed
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model Review {
   id        String   @id @default(cuid())
   fullName  String
@@ -189,6 +221,8 @@ model User {
   twoFactorEnabled Boolean  @default(true)
   twoFactorSecret  String?  // Secret for TOTP
 
+
+  reservation reservation[]
 }
 model Account {
   userId            String

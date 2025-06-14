@@ -54,12 +54,12 @@ export function NavMain({
                       tooltip={item.title}
                       className={clsx(
                         "cursor-pointer transition-all rounded-lg duration-200 py-5",
-                        isActive ? "bg-green-600 shadow-[4px_6px_7px_0px_rgba(0,_0,_0,_0.1)]  text-white hover:bg-green-600 hover:text-white  font-semibold" : "hover:bg-white dark:hover:bg-gray-800"
+                        isActive ? "bg-lime-600 shadow-[4px_6px_7px_0px_rgba(0,_0,_0,_0.1)]  text-white hover:bg-green-600 hover:text-white  font-semibold" : "hover:bg-white dark:hover:bg-gray-800"
                       )}
                     >
                       <div  className={`${
                           isActive && state === "expanded" 
-                            ? "bg-white rounded-md p-1.5 text-green-500"
+                            ? "bg-white rounded-md p-1.5 text-lime-600"
                             : ""
                         }`}>  {item.icon && <item.icon className="w-4 h-4"/>}</div>  
                       <span>{item.title}</span>

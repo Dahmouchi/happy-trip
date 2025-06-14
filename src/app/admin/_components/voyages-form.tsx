@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Upload, MapPin, Tag, Leaf, Edit, Trash2, Plus, Save, X } from "lucide-react"
+import { Upload, MapPin, Tag, Leaf, Edit, Trash2, Plus, Save, X, BedDouble } from "lucide-react"
 
 // Server Actions
 import { createDestination, updateDestination, deleteDestination, getDestinations } from "@/actions/destinations"
@@ -27,6 +27,7 @@ import type { DestinaionType } from "@prisma/client"
 import { createService, updateService, deleteService} from "@/actions/services"
 import RichTextEditor from "@/components/ui/rich-text-editor"
 import SafeHTML from "@/components/SafeHTML"
+import { createHotel, deleteHotel, updateHotel } from "@/actions/hotelsActions"
 
 // Enum for destination types
 const DESTINATION_TYPES = [
@@ -61,7 +62,14 @@ interface Service {
   description?: string 
 }
 
-export default function VoyagesComponent({ initialDestinations, initialCategories, initialNatures, initialServices }: any) {
+interface Hotel {
+  id: string
+  name: string
+  description?: string 
+  price?: number
+}
+
+export default function VoyagesComponent({ initialDestinations, initialCategories, initialNatures, initialServices, initialHotels }: any) {
   const [isPending, startTransition] = useTransition()
 
   // Data states
@@ -69,6 +77,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
   const [categories, setCategories] = useState<Category[]>(initialCategories)
   const [natures, setNatures] = useState<Nature[]>(initialNatures)
   const [services, setServices] = useState<Service[]>(initialServices)
+  const [hotels, setHotels] = useState<Hotel[]>(initialHotels)
   
  
 
@@ -101,11 +110,19 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
     description: "",
   })
 
+  const [hotelForm, setHotelForm] = useState<Hotel>({
+    id: "",
+    name: "",
+    description: "",
+    price: 0,
+  })
+
   // Modal states
   const [showDestinationModal, setShowDestinationModal] = useState(false)
   const [showCategoryModal, setShowCategoryModal] = useState(false)
   const [showNatureModal, setShowNatureModal] = useState(false)
   const [showServiceModal, setShowServiceModal] = useState(false)
+  const [showHotelModal, setShowHotelModal] = useState(false)
 
   // Form mode states
   const [isEditMode, setIsEditMode] = useState({
@@ -113,6 +130,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
     category: false,
     nature: false,
     service: false,
+    hotel: false,
   })
 
   // Destination functions
@@ -199,14 +217,14 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
     e.preventDefault()
 
     const formData = new FormData()
-formData.append("name", categoryForm.name)
-formData.append("description", categoryForm.description ?? "")
-if (categoryForm.imageUrl) {
-  formData.append("imageUrl", categoryForm.imageUrl)
-} else {
-  toast.error("L'image est requise")
-  return
-}
+    formData.append("name", categoryForm.name)
+    formData.append("description", categoryForm.description ?? "")
+    if (categoryForm.imageUrl) {
+      formData.append("imageUrl", categoryForm.imageUrl)
+    } else {
+      toast.error("L'image est requise")
+      return
+    }
 
     startTransition(async () => {
       try {
@@ -446,6 +464,82 @@ if (categoryForm.imageUrl) {
 
 
 
+  // hotels functions
+  const handlehotelSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+   const formData = new FormData()
+    formData.append("name", hotelForm.name)
+    formData.append("description", hotelForm.description || "")
+    formData.append("price", (hotelForm.price ?? 0).toString())
+
+    startTransition(async () => {
+      try {
+        let result: { success: boolean; data?: any; error?: string }
+        if (isEditMode.hotel) {
+          const updated = await updateHotel(hotelForm.id, formData)
+          result = { success: !!updated, data: updated, error: updated ? undefined : "Erreur lors de la mise à jour" }
+          if (result.success) {
+            setHotels((prev) => prev.map((serv) => (serv.id === hotelForm.id ? result.data : serv)))
+            toast.success("Type de hotel mis à jour avec succès")
+          }
+        } else {
+          const created = await createHotel(formData)
+          result = { success: !!created, data: created, error: created ? undefined : "Erreur lors de la création" }
+          if (result.success) {
+            setHotels((prev) => [...prev, result.data])
+            toast.success("Type de hotel créé avec succès")
+          }
+        }
+
+        if (result.success) {
+          setHotelForm({ id: "", name: "", description: "", price: 0 })
+          setIsEditMode((prev) => ({ ...prev, hotel: false }))
+          setShowHotelModal(false)
+        } else {
+          toast.error(result.error || "Une erreur est survenue")
+        }
+      } catch (error) {
+        toast.error("Une erreur est survenue")
+      }
+    })
+  }
+
+  const openAddhotelModal = () => {
+    setHotelForm({ id: "", name: "", description: "", price: 0 })
+    setIsEditMode((prev) => ({ ...prev, hotel: false }))
+    setShowHotelModal(true)  }
+
+
+  const editHotel = (hotel: Hotel) => {
+    setHotelForm({
+          id: hotel.id,
+          name: hotel.name,
+          description: hotel.description || "",
+          price: hotel.price || 0,
+        })
+        setIsEditMode((prev) => ({ ...prev, hotel: true }))
+        setShowHotelModal(true) 
+   }
+
+  const handleDeleteHotel = async (id: string) => {
+    startTransition(async () => {
+          const result = await deleteHotel(id)
+          if (result.success) {
+            setHotels((prev) => prev.filter((nat) => nat.id !== id))
+            toast.success("Type de hotel supprimé avec succès")
+          } else {
+            toast.error("Erreur lors de la suppression")
+          }
+        }) 
+   }
+
+  const cancelHotelEdit = () => {
+    setHotelForm({ id: "", name: "", description: "", price: 0 })
+    setIsEditMode((prev) => ({ ...prev, hotel: false }))
+    setShowHotelModal(false)
+  }
+
   return (
     <div className="container mx-auto p-6 max-w-6xl">
       <div className="mb-8">
@@ -454,7 +548,7 @@ if (categoryForm.imageUrl) {
       </div>
 
       <Tabs defaultValue="destinations" className="w-full">
-        <TabsList className="grid w-full h-fit lg:grid-cols-4 gap-4 mb-6 ">
+        <TabsList className="grid w-full h-fit lg:grid-cols-5 gap-4 mb-6 ">
           <TabsTrigger
             value="destinations"
             className={`flex items-center gap-2 ${typeof destinations === "undefined" ? " opacity-50 pointer-events-none" : ""}`}
@@ -484,6 +578,14 @@ if (categoryForm.imageUrl) {
           >
             <Tag className="h-4 w-4" />
             Services ({Array.isArray(services) ? services.length : 0})
+          </TabsTrigger>
+          <TabsTrigger
+            value="hotels"
+            className={`flex items-center gap-2 ${typeof hotels === "undefined" ? " opacity-50 pointer-events-none" : ""}`}
+            disabled={typeof hotels === "undefined"}
+          >
+            <BedDouble className="h-4 w-4" />
+            Hotels ({Array.isArray(hotels) ? hotels.length : 0})
           </TabsTrigger>
          
         </TabsList>
@@ -734,7 +836,68 @@ if (categoryForm.imageUrl) {
             </CardContent>
           </Card>
         </TabsContent>
+
+
+      {/* Hotel Modal */}
+       <TabsContent value="hotels" className="space-y-6">
+          <Card>
+            <CardHeader className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
+              <div>
+                <CardTitle>hotel Existants</CardTitle>
+                <CardDescription>Gérer vos enregistrements de hotel</CardDescription>
+              </div>
+              <Button onClick={openAddhotelModal} className="flex items-center gap-2 bg-lime-600 hover:bg-lime-700 text-white">
+                <Plus className="h-4 w-4" />
+                Ajouter un hotel
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nom</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead className="text-right">Prix</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {hotels.map((hotel) => (
+                    <TableRow key={hotel.id}>
+                      <TableCell className="font-medium">{hotel.name}</TableCell>
+                      <TableCell className="max-w-xs truncate">
+                        <SafeHTML
+                          html={hotel.description ?? ""}
+                          className="safe-html text-gray-600 text-sm"
+                        />
+                       </TableCell>
+                      <TableCell className="text-right">
+                        {hotel.price ? `${hotel.price.toFixed(2)} MAD` : "N/A"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button variant="outline" size="sm" onClick={() => editHotel(hotel)} disabled={isPending}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteHotel(hotel.id)}
+                            disabled={isPending}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
+
 
       {/* Destination Modal */}
       {showDestinationModal && (
@@ -1053,7 +1216,76 @@ if (categoryForm.imageUrl) {
           </Card>
         </div>
         )}
+
+
+
+           {/*    hotel modal */}
+        {showHotelModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                {isEditMode.hotel ? <Edit className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
+                {isEditMode.hotel ? "Modifier le hotel" : "Ajouter un Nouveau Type de hotel"}
+              </CardTitle>
+              <CardDescription>
+                {isEditMode.hotel
+                  ? "Mettre à jour les détails du hotel"
+                  : "Créer un nouveau hotel pour catégoriser les circuits"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handlehotelSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="hotel-name">Nom *</Label>
+                  <Input
+                    id="hotel-name"
+                    value={hotelForm.name}
+                    onChange={(e) => setHotelForm((prev) => ({ ...prev, name: e.target.value }))}
+                    placeholder="Entrer le nom du type de hotel"
+                    required
+                    disabled={isPending}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="hotel-description">Description </Label>
+                  <RichTextEditor
+                    value={hotelForm.description || ""}
+                    onChange={(value) => setHotelForm((prev) => ({ ...prev, description: value }))}
+                    className="max-h-60 w-full overflow-auto"
+                    
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="hotel-price">Prix (MAD)</Label>
+                  <Input
+                    id="hotel-price"
+                    type="number"
+                    value={hotelForm.price || ""}
+                    onChange={(e) => setHotelForm((prev) => ({ ...prev, price: parseFloat(e.target.value) }))}
+                    placeholder="Entrer le prix du type de hotel"
+                    disabled={isPending}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button type="submit" className="flex-1 bg-lime-600 hover:bg-lime-700 text-white" disabled={isPending}>
+                    <Save className="h-4 w-4 mr-2" />
+                    {isPending ? "En cours..." : isEditMode.hotel ? "Mettre à Jour" : "Créer"}
+                  </Button>
+                  <Button type="button" variant="outline" onClick={cancelHotelEdit} disabled={isPending}>
+                    <X className="h-4 w-4 mr-2" />
+                    Annuler
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+        )}
     </div>
+
+
 
   )
 }
