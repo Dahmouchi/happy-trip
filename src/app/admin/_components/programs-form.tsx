@@ -1,6 +1,5 @@
-/* eslint-disable @next/next/no-img-element */
 import React, { useState, useEffect } from "react";
-import { Plus, X, Upload, Image as ImageIcon } from "lucide-react";
+import { Plus, X, Upload, Image as ImageIcon, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,6 +21,7 @@ interface ProgramFormProps {
 
 const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingProgramId, setEditingProgramId] = useState<string | null>(null);
   const [newProgram, setNewProgram] = useState<Omit<Program, "id">>({
     title: "",
     description: "",
@@ -58,6 +58,39 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
     }
   };
 
+  const handleEditProgram = (id: string) => {
+    const programToEdit = programs.find(p => p.id === id);
+    if (programToEdit) {
+      setNewProgram({
+        title: programToEdit.title,
+        description: programToEdit.description,
+        image: programToEdit.image,
+        imagePreview: programToEdit.imagePreview,
+      });
+      setEditingProgramId(id);
+      setShowAddForm(true);
+    }
+  };
+
+  const handleUpdateProgram = () => {
+    if (editingProgramId && newProgram.title.trim() && newProgram.description.trim()) {
+      const updatedPrograms = programs.map(program => 
+        program.id === editingProgramId 
+          ? { ...program, ...newProgram }
+          : program
+      );
+      onChange(updatedPrograms);
+      setNewProgram({
+        title: "",
+        description: "",
+        image: null,
+        imagePreview: undefined,
+      });
+      setEditingProgramId(null);
+      setShowAddForm(false);
+    }
+  };
+
   const handleRemoveProgram = (id: string) => {
     onChange(programs.filter((program) => program.id !== id));
   };
@@ -77,10 +110,21 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
     }
   };
 
+  const handleCancelEdit = () => {
+    setShowAddForm(false);
+    setEditingProgramId(null);
+    setNewProgram({
+      title: "",
+      description: "",
+      image: null,
+      imagePreview: undefined,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-muted-foreground">
           {programs.length} programme(s)
         </span>
       </div>
@@ -99,7 +143,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                     <img
                       src={program.imagePreview}
                       alt={program.title}
-                      className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200"
+                      className="w-20 h-20 object-cover rounded-lg border-2 border-border"
                     />
                   </div>
                 )}
@@ -108,28 +152,46 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                     <span className="inline-flex items-center justify-center w-6 h-6 bg-lime-100 text-lime-600 text-sm font-medium rounded-full">
                       {index + 1}
                     </span>
-                    <h4 className="font-semibold text-gray-900">
+                    <h4 className="font-semibold text-foreground text-lime-700">
                       {program.title}
                     </h4>
                   </div>
                   <SafeHTML
                     html={program.description}
-                    className="safe-html text-gray-600 text-sm"
+                    className="safe-html text-muted-foreground text-sm"
                   />
                 </div>
-                <div
-                  onClick={() => handleRemoveProgram(program.id)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-red-500 hover:text-red-700 hover:bg-red-50 cursor-pointer rounded p-1"
-                  title="Supprimer le programme"
-                  role="button"
-                  tabIndex={0}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      handleRemoveProgram(program.id);
-                    }
-                  }}
-                >
-                  <X className="w-4 h-4" />
+                
+                <div className="flex gap-1">
+                  <div
+                    onClick={() => handleEditProgram(program.id)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-primary hover:text-primary/80 hover:bg-primary/10 cursor-pointer rounded p-1.5 border "
+                    title="Modifier le programme"
+                    role="button"
+                    tabIndex={0}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        handleEditProgram(program.id);
+                      }
+                    }}
+                  >
+                    <Edit className="w-4 h-4" />
+                  </div>
+                
+                  <div
+                    onClick={() => handleRemoveProgram(program.id)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-destructive hover:text-destructive/80 hover:bg-destructive/10 cursor-pointer rounded p-1.5 border border-destructive/20"
+                    title="Supprimer le programme"
+                    role="button"
+                    tabIndex={0}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        handleRemoveProgram(program.id);
+                      }
+                    }}
+                  >
+                    <X className="w-4 h-4" />
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -137,16 +199,16 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
         ))}
       </div>
 
-      {/* Add Program Form */}
+      {/* Add/Edit Program Form */}
       {showAddForm && (
-        <Card className="border-2 border-dashed border-lime-200">
+        <Card className="border-2 border-dashed border-accent">
           <CardContent className="p-6">
-            <h4 className="font-semibold text-gray-900 mb-4">
-              Ajouter Nouveau Programme
+            <h4 className="font-semibold text-foreground mb-4">
+              {editingProgramId ? "Modifier le Programme" : "Ajouter Nouveau Programme"}
             </h4>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Titre du Programme
                 </label>
                 <Input
@@ -162,7 +224,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Description
                 </label>
                 <RichTextEditor
@@ -175,14 +237,14 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Image du Programme
                 </label>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 cursor-pointer">
-                    <div className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                      <Upload className="w-4 h-4 text-gray-500" />
-                      <span className="text-sm text-gray-700">
+                    <div className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg hover:bg-accent transition-colors">
+                      <Upload className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm text-foreground">
                         Choisir une Image
                       </span>
                     </div>
@@ -200,7 +262,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                         alt="Preview"
                         className="w-12 h-12 object-cover rounded-lg border"
                       />
-                      <span className="text-sm text-green-600">
+                      <span className="text-sm text-primary">
                         Image sélectionnée
                       </span>
                     </div>
@@ -210,26 +272,18 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
 
               <div className="flex gap-3 pt-2">
                 <Button
-                  onClick={handleAddProgram}
+                  onClick={editingProgramId ? handleUpdateProgram : handleAddProgram}
                   disabled={
                     !newProgram.title.trim() ||
                     !newProgram.description.trim()
                   }
                   className="bg-lime-600 hover:bg-lime-700 text-white"
                 >
-                  Ajouter une Programme
+                  {editingProgramId ? "Mettre à jour le Programme" : "Ajouter une Programme"}
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    setShowAddForm(false);
-                    setNewProgram({
-                      title: "",
-                      description: "",
-                      image: null,
-                      imagePreview: undefined,
-                    });
-                  }}
+                  onClick={handleCancelEdit}
                 >
                   Annuler
                 </Button>
@@ -244,16 +298,16 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
         <Button
           onClick={() => setShowAddForm(true)}
           variant="outline"
-          className="w-full border-2 border-dashed border-gray-300 hover:bg-lime-50 transition-all duration-200 py-8"
+          className="w-full border-2 border-dashed border-gray-300 hover:border-lime-400 hover:bg-lime-50 transition-all duration-200 py-8"
         >
-          <Plus className="w-5 h-5 mr-2 text-gray-500" />
-          <span className="text-gray-600">Ajouter un Programme</span>
+          <Plus className="w-5 h-5 mr-2 text-muted-foreground" />
+          <span className="text-muted-foreground">Ajouter un Programme</span>
         </Button>
       )}
 
       {programs.length === 0 && !showAddForm && (
-        <div className="text-center py-12 text-gray-500">
-          <ImageIcon className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+        <div className="text-center py-12 text-muted-foreground">
+          <ImageIcon className="w-12 h-12 mx-auto mb-4 text-muted-foreground/60" />
           <p className="text-lg font-medium mb-2">
             Aucun programme ajouté pour le moment
           </p>

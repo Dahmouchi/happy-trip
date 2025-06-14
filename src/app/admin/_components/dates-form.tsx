@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, X, Calendar as CalendarIcon } from 'lucide-react';
+import { Plus, X, Calendar as CalendarIcon, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -19,6 +19,7 @@ interface DateFormProps {
 
 const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingDateId, setEditingDateId] = useState<string | null>(null);
   const [newDate, setNewDate] = useState<Omit<DateEntry, 'id'>>({
     dateDebut: undefined as unknown as Date,
     dateFin: undefined as unknown as Date,
@@ -39,6 +40,34 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
 
   const handleRemoveDate = (id: string) => {
     onChange(dates.filter(date => date.id !== id));
+  };
+
+  const handleEditDate = (dateEntry: DateEntry) => {
+    setEditingDateId(dateEntry.id);
+    setNewDate({
+      dateDebut: dateEntry.dateDebut,
+      dateFin: dateEntry.dateFin,
+      description: dateEntry.description
+    });
+    setShowAddForm(false);
+  };
+
+  const handleUpdateDate = () => {
+    if (newDate.dateDebut && newDate.dateFin && newDate.description.trim() && editingDateId) {
+      const updatedDates = dates.map(date =>
+        date.id === editingDateId
+          ? { ...date, dateDebut: newDate.dateDebut, dateFin: newDate.dateFin, description: newDate.description }
+          : date
+      );
+      onChange(updatedDates);
+      setEditingDateId(null);
+      setNewDate({ dateDebut: undefined as unknown as Date, dateFin: undefined as unknown as Date, description: '' });
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingDateId(null);
+    setNewDate({ dateDebut: undefined as unknown as Date, dateFin: undefined as unknown as Date, description: '' });
   };
 
   return (
@@ -73,17 +102,31 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
                   </div>
                   <p className="text-gray-600 text-sm leading-relaxed">{dateEntry.description}</p>
                 </div>
-                <div
-                  onClick={() => handleRemoveDate(dateEntry.id)}
-                  className="cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-red-500 hover:text-red-700 hover:bg-red-50 rounded p-1"
-                  title="Supprimer"
-                  role="button"
-                  tabIndex={0}
-                  onKeyPress={e => {
-                  if (e.key === 'Enter' || e.key === ' ') handleRemoveDate(dateEntry.id);
-                  }}
-                >
-                  <X className="w-4 h-4" />
+                <div className="flex items-center gap-1">
+                  <div
+                    onClick={() => handleEditDate(dateEntry)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-primary hover:text-primary/80 hover:bg-primary/10 cursor-pointer rounded p-1.5 border "
+                    title="Modifier"
+                    role="button"
+                    tabIndex={0}
+                    onKeyPress={e => {
+                      if (e.key === 'Enter' || e.key === ' ') handleEditDate(dateEntry);
+                    }}
+                  >
+                    <Edit className="w-4 h-4" />
+                  </div>
+                  <div
+                    onClick={() => handleRemoveDate(dateEntry.id)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-destructive hover:text-destructive/80 hover:bg-destructive/10 cursor-pointer rounded p-1.5 border border-destructive/20"
+                    title="Supprimer"
+                    role="button"
+                    tabIndex={0}
+                    onKeyPress={e => {
+                    if (e.key === 'Enter' || e.key === ' ') handleRemoveDate(dateEntry.id);
+                    }}
+                  >
+                    <X className="w-4 h-4" />
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -91,11 +134,13 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
         ))}
       </div>
 
-      {/* Add Date Form */}
-      {showAddForm && (
+      {/* Add/Edit Date Form */}
+      {(showAddForm || editingDateId) && (
         <Card className="border-2 border-dashed border-lime-200">
           <CardContent className="p-6">
-            <h4 className="font-semibold text-gray-900 mb-4">Ajouter Nouvelle Date</h4>
+            <h4 className="font-semibold text-gray-900 mb-4">
+              {editingDateId ? 'Modifier Date' : 'Ajouter Nouvelle Date'}
+            </h4>
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -156,15 +201,15 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
 
               <div className="flex gap-3 pt-2">
                 <Button
-                  onClick={handleAddDate}
+                  onClick={editingDateId ? handleUpdateDate : handleAddDate}
                   disabled={!newDate.dateDebut || !newDate.dateFin || !newDate.description.trim()}
                   className="bg-lime-600 hover:bg-lime-700 text-white"
                 >
-                  Ajouter Date
+                  {editingDateId ? 'Modifier Date' : 'Ajouter Date'}
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => {
+                  onClick={editingDateId ? handleCancelEdit : () => {
                     setShowAddForm(false);
                     setNewDate({ dateDebut: undefined as unknown as Date, dateFin: undefined as unknown as Date, description: '' });
                   }}
@@ -178,7 +223,7 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
   )}
 
       {/* Add Date Button */}
-      {!showAddForm && (
+      {!showAddForm && !editingDateId && (
         <Button
           onClick={() => setShowAddForm(true)}
           variant="outline"
@@ -189,7 +234,7 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
         </Button>
       )}
 
-      {dates.length === 0 && !showAddForm && (
+      {dates.length === 0 && !showAddForm && !editingDateId && (
         <div className="text-center py-12 text-gray-500">
           <CalendarIcon className="w-12 h-12 mx-auto mb-4 text-gray-400" />
           <p className="text-lg font-medium mb-2">Aucune date ajoutée pour le moment</p>

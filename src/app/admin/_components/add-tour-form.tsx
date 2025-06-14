@@ -731,7 +731,7 @@ export function AddTourForm({
                       <FormItem>
                         <FormLabel>Images du circuit</FormLabel>
                         <FormDescription>
-                          Ajoutez les URLs de 9 images pour ce circuit
+                          Ajoutez l&apos;URL de l&apos;image pour ce circuit
                         </FormDescription>
 
                         <FileUploader
