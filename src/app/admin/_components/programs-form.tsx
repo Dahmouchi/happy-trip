@@ -31,15 +31,19 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
 
   // Generate image previews for programs loaded from parent
   useEffect(() => {
+    const hasPreview = programs.some(p => !p.imagePreview && typeof p.image === "string");
+    if (!hasPreview) return;
+
     const updated = programs.map((p) => {
-      if (typeof p.image === "string") {
+      if (typeof p.image === "string" && !p.imagePreview) {
         return { ...p, imagePreview: p.image };
       }
       return p;
     });
+
     onChange(updated);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+}, [programs]);
+
 
   const handleAddProgram = () => {
     if (newProgram.title.trim() && newProgram.description.trim()) {
@@ -253,6 +257,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                       accept="image/*"
                       onChange={handleImageChange}
                       className="hidden"
+                      required
                     />
                   </label>
                   {newProgram.imagePreview && (
@@ -275,7 +280,8 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                   onClick={editingProgramId ? handleUpdateProgram : handleAddProgram}
                   disabled={
                     !newProgram.title.trim() ||
-                    !newProgram.description.trim()
+                    !newProgram.description.trim() ||
+                    !newProgram.image
                   }
                   className="bg-lime-600 hover:bg-lime-700 text-white"
                 >
