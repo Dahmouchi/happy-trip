@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, X, Upload, Image as ImageIcon, Edit } from "lucide-react";
+import { Plus, X, Upload, Image as ImageIcon, Edit, ClipboardPenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -313,7 +313,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
 
       {programs.length === 0 && !showAddForm && (
         <div className="text-center py-12 text-muted-foreground">
-          <ImageIcon className="w-12 h-12 mx-auto mb-4 text-muted-foreground/60" />
+          <ClipboardPenLine className="w-12 h-12 mx-auto mb-4 text-muted-foreground/60" />
           <p className="text-lg font-medium mb-2">
             Aucun programme ajouté pour le moment
           </p>

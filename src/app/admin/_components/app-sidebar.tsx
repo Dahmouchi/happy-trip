@@ -65,14 +65,14 @@ const datas = {
       url: "/admin/dashboard/users",
       icon: Users,
     },
+    {
+      title: "Avis",
+      url: "/admin/dashboard/reviews",
+      icon: Newspaper,
+    },
      {
       title: "Blogs",
       url: "/admin/dashboard/blogs",
-      icon: Newspaper,
-    },
-    {
-      title: "Reviews",
-      url: "/admin/dashboard/reviews",
       icon: Newspaper,
     },
     {

@@ -6,7 +6,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { CalendarIcon, Check, ChevronsUpDown, Images } from "lucide-react";
+import { Banknote, BedDouble, Calendar, CalendarIcon, Check, CheckSquare, ChevronsUpDown, ClipboardPenLine, EyeIcon, Hotel, Images, ImagesIcon, Info } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -193,6 +193,7 @@ const tourSchema = z.object({
   categories: z.array(z.string()),
   services: z.array(z.string()),
   natures: z.array(z.string()),
+  hotels: z.array(z.string()).optional(),
   inclus: z.string(),
   exclus: z.string(),
   arrayInclus: z.array(z.string()),
@@ -205,6 +206,7 @@ export function AddTourForm({
   categories,
   natures,
   services,
+  hotels,
 }: any) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cardImage, setCardImage] = useState<File[] | null>(null);
@@ -236,6 +238,7 @@ export function AddTourForm({
       googleMapsUrl: "",
       inclus: "",
       exclus: "",
+      hotels: [],
       services: [],
       programs: [],
       dates: [],
@@ -315,6 +318,7 @@ export function AddTourForm({
               {/* Basic Information */}
               <div className="space-y-4 p-6 shadow-lg rounded-lg border border-gray-200">
                 <h3 className="text-lime-600 text-xl font-medium">
+                  <Info className="inline mr-2" />
                   Informations de base
                 </h3>
                 <p className="text-lime-800 text-md  mb-4">
@@ -930,9 +934,142 @@ export function AddTourForm({
                 </div>
               </div>
 
+
+                {/* Hotels Information */}
+                <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
+                <h3 className="text-lime-600 text-xl font-medium">
+                  <BedDouble className="inline mr-2" />
+                  Informations sur les hotels
+                </h3>
+                <p className="text-lime-800 text-md  mb-4">
+                  Définissez les hôtels associés à ce circuit.
+                </p>  <Separator className="mb-6" />
+
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 my-8">
+                    <FormField
+                      control={form.control}
+                      name="hotels"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Hôtel(s)</FormLabel>
+                          <FormControl>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className="w-fit justify-between"
+                                >
+                                  {field.value && field.value.length > 0
+                                    ? hotels
+                                        .filter((hotel: any) =>
+                                          Array.isArray(field.value)
+                                            ? field.value.includes(hotel.id)
+                                            : false
+                                        )
+                                        .map((hotel: any) => hotel.name)
+                                        .join(", ")
+                                    : "Sélectionnez le(s) hôtel(s)"}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="p-0">
+                                <Command>
+                                  <CommandInput placeholder="Rechercher un hôtel..." />
+                                  <CommandList>
+                                    <CommandEmpty>
+                                      Aucun hôtel trouvé.
+                                    </CommandEmpty>
+                                    <CommandGroup>
+                                      {hotels.map((hotel: any) => (
+                                        <CommandItem
+                                          key={hotel.id}
+                                          value={hotel.id}
+                                          onSelect={() => {
+                                            const currentValue = Array.isArray(field.value)
+                                              ? [...field.value]
+                                              : [];
+                                            const index = currentValue.indexOf(hotel.id);
+                                            if (index === -1) {
+                                              field.onChange([...currentValue, hotel.id]);
+                                            } else {
+                                              currentValue.splice(index, 1);
+                                              field.onChange(currentValue);
+                                            }
+                                          }}
+                                        >
+                                          <Check
+                                            className={cn(
+                                              "mr-2 h-4 w-4",
+                                              field.value &&
+                                                field.value.includes(hotel.id)
+                                                ? "opacity-100"
+                                                : "opacity-0"
+                                            )}
+                                          />
+                                          {hotel.name}
+                                        </CommandItem>
+                                      ))}
+                                    </CommandGroup>
+                                  </CommandList>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+                          </FormControl>
+                          <FormDescription>
+                            Sélectionnez tous les hôtels associés à ce circuit
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Hotel price field (read-only, shows prices of selected hotels) */}
+                    <FormField
+                      control={form.control}
+                      name="hotels"
+                      render={({ field }) => {
+                        const selectedHotels = hotels.filter((hotel: any) =>
+                          Array.isArray(field.value) ? field.value.includes(hotel.id) : false
+                        );
+                        const price =
+                          selectedHotels.length === 1
+                            ? selectedHotels[0]?.price ?? ""
+                            : selectedHotels.length > 1
+                            ? selectedHotels.map((h: any) => h.price).join(", ")
+                            : "";
+
+                        return (
+                          <FormItem>
+                            <FormLabel>Prix hôtel(s) MAD</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="text"
+                                readOnly
+                                value={price}
+                                placeholder="Prix de l'hôtel sélectionné"
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Prix du ou des hôtels sélectionnés (lecture seule)
+                            </FormDescription>
+                          </FormItem>
+                        );
+                      }}
+                    />
+                  </div> 
+                   </div>
+              </div>
+
+
+
+
+
               {/* programms information */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="text-lime-600 text-lg font-medium">
+                <h3 className="text-lime-600 text-xl font-medium">
+                  <ClipboardPenLine className="inline mr-2" />
                   Informations sur le programmes
                 </h3>
                 <p className="text-lime-800 text-md  mb-4">
@@ -962,9 +1099,13 @@ export function AddTourForm({
                 </div>
               </div>
 
+
+
+
               {/* Pricing Information */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="text-lime-600 text-lg font-medium">
+                <h3 className="text-lime-600 text-xl font-medium">
+                  <Banknote className="inline mr-2" />
                   Informations sur les prix
                 </h3>
                 <p className="text-lime-800 text-md mb-4">
@@ -1120,7 +1261,8 @@ export function AddTourForm({
 
               {/* Dates and Duration */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="text-lime-600 text-lg font-medium">
+                <h3 className="text-lime-600 text-xl font-medium">
+                  <Calendar className="inline mr-2" />
                   Dates et durée
                 </h3>
                 <p className="text-lime-800 text-md  mb-4">
@@ -1245,7 +1387,8 @@ export function AddTourForm({
 
               {/* inclus et exclus */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="text-lime-600 text-lg font-medium">
+                <h3 className="text-lime-600 text-xl font-medium">
+                  <CheckSquare className="inline mr-2" />
                   Inclus & Exclus
                 </h3>
                 <p className="text-lime-800 text-md  mb-4">
@@ -1281,7 +1424,8 @@ export function AddTourForm({
 
               {/* Additional Details */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="text-lime-600 text-lg font-medium">
+                <h3 className="text-lime-600 text-xl font-medium">
+                  <ImagesIcon className="inline mr-2" />
                   Détails supplémentaires
                 </h3>
                 <p className="text-lime-800 text-md  mb-4">
@@ -1343,7 +1487,8 @@ export function AddTourForm({
 
               {/* Display Options */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="text-lime-600 text-lg font-medium">
+                <h3 className="text-lime-600 text-xl font-medium">
+                  <EyeIcon className="inline mr-2" />
                   Options d&apos;affichage
                 </h3>
                 <p className="text-lime-800 text-md  mb-4">

@@ -11,6 +11,7 @@ import axios from "axios";
 import { getEmbedGoogleMapsUrl } from "@/utils/getEmbedGoogleMapsUrl";
 import { getYouTubeEmbedUrl } from "@/utils/getYouTubeEmbedUrl";
 import { uploadImage} from "@/utils/uploadImage";
+import { getHotels } from "./hotelsActions";
 
 
 const prisma = new PrismaClient()
@@ -78,6 +79,7 @@ const tourSchema = z.object({
       link: z.instanceof(File).optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
     })
   ),
+  hotels: z.array(z.string()).optional(),
   services: z.array(z.string()),
   destinations: z.array(z.string()),
   categories: z.array(z.string()),
@@ -138,6 +140,12 @@ export type TourFormData = z.infer<typeof tourSchema>
           endDate: dateObj.endDate,
           description: dateObj.description,
           })),
+        }
+        : undefined,
+      
+      hotels: validatedData.hotels
+        ? {
+          connect: validatedData.hotels.map((id) => ({ id })),
         }
         : undefined,
 
@@ -236,22 +244,26 @@ export async function getAllTours() {
   }
 }
 
+
 export async function deleteTour(tourId: string) {
   try {
-    // Delete related records first
-    await prisma.tourDate.deleteMany({ where: { tourId } });
-    await prisma.program.deleteMany({ where: { tourId } });
-    await prisma.file.deleteMany({ where: { tourId } });
+    const deletedTour = await prisma.$transaction(async (tx) => {
+      // Delete dependent child records (one-to-many)
+      await tx.tourDate.deleteMany({ where: { tourId } });
+      await tx.program.deleteMany({ where: { tourId } });
+      await tx.file.deleteMany({ where: { tourId } }); // only works if relation is one-to-many
 
-    // Delete relations in join tables
-    await prisma.$executeRaw`DELETE FROM "_TourDestinations" WHERE "A" = ${tourId}`;
-    await prisma.$executeRaw`DELETE FROM "_CategoryTours" WHERE "A" = ${tourId}`;
-    await prisma.$executeRaw`DELETE FROM "_NatureTours" WHERE "A" = ${tourId}`;
-    await prisma.$executeRaw`DELETE FROM "_TourServices" WHERE "A" = ${tourId}`;
+      // Delete join table entries (many-to-many)
+      await tx.$executeRaw`DELETE FROM "_TourDestinations" WHERE "A" = ${tourId}`;
+      await tx.$executeRaw`DELETE FROM "_CategoryTours" WHERE "A" = ${tourId}`;
+      await tx.$executeRaw`DELETE FROM "_NatureTours" WHERE "A" = ${tourId}`;
+      await tx.$executeRaw`DELETE FROM "_TourServices" WHERE "A" = ${tourId}`;
+      await tx.$executeRaw`DELETE FROM "_HotelTours" WHERE "A" = ${tourId}`;
 
-    // Delete the tour
-    const deletedTour = await prisma.tour.delete({
-      where: { id: tourId },
+      // Delete the tour itself
+      return await tx.tour.delete({
+        where: { id: tourId },
+      });
     });
 
     return { success: true, data: deletedTour };
@@ -259,8 +271,8 @@ export async function deleteTour(tourId: string) {
     console.error("Error deleting tour:", error);
     return { success: false, error: "Failed to delete tour" };
   }
-  // no prisma.$disconnect() here
 }
+
 
 
 export async function getTourById(tourId: string) {
@@ -272,6 +284,7 @@ export async function getTourById(tourId: string) {
         categories: true,
         natures: true,
         services: true,
+        hotels: true,
         programs: true,
         images: true,
         dates: true,
@@ -426,7 +439,13 @@ export async function updateTour(tourId: string, formData: TourFormData) {
               connect: validatedData.services.map((id) => ({ id })),
             }
           : undefined,
-        // Update images only if they exist in the formData
+        hotels: validatedData.hotels
+          ? {
+              set: [],
+              connect: validatedData.hotels.map((id) => ({ id })),
+            }
+          : undefined,
+ 
         images: validatedData.images
           ? {
               deleteMany: {},

@@ -4,6 +4,7 @@ import { getInternationalDestinations, getNationalDestinations} from "@/actions/
 import { getCategories } from "@/actions/categories";
 import { getNatures } from "@/actions/natures";
 import { getServices } from "@/actions/services";
+import { getHotels } from "@/actions/hotelsActions";
 
 export default async function AddTourPage() {
   const nationalDestinations = await getNationalDestinations();
@@ -11,10 +12,11 @@ export default async function AddTourPage() {
   const categories = await getCategories();
   const natures = await getNatures();
   const services = await getServices();
+  const hotels = await getHotels();
   return (
     <div className="container py-10">
       <h1 className="text-3xl font-bold ml-6">Ajouter un nouveau tour</h1>
-      <AddTourForm nationalDestinations={nationalDestinations} internationalDestinations={internationalDestinations} categories={categories} natures={natures} services={services}/>
+      <AddTourForm nationalDestinations={nationalDestinations} internationalDestinations={internationalDestinations} categories={categories} natures={natures} services={services} hotels={hotels}/>
     </div>
   );
 }

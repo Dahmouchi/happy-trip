@@ -6,6 +6,7 @@ import { getInternationalDestinations, getNationalDestinations } from "@/actions
 import { getCategories } from "@/actions/categories";
 import { getNatures } from "@/actions/natures";
 import { getServices } from "@/actions/services";
+import { getHotels } from "@/actions/hotelsActions";
 
 export default async function UpdateTourPage(params:any) {
   const result = await getTourById(params.params.tourId);
@@ -14,6 +15,7 @@ export default async function UpdateTourPage(params:any) {
   const categories = await getCategories();
   const natures = await getNatures();
   const services = await getServices();
+  const hotels = await getHotels();
   if (!result.success) {
     return <div>Tour non trouvé</div>;
   }
@@ -26,7 +28,7 @@ export default async function UpdateTourPage(params:any) {
 
   return (
     <div>
-      <UpdateTourForm initialData={tour} nationalDestinations={nationalDestinations} internationalDestinations={internationalDestinations} categories={categories} natures={natures} services={services} tourId={params.params.tourId} ></UpdateTourForm>
+      <UpdateTourForm initialData={tour} nationalDestinations={nationalDestinations} internationalDestinations={internationalDestinations} categories={categories} natures={natures} services={services} hotels={hotels} tourId={params.params.tourId} ></UpdateTourForm>
     </div>
   );
 }

@@ -103,48 +103,57 @@ model hotel {
 }
 
 model Tour {
-  id                 String   @id @default(cuid())
-  active             Boolean  @default(true)
+  id                 String      @id @default(cuid())
+  active             Boolean     @default(true)
   title              String
   description        String?
-  type               TravelType @default(NATIONAL)
+  type               TravelType  @default(NATIONAL)
   priceOriginal      Int?
   priceDiscounted    Int?
-  advancedPrice     Int? // e.g., 1000 for 1000€
-  discountEndDate   DateTime? // Date until the discount is valid
-  dateCard           String? //this date for card view
+  advancedPrice      Int?
+  discountEndDate    DateTime?
+  dateCard           String?
   durationDays       Int?
   durationNights     Int?
-  googleMapsUrl            String? // URL to an interactive map
-  videoUrl           String? // URL to a video about the tour
+  googleMapsUrl      String?
+  videoUrl           String?
   imageUrl           String?
-  inclus              String?
+  inclus             String?
   exclus             String?
-  groupType          String?     // e.g., "Petit groupe"
-  groupSizeMax       Int?        // e.g., 12
+  groupType          String?
+  groupSizeMax       Int?
 
-  showReviews        Boolean  @default(true)
-  showDifficulty     Boolean  @default(true)
-  showDiscount       Boolean  @default(true)
+  showReviews        Boolean     @default(true)
+  showDifficulty     Boolean     @default(true)
+  showDiscount       Boolean     @default(true)
 
-  difficultyLevel    Int?     // 1 to 5
-  totalReviews       Int      @default(0)
-  averageRating      Float    @default(0.0)
-  discountPercent    Int?     // e.g. 10 for 10%
-  accommodationType    String?  // e.g., "Hôtel", "Auberge", "Camping"
-  hotels            hotel[] @relation("HotelTours") // Relation field for many-to-many with hotel
-  services          Service[] @relation("TourServices") // Relation field for many-to-many with Service
-  programs          Program[] @relation("TourPrograms")
+  difficultyLevel    Int?
+  totalReviews       Int         @default(0)
+  averageRating      Float       @default(0.0)
+  discountPercent    Int?
+  accommodationType  String?
+
+  hotels             hotel[]     @relation("HotelTours")
+  services           Service[]   @relation("TourServices")
+  programs           Program[]   @relation("TourPrograms")
   dates              TourDate[]
-  destinations        Destination[] @relation("TourDestinations")
-  categories          Category[] @relation("CategoryTours")
-  natures             Nature[] @relation("NatureTours")
-  images             File[]
+  destinations       Destination[] @relation("TourDestinations")
+  categories         Category[]  @relation("CategoryTours")
+  natures            Nature[]    @relation("NatureTours")
+  images             File[]      // one-to-many relation
   reviews            Review[]
-  reservation reservation[]
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  reservation        reservation[]
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+}
 
+
+model File {
+  id        Int      @id @default(autoincrement())
+  tourId    String
+  url       String
+  tour      Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }
 
 model reservation {
@@ -174,13 +183,6 @@ model Review {
   rating    Int      @default(5)
   status    Boolean @default(false)
   tourId    String
-  tour      Tour    @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-}
-model File {
-  id        Int      @id @default(autoincrement())
-  tourId    String
-  url       String   // The URL of the file stored in Cloudflare or another storage
   tour      Tour    @relation(fields: [tourId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 }
