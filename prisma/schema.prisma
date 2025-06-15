@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,167 +7,153 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  USER
-  ADMIN
-}
-enum TravelType {
-  NATIONAL
-  INTERNATIONAL
-  EN_MESURE
-}
-
-enum DestinaionType {
-  NATIONAL
-  INTERNATIONAL
-}
-
 model Destination {
-  id          String @id @default(cuid())
-  name        String @unique
-  type        DestinaionType @default(NATIONAL)
-  imageUrl    String
-  tours       Tour[] @relation("TourDestinations") // Relation field for many-to-many with Tour
+  id       String         @id @default(cuid())
+  name     String         @unique
+  type     DestinaionType @default(NATIONAL)
+  imageUrl String
+  tours    Tour[]         @relation("TourDestinations")
 }
 
 model Category {
-  id          String @id @default(cuid())
-  name        String @unique
+  id          String  @id @default(cuid())
+  name        String  @unique
   description String?
   imageUrl    String
-  tours       Tour[] @relation("CategoryTours") // Relation field for many-to-many with Tour
+  tours       Tour[]  @relation("CategoryTours")
 }
 
 model Nature {
-  id          String @id @default(cuid())
-  name        String @unique
+  id          String  @id @default(cuid())
+  name        String  @unique
   description String?
   imageUrl    String
-  tours       Tour[] @relation("NatureTours") // Relation field for many-to-many with Tour
+  tours       Tour[]  @relation("NatureTours")
 }
 
 model Landing {
-  id           String @id @default(cuid())
-  navbar       Boolean @default(true)
-  search       Boolean @default(true)
-  hero         Boolean @default(true)
-  national     Boolean @default(true)
+  id            String  @id @default(cuid())
+  navbar        Boolean @default(true)
+  hero          Boolean @default(true)
+  national      Boolean @default(true)
   international Boolean @default(true)
-  mesure       Boolean @default(true)
-  reviews      Boolean @default(true)
-  meeting      Boolean @default(true)
-  expert       Boolean @default(true)
-  trust        Boolean @default(true)
-  footer       Boolean @default(true)
+  mesure        Boolean @default(true)
+  reviews       Boolean @default(true)
+  meeting       Boolean @default(true)
+  expert        Boolean @default(true)
+  trust         Boolean @default(true)
+  footer        Boolean @default(true)
+  search        Boolean @default(true)
 }
+
 model Blog {
-  id          String @id @default(cuid())
+  id          String   @id @default(cuid())
   title       String
   description String?
   imageUrl    String?
   category    String?
-  status      Boolean @default(true)
+  status      Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
 model Program {
-  id          String @id @default(cuid())
+  id          String   @id @default(cuid())
   title       String
   description String?
   imageUrl    String?
   tourId      String
-  tour        Tour @relation("TourPrograms", fields: [tourId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  tour        Tour     @relation("TourPrograms", fields: [tourId], references: [id], onDelete: Cascade)
 }
 
 model Service {
-  id          String @id @default(cuid())
-  name        String @unique
+  id          String  @id @default(cuid())
+  name        String  @unique
   description String?
-  tours       Tour[] @relation("TourServices") // Relation field for many-to-many with Tour
+  tours       Tour[]  @relation("TourServices")
 }
 
-model hotel {
-  id          String @id @default(cuid())
+model Hotel {
+  id          String        @id @default(cuid())
   name        String
   description String?
-  price        Float
-  tours       Tour[] @relation("HotelTours") // Relation field for many-to-many with Tour
+  price       Float
+  reservation reservation[]
+  tours       Tour[]        @relation("HotelTours")
 }
 
 model Tour {
-  id                 String      @id @default(cuid())
-  active             Boolean     @default(true)
-  title              String
-  description        String?
-  type               TravelType  @default(NATIONAL)
-  priceOriginal      Int?
-  priceDiscounted    Int?
-  advancedPrice      Int?
-  discountEndDate    DateTime?
-  dateCard           String?
-  durationDays       Int?
-  durationNights     Int?
-  googleMapsUrl      String?
-  videoUrl           String?
-  imageUrl           String?
-  inclus             String?
-  exclus             String?
-  groupType          String?
-  groupSizeMax       Int?
-
-  showReviews        Boolean     @default(true)
-  showDifficulty     Boolean     @default(true)
-  showDiscount       Boolean     @default(true)
-
-  difficultyLevel    Int?
-  totalReviews       Int         @default(0)
-  averageRating      Float       @default(0.0)
-  discountPercent    Int?
-  accommodationType  String?
-
-  hotels             hotel[]     @relation("HotelTours")
-  services           Service[]   @relation("TourServices")
-  programs           Program[]   @relation("TourPrograms")
-  dates              TourDate[]
-  destinations       Destination[] @relation("TourDestinations")
-  categories         Category[]  @relation("CategoryTours")
-  natures            Nature[]    @relation("NatureTours")
-  images             File[]      // one-to-many relation
-  reviews            Review[]
-  reservation        reservation[]
-  createdAt          DateTime    @default(now())
-  updatedAt          DateTime    @updatedAt
+  id                String        @id @default(cuid())
+  title             String
+  description       String?
+  type              TravelType    @default(NATIONAL)
+  priceOriginal     Int?
+  priceDiscounted   Int?
+  durationDays      Int?
+  durationNights    Int?
+  imageUrl          String?
+  groupType         String?
+  groupSizeMax      Int?
+  showReviews       Boolean       @default(true)
+  showDifficulty    Boolean       @default(true)
+  showDiscount      Boolean       @default(true)
+  difficultyLevel   Int?
+  totalReviews      Int           @default(0)
+  averageRating     Float         @default(0.0)
+  discountPercent   Int?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  dateCard          String?
+  accommodationType String?
+  exclus            String?
+  inclus            String?
+  advancedPrice     Int?
+  googleMapsUrl     String?
+  videoUrl          String?
+  active            Boolean       @default(true)
+  discountEndDate   DateTime?
+  images            File[]
+  programs          Program[]     @relation("TourPrograms")
+  reviews           Review[]
+  dates             TourDate[]
+  reservation       reservation[]
+  categories        Category[]    @relation("CategoryTours")
+  hotels            Hotel[]       @relation("HotelTours")
+  natures           Nature[]      @relation("NatureTours")
+  destinations      Destination[] @relation("TourDestinations")
+  services          Service[]     @relation("TourServices")
 }
-
 
 model File {
   id        Int      @id @default(autoincrement())
   tourId    String
   url       String
-  tour      Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+  tour      Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
 }
 
 model reservation {
-  id          String   @id @default(cuid())
-  tourId      String
-  tour        Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  fullName    String
-  email       String
-  phone       String
-  adultCount  Int
-  childCount  Int
-  infantCount Int
-  singleRoom Boolean @default(false)
+  id              String   @id @default(cuid())
+  tourId          String
+  userId          String
+  fullName        String
+  email           String
+  phone           String
+  adultCount      Int
+  childCount      Int
+  infantCount     Int
+  singleRoom      Boolean  @default(false)
   specialRequests String?
-  totalPrice  Float
-  status      Boolean @default(false) // false for pending, true for confirmed
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  totalPrice      Float
+  status          Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  hotelId         String
+  hotel           Hotel    @relation(fields: [hotelId], references: [id])
+  tour            Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Review {
@@ -181,51 +161,45 @@ model Review {
   fullName  String
   message   String
   rating    Int      @default(5)
-  status    Boolean @default(false)
+  status    Boolean  @default(false)
   tourId    String
-  tour      Tour    @relation(fields: [tourId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+  tour      Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
 }
 
-// model VacationStyle {
-//   id      String    @id @default(cuid())
-//   name    String    @unique        // e.g., "Voyage en groupe", "Voyage sur mesure"
-//   tours   Tour[]    @relation("TourVacationStyles")
-// }
 model TourDate {
-  id        String   @id @default(cuid())
-  tour      Tour     @relation(fields: [tourId], references: [id])
-  tourId    String
+  id          String    @id @default(cuid())
+  tourId      String
+  startDate   DateTime?
+  endDate     DateTime?
   description String?
-  startDate DateTime?
-  endDate   DateTime?
+  tour        Tour      @relation(fields: [tourId], references: [id])
 }
 
 model User {
-  id              String    @id @default(cuid())
-  name            String?
-  email           String    @unique
-  emailVerified   DateTime?
-  image           String?
-  archive         Boolean  @default(false)
-  accounts        Account[]
-  sessions        Session[]
-  Authenticator   Authenticator[]
-  prenom          String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  username        String    @unique
-  password        String?
-  statut          Boolean   @default(true)
-  role            Role      @default(USER)
-  verified_email  String?
-  qrSecret        String?
-  twoFactorEnabled Boolean  @default(true)
-  twoFactorSecret  String?  // Secret for TOTP
-
-
-  reservation reservation[]
+  id               String          @id @default(cuid())
+  name             String?
+  email            String          @unique
+  archive          Boolean         @default(false)
+  createdAt        DateTime        @default(now())
+  emailVerified    DateTime?
+  image            String?
+  password         String?
+  prenom           String?
+  qrSecret         String?
+  role             Role            @default(USER)
+  statut           Boolean         @default(true)
+  twoFactorEnabled Boolean         @default(true)
+  twoFactorSecret  String?
+  updatedAt        DateTime        @updatedAt
+  username         String          @unique
+  verified_email   String?
+  accounts         Account[]
+  Authenticator    Authenticator[]
+  sessions         Session[]
+  reservation      reservation[]
 }
+
 model Account {
   userId            String
   type              String
@@ -238,12 +212,10 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
- 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
- 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@id([provider, providerAccountId])
 }
 
@@ -251,21 +223,19 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
- 
+
 model VerificationToken {
   identifier String
   token      String
   expires    DateTime
- 
+
   @@id([identifier, token])
 }
- 
-// Optional for WebAuthn support
+
 model Authenticator {
   credentialID         String  @unique
   userId               String
@@ -275,8 +245,23 @@ model Authenticator {
   credentialDeviceType String
   credentialBackedUp   Boolean
   transports           String?
- 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+  user                 User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@id([userId, credentialID])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TravelType {
+  NATIONAL
+  INTERNATIONAL
+  EN_MESURE
+}
+
+enum DestinaionType {
+  NATIONAL
+  INTERNATIONAL
 }

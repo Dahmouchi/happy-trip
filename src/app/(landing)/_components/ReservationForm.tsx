@@ -29,29 +29,39 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label"; // Import Label
+import { getHotels } from "@/actions/hotelsActions";
 
 // --- Form Schema Definition (using Zod) ---
 const formSchema = z.object({
   fullName: z
     .string()
     .min(2, { message: "Le nom complet doit contenir au moins 2 caractères." }),
-  phone: z
-    .string()
-    .min(10, { message: "Le numéro de téléphone doit être valide." }),
   email: z
     .string()
     .email({ message: "Veuillez entrer une adresse e-mail valide." }),
-  adults: z.string().min(1, { message: "Sélectionnez le nombre d'adultes." }), // Use string for Select
-  children6to11: z.string(),
-  children2to5: z.string(),
-  hotel: z.string().min(1, { message: "Veuillez sélectionner un hôtel." }),
-  singleRoom: z.string(),
-  travelDate: z
+  phone: z
     .string()
-    .min(1, { message: "Veuillez sélectionner une date de voyage." }),
-  remarks: z.string().optional(),
+    .min(10, { message: "Le numéro de téléphone doit être valide." }),
+  adultCount: z
+    .string()
+    .min(1, { message: "Sélectionnez le nombre d'adultes." }),
+  childCount: z.string(),
+  infantCount: z.string(),
+  singleRoom: z
+    .string()
+    .refine((val) => val === "Oui" || val === "Non", {
+      message: "Veuillez indiquer si vous souhaitez une chambre single.",
+    }),
+  specialRequests: z.string().optional(),
+  // totalPrice, status, createdAt, updatedAt are handled server-side
   termsAccepted: z.boolean().refine((val) => val === true, {
     message: "Vous devez accepter les conditions générales.",
+  }),
+  hotel: z.string().refine((val) => val !== "", {
+    message: "Veuillez sélectionner un hôtel.",
+  }),
+  travelDate: z.string().refine((val) => val !== "", {
+    message: "Veuillez sélectionner une date de voyage.",
   }),
 });
 
@@ -66,16 +76,16 @@ const ReservationSection = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       fullName: "",
-      phone: "",
       email: "",
-      adults: "1",
-      children6to11: "0",
-      children2to5: "0",
-      hotel: "",
-      singleRoom: "Non",
-      travelDate: "",
-      remarks: "",
-      termsAccepted: false,
+      phone: "",
+      adultCount: "1", // Default to 1 adult
+      childCount: "0", // Default to 0 children aged 6-11
+      infantCount: "0", // Default to 0 children aged 2-5
+      hotel: "", // Default to first hotel
+      singleRoom: "Non", // Default to no single room
+      travelDate: "", // Default to no date selected
+      specialRequests: "",
+      termsAccepted: false, // Default to not accepted
     },
   });
 
@@ -193,7 +203,7 @@ const ReservationSection = ({
                 <div className="grid grid-cols-3 gap-4">
                   <FormField
                     control={form.control}
-                    name="adults"
+                    name="adultCount"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
@@ -216,7 +226,7 @@ const ReservationSection = ({
                   />
                   <FormField
                     control={form.control}
-                    name="children6to11"
+                    name="childCount"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
@@ -239,7 +249,7 @@ const ReservationSection = ({
                   />
                   <FormField
                     control={form.control}
-                    name="children2to5"
+                    name="infantCount"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
@@ -356,7 +366,7 @@ const ReservationSection = ({
               {/* Autres remarques */}
               <FormField
                 control={form.control}
-                name="remarks"
+                name="specialRequests"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Autres remarques</FormLabel>

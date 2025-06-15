@@ -119,17 +119,28 @@ const averageRating = reviewCount > 0
         "Oui, nous proposons une réduction de 10% pour les étudiants sur présentation d'un justificatif valide. Contactez notre service client pour obtenir votre code de réduction.",
     },
   ];
-  const sampleAvailableDates = [
-    { value: "08-15-juin-9500", label: "08 - 15 Juin (9500 dh)" },
-    { value: "15-22-juin-9700", label: "15 - 22 Juin (9700 dh)" },
-    { value: "22-29-juin-9800", label: "22 - 29 Juin (9800 dh)" },
-  ];
+  // const sampleAvailableDates = [
+  //   { value: "08-15-juin-9500", label: "08 - 15 Juin (9500 dh)" },
+  //   { value: "15-22-juin-9700", label: "15 - 22 Juin (9700 dh)" },
+  //   { value: "22-29-juin-9800", label: "22 - 29 Juin (9800 dh)" },
+  // ];
 
-  const sampleHotels = [
-    { value: "Fuar Hotel 4*", label: "Fuar Hotel 4*" },
-    { value: "Park Bosphorus 5*", label: "Park Bosphorus 5*" },
-    { value: "Autre Hotel", label: "Autre Hotel (à préciser)" },
-  ];
+  const sampleAvailableDates = tour.dates?.map((date: TourDate) => ({
+    value: `${new Date(date.startDate!).toLocaleDateString("fr-FR")} - ${new Date(date.endDate!).toLocaleDateString("fr-FR")} (${tour.priceDiscounted} dh)`,
+    label: `${new Date(date.startDate!).toLocaleDateString("fr-FR")} - ${new Date(date.endDate!).toLocaleDateString("fr-FR")} (${tour.priceDiscounted} dh)`,
+  })) || [];
+
+  // const sampleHotels = [
+  //   { value: "Fuar Hotel 4*", label: "Fuar Hotel 4*" },
+  //   { value: "Park Bosphorus 5*", label: "Park Bosphorus 5*" },
+  //   { value: "Autre Hotel", label: "Autre Hotel (à préciser)" },
+  // ];
+ 
+  const sampleHotels = tour.hotels?.map((hotel: any) => ({
+    value: hotel.name,
+    label: hotel.name,
+  })) || [];
+
   const plugin = React.useRef(
     Autoplay({ delay: 2000, stopOnInteraction: true }) // Optional Autoplay
   );

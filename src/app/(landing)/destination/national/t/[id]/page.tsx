@@ -23,6 +23,7 @@ const TourDetailsMain = async (params:any) => {
         categories:true,
         reviews:true,
         services:true,
+        hotels:true,
     }
   });
 
