@@ -293,7 +293,6 @@ export function Navbar({
                             {/* <img src={destination.image} alt={destination.name} className="w-16 h-12 object-cover rounded" /> */}
                             <div>
                               <div>{destination.name}</div>
-                            
                             </div>
                           </Link>
                         </li>
