@@ -30,74 +30,77 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label"; // Import Label
 import { getHotels } from "@/actions/hotelsActions";
+import { createReadStream } from "fs";
+import { createReservation } from "@/actions/reservationsActions";
+import { toast } from "react-toastify";
 
-// --- Form Schema Definition (using Zod) ---
-const formSchema = z.object({
-  fullName: z
-    .string()
-    .min(2, { message: "Le nom complet doit contenir au moins 2 caractères." }),
-  email: z
-    .string()
-    .email({ message: "Veuillez entrer une adresse e-mail valide." }),
-  phone: z
-    .string()
-    .min(10, { message: "Le numéro de téléphone doit être valide." }),
-  adultCount: z
-    .string()
-    .min(1, { message: "Sélectionnez le nombre d'adultes." }),
-  childCount: z.string(),
-  infantCount: z.string(),
-  singleRoom: z
-    .string()
-    .refine((val) => val === "Oui" || val === "Non", {
-      message: "Veuillez indiquer si vous souhaitez une chambre single.",
+
+
+  const reservationStatusEnum = z.enum(["PENDING", "CONFIRMED", "CANCELLED"]);
+
+  const reservationSchema = z.object({
+    tourId: z.string().min(1, "Tour is required"),
+    hotelId: z.string().min(1, "Hotel is required"),
+    fullName: z.string().min(1, "Full name is required"),
+    email: z.string().email("Invalid email"),
+    phone: z.string().min(1, "Phone is required"),
+    adultCount: z.number().min(1, "At least 1 adult required"),
+    childCount: z.number().min(0),
+    infantCount: z.number().min(0),
+    singleRoom: z.boolean().optional(),
+    specialRequests: z.string().optional().nullable(),
+    travelDate: z.date(),
+    totalPrice: z.number().min(0),
+    termsAccepted: z.boolean().refine((val) => val === true, {
+      message: "You must accept the terms and conditions",
     }),
-  specialRequests: z.string().optional(),
-  // totalPrice, status, createdAt, updatedAt are handled server-side
-  termsAccepted: z.boolean().refine((val) => val === true, {
-    message: "Vous devez accepter les conditions générales.",
-  }),
-  hotel: z.string().refine((val) => val !== "", {
-    message: "Veuillez sélectionner un hôtel.",
-  }),
-  travelDate: z.string().refine((val) => val !== "", {
-    message: "Veuillez sélectionner une date de voyage.",
-  }),
-});
+    status: reservationStatusEnum.default("PENDING"),
+  });
 
 // --- Main Reservation Section Component ---
 const ReservationSection = ({
   availableDates,
   hotels,
+  tour, 
   imageSrc = "/placeholder-image.jpg",
 }: any) => {
+
+  const [isSubmittedSuccessfully, setIsSubmittedSuccessfully] = React.useState(false);
+
   // 1. Define your form.
   const form = useForm({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(reservationSchema),
     defaultValues: {
+      tourId: tour?.id,
+      hotelId: "",
       fullName: "",
       email: "",
       phone: "",
-      adultCount: "1", // Default to 1 adult
-      childCount: "0", // Default to 0 children aged 6-11
-      infantCount: "0", // Default to 0 children aged 2-5
-      hotel: "", // Default to first hotel
-      singleRoom: "Non", // Default to no single room
-      travelDate: "", // Default to no date selected
+      adultCount: 1,
+      childCount: 0,
+      infantCount: 0,
+      singleRoom: false,
       specialRequests: "",
-      termsAccepted: false, // Default to not accepted
+      travelDate: availableDates.length > 0 ? new Date(availableDates[0].value) : new Date(),
+      totalPrice: 0,
+      termsAccepted: false,
+      status: "PENDING",  // <-- default enum value here
     },
   });
 
-  // 2. Define a submit handler.
-  function onSubmit(values: any) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
-    alert("Formulaire soumis ! Vérifiez la console pour les valeurs."); // Placeholder action
+
+  async function onSubmit(values: any) {
+    try {
+      await createReservation(values);
+      setIsSubmittedSuccessfully(true);
+    }
+    catch (error) {
+      toast.error("Une erreur s'est produite lors de la création de la réservation.");
+      return;
+    }
+    toast.success("Réservation créée avec succès !");
   }
 
-  // --- Helper for number options ---
   const numberOptions = (max: any) => {
     return Array.from({ length: max + 1 }, (_, i) => (
       <SelectItem key={i} value={String(i)}>
@@ -107,9 +110,16 @@ const ReservationSection = ({
   };
 
   return (
+
+  
+
+
     <div className="w-full max-w-6xl mx-auto p-4 md:p-8 font-sans">
       <div className="grid grid-cols-1 lg:grid-cols-1 gap-8 md:gap-12 items-start">
         {/* Left Column: Form */}
+
+       
+            {/* Image Section */}
         <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg border border-gray-100">
           {/* Form Header */}
           <div
@@ -210,8 +220,8 @@ const ReservationSection = ({
                           Adulte <span className="text-red-500">*</span>
                         </FormLabel>
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          onValueChange={(value) => field.onChange(Number(value))}
+                          value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
                         >
                           <FormControl>
                             <SelectTrigger className="rounded-md border-gray-300">
@@ -233,8 +243,8 @@ const ReservationSection = ({
                           6-11 ans <span className="text-red-500">*</span>
                         </FormLabel>
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          onValueChange={(value) => field.onChange(Number(value))}
+                          value={field.value !== undefined && field.value !== null ? String(field.value) : "0"}
                         >
                           <FormControl>
                             <SelectTrigger className="rounded-md border-gray-300">
@@ -256,8 +266,8 @@ const ReservationSection = ({
                           2-5 ans <span className="text-red-500">*</span>
                         </FormLabel>
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          onValueChange={(value) => field.onChange(Number(value))}
+                          value={field.value !== undefined && field.value !== null ? String(field.value) : "0"}
                         >
                           <FormControl>
                             <SelectTrigger className="rounded-md border-gray-300">
@@ -274,94 +284,114 @@ const ReservationSection = ({
               </div>
 
               {/* Hotel & Chambre */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="hotel"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Hotel <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="rounded-md border-gray-300">
-                            <SelectValue placeholder="Sélectionnez un hôtel" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {hotels.map((hotel: any) => (
-                            <SelectItem key={hotel.value} value={hotel.value}>
-                              {hotel.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="hotelId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Hôtel <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <Select
+                          value={field.value || ""}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="rounded-md border-gray-300">
+                              <SelectValue placeholder="Sélectionnez un hôtel" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {hotels.map((hotel: any) => (
+                              <SelectItem key={hotel.id} value={hotel.id}>
+                                {hotel.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+
+
                 <FormField
                   control={form.control}
                   name="singleRoom"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Chambre Single <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="rounded-md border-gray-300">
-                            <SelectValue placeholder="Non" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Non">Non</SelectItem>
-                          <SelectItem value="Oui">Oui</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Date de Voyage */}
-              <FormField
-                control={form.control}
-                name="travelDate"
-                render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Date de Voyage <span className="text-red-500">*</span>
+                    Chambre Single <span className="text-red-500">*</span>
                     </FormLabel>
                     <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
+                    onValueChange={(value) => field.onChange(value === "Oui")}
+                    value={field.value ? "Oui" : "Non"}
                     >
-                      <FormControl>
-                        <SelectTrigger className="rounded-md border-gray-300">
-                          <SelectValue placeholder="Sélectionnez une date" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {availableDates.map((date: any) => (
-                          <SelectItem key={date.value} value={date.value}>
-                            {date.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
+                    <FormControl>
+                      <SelectTrigger className="rounded-md border-gray-300">
+                      <SelectValue placeholder="Non" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Non">Non</SelectItem>
+                      <SelectItem value="Oui">Oui</SelectItem>
+                    </SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
-                )}
-              />
+                  )}
+                />
+                </div>
+
+              {/* Date de Voyage */}
+             <FormField
+              control={form.control}
+              name="travelDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Date de Voyage <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <Select
+                    onValueChange={(value) => {
+                      if (value) {
+                        const selectedDate = new Date(value + "T00:00:00");
+                        if (!isNaN(selectedDate.getTime())) {
+                          field.onChange(selectedDate);
+                        } else {
+                          console.error("Invalid date:", value);
+                          field.onChange(null);
+                        }
+                      } else {
+                        field.onChange(null);
+                      }
+                    }}
+                    value={
+                      field.value instanceof Date && !isNaN(field.value.getTime())
+                        ? field.value.toISOString().split("T")[0]
+                        : ""
+                    }
+                  >
+                    <FormControl>
+                      <SelectTrigger className="rounded-md border-gray-300">
+                        <SelectValue placeholder="Sélectionnez une date" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {availableDates.map((date: any) => (
+                        <SelectItem key={date.value} value={date.value}>
+                          {date.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
 
               {/* Autres remarques */}
               <FormField
@@ -374,6 +404,7 @@ const ReservationSection = ({
                       <Textarea
                         placeholder="..."
                         {...field}
+                        value={field.value ?? ""}
                         className="rounded-md border-gray-300"
                       />
                     </FormControl>
@@ -423,10 +454,14 @@ const ReservationSection = ({
             </form>
           </Form>
         </div>
+
+      
       </div>
     </div>
-  );
-};
+
+              );
+}
+
 
 // --- Example Data for Selects (Replace with your actual data) ---
 
@@ -451,3 +486,5 @@ const ReservationSection = ({
 // }
 
 export default ReservationSection;
+
+

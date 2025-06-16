@@ -125,10 +125,20 @@ const averageRating = reviewCount > 0
   //   { value: "22-29-juin-9800", label: "22 - 29 Juin (9800 dh)" },
   // ];
 
-  const sampleAvailableDates = tour.dates?.map((date: TourDate) => ({
-    value: `${new Date(date.startDate!).toLocaleDateString("fr-FR")} - ${new Date(date.endDate!).toLocaleDateString("fr-FR")} (${tour.priceDiscounted} dh)`,
-    label: `${new Date(date.startDate!).toLocaleDateString("fr-FR")} - ${new Date(date.endDate!).toLocaleDateString("fr-FR")} (${tour.priceDiscounted} dh)`,
-  })) || [];
+  // const sampleAvailableDates = tour.dates?.map((date: TourDate) => ({
+  //   value: `${new Date(date.startDate!).toLocaleDateString("fr-FR")} - ${new Date(date.endDate!).toLocaleDateString("fr-FR")} (${tour.priceDiscounted} dh)`,
+  //   label: `${new Date(date.startDate!).toLocaleDateString("fr-FR")} - ${new Date(date.endDate!).toLocaleDateString("fr-FR")} (${tour.priceDiscounted} dh)`,
+  // })) || [];
+
+const sampleAvailableDates = tour.dates?.map((date: TourDate) => {
+  const startISO = new Date(date.startDate!).toISOString().split("T")[0]; // "YYYY-MM-DD"
+  const startFR = new Date(date.startDate!).toLocaleDateString("fr-FR");
+  const endFR = new Date(date.endDate!).toLocaleDateString("fr-FR");
+  return {
+    value: startISO,
+    label: `${startFR} - ${endFR} (${tour.priceDiscounted} dh)`,
+  };
+}) || [];
 
   // const sampleHotels = [
   //   { value: "Fuar Hotel 4*", label: "Fuar Hotel 4*" },
@@ -136,10 +146,11 @@ const averageRating = reviewCount > 0
   //   { value: "Autre Hotel", label: "Autre Hotel (à préciser)" },
   // ];
  
-  const sampleHotels = tour.hotels?.map((hotel: any) => ({
-    value: hotel.name,
-    label: hotel.name,
-  })) || [];
+const sampleHotels = tour.hotels?.map((hotel: any) => ({
+  id: hotel.id,
+  name: hotel.name,
+})) || [];
+
 
   const plugin = React.useRef(
     Autoplay({ delay: 2000, stopOnInteraction: true }) // Optional Autoplay
@@ -578,7 +589,7 @@ const averageRating = reviewCount > 0
       <ReservationSection
         availableDates={sampleAvailableDates}
         hotels={sampleHotels}
-        tour={tour}
+        tour = {tour}
         imageSrc="/path/to/your/image.jpg" // Provide image path
       />
       <div className="bg-[#F6F3F2] p-6 rounded-lg shadow-sm mb-8">
