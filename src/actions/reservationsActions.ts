@@ -6,6 +6,7 @@ import { ReservationStatus } from "@prisma/client";
 interface CreateReservationInput {
   tourId: string;
   hotelId: string;
+  travelDateId: string;
   fullName: string;
   email: string;
   phone: string;
@@ -24,7 +25,8 @@ export async function createReservation(data: CreateReservationInput) {
     const reservation = await prisma.reservation.create({
       data: {
         tourId: data.tourId,
-        hotelId: data.hotelId,
+        hotelId: data.hotelId? data.hotelId : null,
+        travelDateId: data.travelDateId,
         fullName: data.fullName,
         email: data.email,
         phone: data.phone,
@@ -33,7 +35,6 @@ export async function createReservation(data: CreateReservationInput) {
         infantCount: data.infantCount,
         singleRoom: data.singleRoom ?? false,
         specialRequests: data.specialRequests,
-        travelDate: data.travelDate,
         totalPrice: data.totalPrice,
         termsAccepted: data.termsAccepted,
         status: ReservationStatus.PENDING,

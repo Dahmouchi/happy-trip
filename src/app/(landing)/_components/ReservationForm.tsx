@@ -38,24 +38,23 @@ import { toast } from "react-toastify";
 
   const reservationStatusEnum = z.enum(["PENDING", "CONFIRMED", "CANCELLED"]);
 
-  const reservationSchema = z.object({
-    tourId: z.string().min(1, "Tour is required"),
-    hotelId: z.string().optional(),
-    fullName: z.string().min(1, "Full name is required"),
-    email: z.string().email("Invalid email"),
-    phone: z.string().min(1, "Phone is required"),
-    adultCount: z.number().min(1, "At least 1 adult required"),
-    childCount: z.number().min(0),
-    infantCount: z.number().min(0),
-    singleRoom: z.boolean().optional(),
-    specialRequests: z.string().optional().nullable(),
-    travelDate: z.date(),
-    totalPrice: z.number().min(0),
-    termsAccepted: z.boolean().refine((val) => val === true, {
-      message: "You must accept the terms and conditions",
-    }),
-    status: reservationStatusEnum.default("PENDING"),
-  });
+const reservationSchema = z.object({
+  tourId: z.string().min(1, "Tour is required"),
+  hotelId: z.string().optional(),
+  travelDateId: z.string(),
+  fullName: z.string().min(1, "Full name is required"),
+  email: z.string().email("Invalid email"),
+  phone: z.string().min(1, "Phone is required"),
+  adultCount: z.number().min(1, "At least 1 adult required"),
+  childCount: z.number().min(0),
+  infantCount: z.number().min(0),
+  singleRoom: z.boolean().optional(),
+  specialRequests: z.string().optional().nullable(),
+  termsAccepted: z.boolean().refine(val => val === true, { message: "You must accept the terms and conditions" }),
+  status: reservationStatusEnum.default("PENDING"),
+  totalPrice: z.number().min(0),
+});
+
 
 // --- Main Reservation Section Component ---
 const ReservationSection = ({
@@ -68,27 +67,31 @@ const ReservationSection = ({
   const [isSubmittedSuccessfully, setIsSubmittedSuccessfully] = React.useState(false);
 
   // 1. Define your form.
-  const form = useForm({
-    resolver: zodResolver(reservationSchema),
-    defaultValues: {
-      tourId: tour?.id,
-      hotelId: "",
-      fullName: "",
-      email: "",
-      phone: "",
-      adultCount: 1,
-      childCount: 0,
-      infantCount: 0,
-      singleRoom: false,
-      specialRequests: "",
-      totalPrice: 0,
-      termsAccepted: false,
-      status: "PENDING",  // <-- default enum value here
-    },
-  });
+const form = useForm({
+  resolver: zodResolver(reservationSchema),
+  mode: "onChange",
+  defaultValues: {
+    tourId: tour.id,           // string
+    hotelId: "",          // string optional, but better to start empty string
+    travelDateId: "",     // string (id of selected date)
+    fullName: "",
+    email: "",
+    phone: "",
+    adultCount: 1,
+    childCount: 0,
+    infantCount: 0,
+    singleRoom: false,
+    specialRequests: null,  // or ""
+    termsAccepted: false,
+    status: "PENDING",
+    totalPrice: 0,
+  }
+});
+
 
 
   async function onSubmit(values: any) {
+    console.log("Form submitted with values:", values); 
     try {
       await createReservation(values);
       setIsSubmittedSuccessfully(true);
@@ -118,8 +121,29 @@ const ReservationSection = ({
         {/* Left Column: Form */}
 
       {isSubmittedSuccessfully ? (
-        <div className="bg-green-100 text-green-800 p-6 rounded-lg shadow text-center font-semibold text-xl">
-          Réservation effectuée avec succès ! L’équipe HAPPYTRIP vous contactera prochainement. Merci pour votre confiance.
+        <div className="flex flex-col items-center justify-center bg-lime-50 border border-lime-300 text-lime-800 p-8 rounded-xl shadow-lg transition-all duration-300">
+          <svg
+            className="w-16 h-16 mb-4 text-lime-600"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            viewBox="0 0 24 24"
+          >
+            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="white" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M8 12l3 3 5-5"
+              stroke="currentColor"
+              strokeWidth="2"
+              fill="none"
+            />
+          </svg>
+          <h3 className="text-2xl font-bold mb-2">Réservation réussie !</h3>
+          <p className="text-lg font-medium">
+            L’équipe <span className="font-bold text-lime-600">HAPPYTRIP</span> vous contactera prochainement.<br />
+            Merci pour votre confiance.
+          </p>
         </div>
       ) : (
         
@@ -287,113 +311,99 @@ const ReservationSection = ({
                 </div>
               </div>
 
-              {/* Hotel & Chambre */}
+                {/* Hotel & Chambre */}
+                  {tour.type === "INTERNTIONL" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="hotelId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Hôtel <span className="text-red-500">*</span>
-                        </FormLabel>
-                        <Select
-                          value={field.value || ""}
-                          onValueChange={field.onChange}
-                          >
-                          <FormControl>
-                            <SelectTrigger className="rounded-md border-gray-300">
-                              <SelectValue placeholder="Sélectionnez un hôtel" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {hotels.map((hotel: any) => (
-                              <SelectItem key={hotel.id} value={hotel.id}>
-                                {hotel.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                    />
-
-
-
                 <FormField
                   control={form.control}
-                  name="singleRoom"
+                  name="hotelId"
                   render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                    Chambre Single <span className="text-red-500">*</span>
+                    Hôtel <span className="text-red-500">*</span>
                     </FormLabel>
                     <Select
-                    onValueChange={(value) => field.onChange(value === "Oui")}
-                    value={field.value ? "Oui" : "Non"}
+                    value={field.value || ""}
+                    onValueChange={field.onChange}
                     >
                     <FormControl>
                       <SelectTrigger className="rounded-md border-gray-300">
-                      <SelectValue placeholder="Non" />
+                      <SelectValue placeholder="Sélectionnez un hôtel" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Non">Non</SelectItem>
-                      <SelectItem value="Oui">Oui</SelectItem>
+                      {hotels.map((hotel: any) => (
+                      <SelectItem key={hotel.id} value={hotel.id}>
+                        {hotel.name}
+                      </SelectItem>
+                      ))}
                     </SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
                   )}
+                />
+
+                  <FormField
+                  control={form.control}
+                  name="singleRoom"
+                  render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>
+                      Chambre Single <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(value === "Oui")}
+                      value={field.value ? "Oui" : "Non"}
+                    >
+                      <FormControl>
+                      <SelectTrigger className="rounded-md border-gray-300">
+                        <SelectValue placeholder="Non" />
+                      </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                      <SelectItem value="Non">Non</SelectItem>
+                      <SelectItem value="Oui">Oui</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                    </FormItem>
+                  )}
                   />
                 </div>
+                )}
 
               {/* Date de Voyage */}
-<FormField
-  control={form.control}
-  name="travelDate"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>
-        Date de Voyage <span className="text-red-500">*</span>
-      </FormLabel>
-      <Select
-        onValueChange={(value) => {
-          if (value) {
-            const selectedDate = new Date(value + "T00:00:00");
-            if (!isNaN(selectedDate.getTime())) {
-              field.onChange(selectedDate);
-            } else {
-              field.onChange(undefined);
-            }
-          } else {
-            field.onChange(undefined);
-          }
-        }}
-        value={
-          field.value instanceof Date && !isNaN(field.value.getTime())
-            ? field.value.toISOString().split("T")[0] // convert Date → "YYYY-MM-DD"
-            : ""
-        }
-      >
-        <FormControl>
-          <SelectTrigger className="rounded-md border-gray-300">
-            <SelectValue placeholder="Sélectionnez une date" />
-          </SelectTrigger>
-        </FormControl>
-        <SelectContent>
-          {availableDates.map((date: any) => (
-            <SelectItem key={date.value} value={date.value}>
-              {date.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
+              <FormField
+                control={form.control}
+                name="travelDateId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Date de Voyage <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="rounded-md border-gray-300">
+                          <SelectValue placeholder="Sélectionnez une date" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {availableDates.map((date: any) => (
+                          <SelectItem key={date.id} value={date.id}>
+                            {date.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
 
 
 
@@ -449,11 +459,15 @@ const ReservationSection = ({
                 />
 
               {/*  Submit Button */}
-              <Button
+             <Button
                 type="submit"
+                disabled={!form.formState.isValid}
+                onClick={() => {
+                  console.log("Submitting form with values:", form.getValues());
+                }}
                 className="w-full text-lg font-semibold rounded-md"
                 style={{ backgroundColor: "#83CD20", color: "white" }}
-                >
+              >
                 JE VALIDE
               </Button>
             </form>

@@ -125,22 +125,11 @@ const averageRating = reviewCount > 0
   //   { value: "22-29-juin-9800", label: "22 - 29 Juin (9800 dh)" },
   // ];
 
-  // const sampleAvailableDates = tour.dates?.map((date: TourDate) => ({
-  //   value: `${new Date(date.startDate!).toLocaleDateString("fr-FR")} - ${new Date(date.endDate!).toLocaleDateString("fr-FR")} (${tour.priceDiscounted} dh)`,
-  //   label: `${new Date(date.startDate!).toLocaleDateString("fr-FR")} - ${new Date(date.endDate!).toLocaleDateString("fr-FR")} (${tour.priceDiscounted} dh)`,
-  // })) || [];
+  const sampleAvailableDates = tour.dates?.map((date: TourDate) => ({
+  id: date.id,
+  name: `${new Date(date.startDate!).toLocaleDateString("fr-FR")} - ${new Date(date.endDate!).toLocaleDateString("fr-FR")} (${tour.priceDiscounted} dh)`,
+})) || [];
 
-const sampleAvailableDates = (tour.dates ?? [])
-  .filter((date: TourDate) => date.startDate && date.endDate) // ✅ safe check
-  .map((date: TourDate) => {
-    const startISO = new Date(date.startDate!).toISOString().split("T")[0];
-    const startFR = new Date(date.startDate!).toLocaleDateString("fr-FR");
-    const endFR = new Date(date.endDate!).toLocaleDateString("fr-FR");
-    return {
-      value: startISO,
-      label: `${startFR} - ${endFR} (${tour.priceDiscounted} dh)`,
-    };
-  });
 
 
   // const sampleHotels = [
