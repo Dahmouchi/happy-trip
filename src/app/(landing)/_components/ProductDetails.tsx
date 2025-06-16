@@ -578,6 +578,7 @@ const averageRating = reviewCount > 0
       <ReservationSection
         availableDates={sampleAvailableDates}
         hotels={sampleHotels}
+        tour={tour}
         imageSrc="/path/to/your/image.jpg" // Provide image path
       />
       <div className="bg-[#F6F3F2] p-6 rounded-lg shadow-sm mb-8">

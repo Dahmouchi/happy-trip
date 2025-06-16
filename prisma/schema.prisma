@@ -137,7 +137,7 @@ model File {
 model reservation {
   id              String   @id @default(cuid())
   tourId          String
-  userId          String
+  hotelId         String
   fullName        String
   email           String
   phone           String
@@ -146,14 +146,13 @@ model reservation {
   infantCount     Int
   singleRoom      Boolean  @default(false)
   specialRequests String?
+  date            DateTime   //date de voyage
   totalPrice      Float
   status          Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-  hotelId         String
   hotel           Hotel    @relation(fields: [hotelId], references: [id])
   tour            Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Review {
@@ -197,7 +196,6 @@ model User {
   accounts         Account[]
   Authenticator    Authenticator[]
   sessions         Session[]
-  reservation      reservation[]
 }
 
 model Account {

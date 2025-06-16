@@ -936,6 +936,7 @@ export function AddTourForm({
 
 
                 {/* Hotels Information */}
+                  {form.watch("type") === "INTERNATIONAL" && (
                 <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
                 <h3 className="text-lime-600 text-xl font-medium">
                   <BedDouble className="inline mr-2" />
@@ -946,125 +947,122 @@ export function AddTourForm({
                 </p>  <Separator className="mb-6" />
 
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 my-8">
-                    <FormField
-                      control={form.control}
-                      name="hotels"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Hôtel(s)</FormLabel>
-                          <FormControl>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  role="combobox"
-                                  className="w-fit justify-between"
-                                >
-                                  {field.value && field.value.length > 0
-                                    ? hotels
-                                        .filter((hotel: any) =>
-                                          Array.isArray(field.value)
-                                            ? field.value.includes(hotel.id)
-                                            : false
-                                        )
-                                        .map((hotel: any) => hotel.name)
-                                        .join(", ")
-                                    : "Sélectionnez le(s) hôtel(s)"}
-                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="p-0">
-                                <Command>
-                                  <CommandInput placeholder="Rechercher un hôtel..." />
-                                  <CommandList>
-                                    <CommandEmpty>
-                                      Aucun hôtel trouvé.
-                                    </CommandEmpty>
-                                    <CommandGroup>
-                                      {hotels.map((hotel: any) => (
-                                        <CommandItem
-                                          key={hotel.id}
-                                          value={hotel.id}
-                                          onSelect={() => {
-                                            const currentValue = Array.isArray(field.value)
-                                              ? [...field.value]
-                                              : [];
-                                            const index = currentValue.indexOf(hotel.id);
-                                            if (index === -1) {
-                                              field.onChange([...currentValue, hotel.id]);
-                                            } else {
-                                              currentValue.splice(index, 1);
-                                              field.onChange(currentValue);
-                                            }
-                                          }}
-                                        >
-                                          <Check
-                                            className={cn(
-                                              "mr-2 h-4 w-4",
-                                              field.value &&
-                                                field.value.includes(hotel.id)
-                                                ? "opacity-100"
-                                                : "opacity-0"
-                                            )}
-                                          />
-                                          {hotel.name}
-                                        </CommandItem>
-                                      ))}
-                                    </CommandGroup>
-                                  </CommandList>
-                                </Command>
-                              </PopoverContent>
-                            </Popover>
-                          </FormControl>
-                          <FormDescription>
-                            Sélectionnez tous les hôtels associés à ce circuit
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Hotel price field (read-only, shows prices of selected hotels) */}
-                    <FormField
-                      control={form.control}
-                      name="hotels"
-                      render={({ field }) => {
-                        const selectedHotels = hotels.filter((hotel: any) =>
-                          Array.isArray(field.value) ? field.value.includes(hotel.id) : false
-                        );
-                        const price =
-                          selectedHotels.length === 1
-                            ? selectedHotels[0]?.price ?? ""
-                            : selectedHotels.length > 1
-                            ? selectedHotels.map((h: any) => h.price).join(", ")
-                            : "";
-
-                        return (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 my-8">
+                      <FormField
+                        control={form.control}
+                        name="hotels"
+                        render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Prix hôtel(s) MAD</FormLabel>
+                            <FormLabel>Hôtel(s)</FormLabel>
                             <FormControl>
-                              <Input
-                                type="text"
-                                readOnly
-                                value={price}
-                                placeholder="Prix de l'hôtel sélectionné"
-                              />
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    className="w-fit justify-between"
+                                  >
+                                    {field.value && field.value.length > 0
+                                      ? hotels
+                                          .filter((hotel: any) =>
+                                            Array.isArray(field.value)
+                                              ? field.value.includes(hotel.id)
+                                              : false
+                                          )
+                                          .map((hotel: any) => hotel.name)
+                                          .join(", ")
+                                      : "Sélectionnez le(s) hôtel(s)"}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="p-0">
+                                  <Command>
+                                    <CommandInput placeholder="Rechercher un hôtel..." />
+                                    <CommandList>
+                                      <CommandEmpty>
+                                        Aucun hôtel trouvé.
+                                      </CommandEmpty>
+                                      <CommandGroup>
+                                        {hotels.map((hotel: any) => (
+                                          <CommandItem
+                                            key={hotel.id}
+                                            value={hotel.id}
+                                            onSelect={() => {
+                                              const currentValue = Array.isArray(field.value)
+                                                ? [...field.value]
+                                                : [];
+                                              const index = currentValue.indexOf(hotel.id);
+                                              if (index === -1) {
+                                                field.onChange([...currentValue, hotel.id]);
+                                              } else {
+                                                currentValue.splice(index, 1);
+                                                field.onChange(currentValue);
+                                              }
+                                            }}
+                                          >
+                                            <Check
+                                              className={cn(
+                                                "mr-2 h-4 w-4",
+                                                field.value &&
+                                                  field.value.includes(hotel.id)
+                                                  ? "opacity-100"
+                                                  : "opacity-0"
+                                              )}
+                                            />
+                                            {hotel.name}
+                                          </CommandItem>
+                                        ))}
+                                      </CommandGroup>
+                                    </CommandList>
+                                  </Command>
+                                </PopoverContent>
+                              </Popover>
                             </FormControl>
                             <FormDescription>
-                              Prix du ou des hôtels sélectionnés (lecture seule)
+                              Sélectionnez tous les hôtels associés à ce circuit
                             </FormDescription>
+                            <FormMessage />
                           </FormItem>
-                        );
-                      }}
-                    />
-                  </div> 
+                        )}
+                      />
+
+                      {/* Hotel price field (read-only, shows prices of selected hotels) */}
+                      <FormField
+                        control={form.control}
+                        name="hotels"
+                        render={({ field }) => {
+                          const selectedHotels = hotels.filter((hotel: any) =>
+                            Array.isArray(field.value) ? field.value.includes(hotel.id) : false
+                          );
+                          const price =
+                            selectedHotels.length === 1
+                              ? selectedHotels[0]?.price ?? ""
+                              : selectedHotels.length > 1
+                              ? selectedHotels.map((h: any) => h.price).join(", ")
+                              : "";
+
+                          return (
+                            <FormItem>
+                              <FormLabel>Prix hôtel(s) MAD</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="text"
+                                  readOnly
+                                  value={price}
+                                  placeholder="Prix de l'hôtel sélectionné"
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Prix du ou des hôtels sélectionnés (lecture seule)
+                              </FormDescription>
+                            </FormItem>
+                          );
+                        }}
+                      />
+                    </div>
                    </div>
               </div>
-
-
-
-
+                  )} 
 
               {/* programms information */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
