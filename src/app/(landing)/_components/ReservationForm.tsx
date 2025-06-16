@@ -40,7 +40,7 @@ import { toast } from "react-toastify";
 
   const reservationSchema = z.object({
     tourId: z.string().min(1, "Tour is required"),
-    hotelId: z.string().min(1, "Hotel is required"),
+    hotelId: z.string().optional(),
     fullName: z.string().min(1, "Full name is required"),
     email: z.string().email("Invalid email"),
     phone: z.string().min(1, "Phone is required"),
@@ -81,7 +81,6 @@ const ReservationSection = ({
       infantCount: 0,
       singleRoom: false,
       specialRequests: "",
-      travelDate: availableDates.length > 0 ? new Date(availableDates[0].value) : new Date(),
       totalPrice: 0,
       termsAccepted: false,
       status: "PENDING",  // <-- default enum value here
@@ -118,8 +117,13 @@ const ReservationSection = ({
       <div className="grid grid-cols-1 lg:grid-cols-1 gap-8 md:gap-12 items-start">
         {/* Left Column: Form */}
 
-       
-            {/* Image Section */}
+      {isSubmittedSuccessfully ? (
+        <div className="bg-green-100 text-green-800 p-6 rounded-lg shadow text-center font-semibold text-xl">
+          Réservation effectuée avec succès ! L’équipe HAPPYTRIP vous contactera prochainement. Merci pour votre confiance.
+        </div>
+      ) : (
+        
+        // {/* Image Section */}
         <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg border border-gray-100">
           {/* Form Header */}
           <div
@@ -133,7 +137,7 @@ const ReservationSection = ({
               marginLeft: "-2rem",
               marginRight: "-2rem",
             }}
-          >
+            >
             <h2 className="text-2xl font-bold text-center">RÉSERVATION</h2>
             <div className="flex justify-center mt-1">
               <span className="w-3 h-1 bg-yellow-400 rounded-full mr-1"></span>
@@ -158,12 +162,12 @@ const ReservationSection = ({
                           placeholder="Nom Complet"
                           {...field}
                           className="rounded-md border-gray-300"
-                        />
+                          />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                  />
                 <FormField
                   control={form.control}
                   name="phone"
@@ -178,12 +182,12 @@ const ReservationSection = ({
                           placeholder="Téléphone"
                           {...field}
                           className="rounded-md border-gray-300"
-                        />
+                          />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                  />
               </div>
 
               {/* E-mail */}
@@ -202,12 +206,12 @@ const ReservationSection = ({
                           placeholder="E-mail"
                           {...field}
                           className="rounded-md border-gray-300"
-                        />
+                          />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                  />
 
                 {/* Participants */}
                 <div className="grid grid-cols-3 gap-4">
@@ -222,7 +226,7 @@ const ReservationSection = ({
                         <Select
                           onValueChange={(value) => field.onChange(Number(value))}
                           value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
-                        >
+                          >
                           <FormControl>
                             <SelectTrigger className="rounded-md border-gray-300">
                               <SelectValue placeholder="1" />
@@ -233,7 +237,7 @@ const ReservationSection = ({
                         <FormMessage />
                       </FormItem>
                     )}
-                  />
+                    />
                   <FormField
                     control={form.control}
                     name="childCount"
@@ -245,7 +249,7 @@ const ReservationSection = ({
                         <Select
                           onValueChange={(value) => field.onChange(Number(value))}
                           value={field.value !== undefined && field.value !== null ? String(field.value) : "0"}
-                        >
+                          >
                           <FormControl>
                             <SelectTrigger className="rounded-md border-gray-300">
                               <SelectValue placeholder="0" />
@@ -256,7 +260,7 @@ const ReservationSection = ({
                         <FormMessage />
                       </FormItem>
                     )}
-                  />
+                    />
                   <FormField
                     control={form.control}
                     name="infantCount"
@@ -279,7 +283,7 @@ const ReservationSection = ({
                         <FormMessage />
                       </FormItem>
                     )}
-                  />
+                    />
                 </div>
               </div>
 
@@ -296,7 +300,7 @@ const ReservationSection = ({
                         <Select
                           value={field.value || ""}
                           onValueChange={field.onChange}
-                        >
+                          >
                           <FormControl>
                             <SelectTrigger className="rounded-md border-gray-300">
                               <SelectValue placeholder="Sélectionnez un hôtel" />
@@ -313,7 +317,7 @@ const ReservationSection = ({
                         <FormMessage />
                       </FormItem>
                     )}
-                  />
+                    />
 
 
 
@@ -342,55 +346,56 @@ const ReservationSection = ({
                     <FormMessage />
                   </FormItem>
                   )}
-                />
+                  />
                 </div>
 
               {/* Date de Voyage */}
-             <FormField
-              control={form.control}
-              name="travelDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Date de Voyage <span className="text-red-500">*</span>
-                  </FormLabel>
-                  <Select
-                    onValueChange={(value) => {
-                      if (value) {
-                        const selectedDate = new Date(value + "T00:00:00");
-                        if (!isNaN(selectedDate.getTime())) {
-                          field.onChange(selectedDate);
-                        } else {
-                          console.error("Invalid date:", value);
-                          field.onChange(null);
-                        }
-                      } else {
-                        field.onChange(null);
-                      }
-                    }}
-                    value={
-                      field.value instanceof Date && !isNaN(field.value.getTime())
-                        ? field.value.toISOString().split("T")[0]
-                        : ""
-                    }
-                  >
-                    <FormControl>
-                      <SelectTrigger className="rounded-md border-gray-300">
-                        <SelectValue placeholder="Sélectionnez une date" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {availableDates.map((date: any) => (
-                        <SelectItem key={date.value} value={date.value}>
-                          {date.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+<FormField
+  control={form.control}
+  name="travelDate"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>
+        Date de Voyage <span className="text-red-500">*</span>
+      </FormLabel>
+      <Select
+        onValueChange={(value) => {
+          if (value) {
+            const selectedDate = new Date(value + "T00:00:00");
+            if (!isNaN(selectedDate.getTime())) {
+              field.onChange(selectedDate);
+            } else {
+              field.onChange(undefined);
+            }
+          } else {
+            field.onChange(undefined);
+          }
+        }}
+        value={
+          field.value instanceof Date && !isNaN(field.value.getTime())
+            ? field.value.toISOString().split("T")[0] // convert Date → "YYYY-MM-DD"
+            : ""
+        }
+      >
+        <FormControl>
+          <SelectTrigger className="rounded-md border-gray-300">
+            <SelectValue placeholder="Sélectionnez une date" />
+          </SelectTrigger>
+        </FormControl>
+        <SelectContent>
+          {availableDates.map((date: any) => (
+            <SelectItem key={date.value} value={date.value}>
+              {date.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
+
 
 
               {/* Autres remarques */}
@@ -406,12 +411,12 @@ const ReservationSection = ({
                         {...field}
                         value={field.value ?? ""}
                         className="rounded-md border-gray-300"
-                      />
+                        />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+                />
 
               {/* Conditions générales */}
               <FormField
@@ -423,7 +428,7 @@ const ReservationSection = ({
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
-                      />
+                        />
                     </FormControl>
                     <div className="space-y-1 leading-none">
                       <Label htmlFor="termsAccepted" className="text-sm">
@@ -432,7 +437,7 @@ const ReservationSection = ({
                           href="/conditions-generales"
                           target="_blank"
                           className="text-red-500 hover:underline font-medium"
-                        >
+                          >
                           conditions générales
                         </a>
                         .
@@ -441,19 +446,20 @@ const ReservationSection = ({
                     </div>
                   </FormItem>
                 )}
-              />
+                />
 
-              {/* Submit Button */}
+              {/*  Submit Button */}
               <Button
                 type="submit"
                 className="w-full text-lg font-semibold rounded-md"
                 style={{ backgroundColor: "#83CD20", color: "white" }}
-              >
+                >
                 JE VALIDE
               </Button>
             </form>
           </Form>
         </div>
+      )}
 
       
       </div>

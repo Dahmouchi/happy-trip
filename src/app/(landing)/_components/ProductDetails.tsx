@@ -130,15 +130,18 @@ const averageRating = reviewCount > 0
   //   label: `${new Date(date.startDate!).toLocaleDateString("fr-FR")} - ${new Date(date.endDate!).toLocaleDateString("fr-FR")} (${tour.priceDiscounted} dh)`,
   // })) || [];
 
-const sampleAvailableDates = tour.dates?.map((date: TourDate) => {
-  const startISO = new Date(date.startDate!).toISOString().split("T")[0]; // "YYYY-MM-DD"
-  const startFR = new Date(date.startDate!).toLocaleDateString("fr-FR");
-  const endFR = new Date(date.endDate!).toLocaleDateString("fr-FR");
-  return {
-    value: startISO,
-    label: `${startFR} - ${endFR} (${tour.priceDiscounted} dh)`,
-  };
-}) || [];
+const sampleAvailableDates = (tour.dates ?? [])
+  .filter((date: TourDate) => date.startDate && date.endDate) // ✅ safe check
+  .map((date: TourDate) => {
+    const startISO = new Date(date.startDate!).toISOString().split("T")[0];
+    const startFR = new Date(date.startDate!).toLocaleDateString("fr-FR");
+    const endFR = new Date(date.endDate!).toLocaleDateString("fr-FR");
+    return {
+      value: startISO,
+      label: `${startFR} - ${endFR} (${tour.priceDiscounted} dh)`,
+    };
+  });
+
 
   // const sampleHotels = [
   //   { value: "Fuar Hotel 4*", label: "Fuar Hotel 4*" },
@@ -196,9 +199,16 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
       <div className="bg-[#F6F3F2] p-4 md:p-8 lg:p-12">
         {/* Breadcrumbs */}
         <nav className="mb-4 text-sm text-gray-500">
-          <span className="text-red-600 hover:underline cursor-pointer">
-            maroc
-          </span>
+            {tour.type === "NATIONAL" && (
+              <span className="text-red-600 hover:underline cursor-pointer">
+              maroc
+              </span>
+            )}
+            {tour.type === "INTERNATIONAL" && (
+              <span className="text-red-600 hover:underline cursor-pointer">
+              International
+              </span>
+            )}
           <span className="mx-2">&gt;</span>
           <span className="text-red-600 hover:underline cursor-pointer">
             {tour.destinations[0]?.name}
