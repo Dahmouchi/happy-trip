@@ -37,7 +37,6 @@ export function PromotionCard({ tour }: { tour: any }) {
                   ({reviewCount} {reviewCount === 1 ? "avis" : "avis"}) •{" "}
                 </span>
                 </div>
-                
               </div>
             )}
         <div className={`items-baseline mb-4 text-right absolute ${tour.showDiscount && tour.priceOriginal !== tour.priceDiscounted ? "py-1":"py-2"} z-50 -bottom-8 bg-[#4FA8FF] w-fit rounded-l-full px-8 right-0`}>
@@ -46,7 +45,6 @@ export function PromotionCard({ tour }: { tour: any }) {
               {tour?.priceOriginal} DH
             </h1>
           )}
-
           <h1 className="text-xl font-bold text-white">
             {tour?.priceDiscounted} DH
           </h1>

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @next/next/no-img-element */
 import React, { useState, useEffect } from "react";
 import { Plus, X, Upload, Image as ImageIcon, Edit, ClipboardPenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -42,7 +44,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
     });
 
     onChange(updated);
-}, [programs]);
+}, [onChange, programs]);
 
 
   const handleAddProgram = () => {
@@ -156,7 +158,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                     <span className="inline-flex items-center justify-center w-6 h-6 bg-lime-100 text-lime-600 text-sm font-medium rounded-full">
                       {index + 1}
                     </span>
-                    <h4 className="font-semibold text-foreground text-lime-700">
+                    <h4 className="font-semibold text-lime-700">
                       {program.title}
                     </h4>
                   </div>
