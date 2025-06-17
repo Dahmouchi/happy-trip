@@ -23,6 +23,7 @@ import {
   
 } from "@/components/ui/sidebar";
 import Image from "next/image";
+import { title } from "process";
 
 
 // This is sample data.
@@ -59,6 +60,11 @@ const datas = {
       title: "Voyages",
       url: "/admin/dashboard/voyages",
       icon: PlaneTakeoff,
+    },
+    {
+      title: "Réservations",
+      url: "/admin/dashboard/reservations",
+      icon: Tickets,
     },
     {
       title: "Utilisateurs",

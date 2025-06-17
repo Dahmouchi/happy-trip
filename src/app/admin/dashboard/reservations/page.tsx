@@ -1,0 +1,63 @@
+'use client';
+
+import React, { useCallback, useEffect, useState } from 'react';
+
+import { Hotel, Reservation, TourDate, TravelType } from '@prisma/client';
+import { toast } from 'react-toastify';
+import { reservationColumns } from './reservation-columns';
+import { GetAllReservations } from '@/actions/reservationsActions';
+import { DataTable } from './reservations-data-table';
+import { DateTime } from 'aws-sdk/clients/devicefarm';
+import { Float } from 'aws-sdk/clients/batch';
+import { hasUncaughtExceptionCaptureCallback } from 'process';
+
+type ReservationData = Reservation & {
+    reservationDate: Date;
+    tourTitle: string;
+    hotel:Hotel;
+    travelDate:TourDate;
+    hotelName: string;
+    hotelPrice: Float
+    startDate: DateTime;
+    endDate: DateTime;
+};
+
+export default function ReservationsPage() {
+    const [reservations, setReservations] = useState<ReservationData[]>([]);
+
+    const fetchReservations = useCallback(async () => {
+        try {
+            const response = await GetAllReservations();
+            console.log(response);
+
+            const enrichedReservations = response.map((reservation: any) => ({
+                ...reservation,
+                tourTitle: reservation.tour?.title || 'Circuit inconnu',
+                hasUncaughtExceptionCaptureCallbackotel: reservation.hotel || null,
+                TravelDate: reservation.travelDate || null,
+                hotelName: reservation.hotel?.name || null,
+                hotelPrice: reservation.hotel?.price || null,
+                startDate: reservation.travelDate.startDate || null,
+                endDate: reservation.travelDate?.endDate || null,
+            }));
+            setReservations(enrichedReservations);
+        } catch (error) {
+            toast.error('Erreur lors de la récupération des réservations');
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchReservations();
+    }, [fetchReservations]);
+
+    return (
+        <div className="mx-auto my-10 p-8">
+            <h1 className="text-4xl font-bold mb-4 text-gray-800">Réservations</h1>
+            <p className="text-lg text-gray-600 mb-6">Ci-dessous la liste de toutes les réservations.</p>
+            <DataTable<ReservationData, unknown>
+                columns={reservationColumns({ refresh: fetchReservations })}
+            data={reservations}
+            />
+        </div>
+    );
+}

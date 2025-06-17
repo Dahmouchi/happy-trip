@@ -3,7 +3,8 @@
 import prisma from "@/lib/prisma";
 import { ReservationStatus } from "@prisma/client";
 
-interface CreateReservationInput {
+
+interface Reservation {
   tourId: string;
   hotelId: string;
   travelDateId: string;
@@ -20,7 +21,7 @@ interface CreateReservationInput {
   termsAccepted: boolean;
 }
 
-export async function createReservation(data: CreateReservationInput) {
+export async function CreateReservation(data: Reservation) {
   try {
     const reservation = await prisma.reservation.create({
       data: {
@@ -44,5 +45,70 @@ export async function createReservation(data: CreateReservationInput) {
     return reservation;
   } catch (error) {
     throw new Error("Failed to create reservation");
+  }
+}
+
+
+export async function GetAllReservations() {
+  try {
+    const reservations = await prisma.reservation.findMany({
+      include: {
+        tour: true,
+        hotel: true,
+        travelDate: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return reservations;
+  } catch (error) {
+    throw new Error("Failed to fetch reservations");
+  }
+}
+
+
+export async function UpdateReservationStatus(id: string, status: ReservationStatus) {
+  try {
+    const updatedReservation = await prisma.reservation.update({
+      where: { id },
+      data: { status },
+    });
+
+    return { success: true, reservation: updatedReservation };
+  } catch (error) {
+    return { success: false, error: "Failed to update reservation status" };
+  }
+}
+
+export async function UpdateReservation(id: string, data: Partial<Reservation>) {
+  try {
+    const updateData: any = {};
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined) {
+        updateData[key] = value;
+      }
+    });
+
+    const updatedReservation = await prisma.reservation.update({
+      where: { id },
+      data: updateData,
+    });
+
+    return updatedReservation;
+  } catch (error) {
+    throw new Error("Failed to update reservation");
+  }
+}
+
+export async function DeleteReservation(id: string) {
+  try {
+    await prisma.reservation.delete({
+      where: { id },
+    });
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: "Failed to delete reservation" };
   }
 }

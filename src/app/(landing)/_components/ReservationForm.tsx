@@ -31,7 +31,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label"; // Import Label
 import { getHotels } from "@/actions/hotelsActions";
 import { createReadStream } from "fs";
-import { createReservation } from "@/actions/reservationsActions";
+import { CreateReservation } from "@/actions/reservationsActions";
 import { toast } from "react-toastify";
 
 
@@ -93,7 +93,7 @@ const form = useForm({
   async function onSubmit(values: any) {
     console.log("Form submitted with values:", values); 
     try {
-      await createReservation(values);
+      await CreateReservation(values);
       setIsSubmittedSuccessfully(true);
     }
     catch (error) {
@@ -140,10 +140,10 @@ const form = useForm({
             />
           </svg>
           <h3 className="text-2xl font-bold mb-2">Réservation réussie !</h3>
-          <p className="text-lg font-medium">
+            <p className="text-lg font-medium text-center">
             L’équipe <span className="font-bold text-lime-600">HAPPYTRIP</span> vous contactera prochainement.<br />
-            Merci pour votre confiance.
-          </p>
+            Merci pour votre confiance!
+            </p>
         </div>
       ) : (
         
@@ -312,7 +312,7 @@ const form = useForm({
               </div>
 
                 {/* Hotel & Chambre */}
-                  {tour.type === "INTERNTIONL" && (
+                  {tour.type === "INTERNATIONAL" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
