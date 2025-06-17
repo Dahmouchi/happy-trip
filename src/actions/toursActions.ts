@@ -273,8 +273,6 @@ export async function deleteTour(tourId: string) {
   }
 }
 
-
-
 export async function getTourById(tourId: string) {
   try {
     const tour = await prisma.tour.findUnique({
