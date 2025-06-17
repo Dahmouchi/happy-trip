@@ -20,39 +20,68 @@ import { DeleteReservation, UpdateReservationStatus } from "@/actions/reservatio
 import { Hotel, Prisma, Reservation, ReservationStatus, TourDate } from "@prisma/client";
 import { DateTime } from "aws-sdk/clients/devicefarm";
 import { Float } from "aws-sdk/clients/batch";
+import { ReservationDetails } from "./reservation-details-form";
+import TourDetails from "@/app/(landing)/_components/ProductDetails";
 // Replace with your actual reservation actions
 
 
 type ReservationData = Reservation & {
-    reservationDate: Date;
     tourTitle: string;
     hotel:Hotel;
     travelDate: TourDate;
-    hotelName: string;
-    hotelPrice: Float;
-    startDate: DateTime;
-    endDate: DateTime;
+    createdAt: DateTime;
 };
 
 
 export const reservationColumns = ({ refresh, onEdit }: { refresh: () => void; onEdit?: (reservation: ReservationData) => void }): ColumnDef<ReservationData, unknown>[] => [
-    {
-        accessorKey: "seeAll",
-        header: "Voir details",
-        cell: ({ row }) => (
+   {
+  accessorKey: "seeAll",
+  header: "Voir détails",
+  cell: ({ row }) => {
+    const [open, setOpen] = useState(false);
+
+    return (
+      <AlertDialog open={open} onOpenChange={setOpen}>
+        <AlertDialogTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setOpen(true)}
+            aria-label="Voir les détails"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M1.5 12s4.5-7.5 10.5-7.5S22.5 12 22.5 12s-4.5 7.5-10.5 7.5S1.5 12 1.5 12z" />
+              <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth={2} fill="none" />
+            </svg>
+          </Button>
+        </AlertDialogTrigger>
+
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Détails de la réservation</AlertDialogTitle>
+          </AlertDialogHeader>
+
+          <div className="p-2">
+            <ReservationDetails reservation={row.original} />
+          </div>
+
+          <AlertDialogFooter>
             <Button
                 variant="outline"
-                size="icon"
-                onClick={() => onEdit && onEdit(row.original)}
-                aria-label="Voir les détails"
+                onClick={() => {
+                    setOpen(false);
+                    onEdit && onEdit(row.original);
+                }}
             >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M1.5 12s4.5-7.5 10.5-7.5S22.5 12 22.5 12s-4.5 7.5-10.5 7.5S1.5 12 1.5 12z" />
-                    <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth={2} fill="none" />
-                </svg>
+                Modifier
             </Button>
-        ),
-    },
+            <AlertDialogCancel>Fermer</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    );
+  },
+},
     
     {
         accessorKey: "tourTitle",
@@ -75,7 +104,6 @@ export const reservationColumns = ({ refresh, onEdit }: { refresh: () => void; o
         header: "Hôtel",
         cell: ({ row }) => {
             const hotel = row.original.hotel as { name?: string; price?: number };
-
             if (hotel?.name) {
             return (
                 <span>

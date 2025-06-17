@@ -12,14 +12,10 @@ import { Float } from 'aws-sdk/clients/batch';
 import { hasUncaughtExceptionCaptureCallback } from 'process';
 
 type ReservationData = Reservation & {
-    reservationDate: Date;
     tourTitle: string;
     hotel:Hotel;
     travelDate:TourDate;
-    hotelName: string;
-    hotelPrice: Float
-    startDate: DateTime;
-    endDate: DateTime;
+    createdAt: DateTime;
 };
 
 export default function ReservationsPage() {
@@ -33,12 +29,9 @@ export default function ReservationsPage() {
             const enrichedReservations = response.map((reservation: any) => ({
                 ...reservation,
                 tourTitle: reservation.tour?.title || 'Circuit inconnu',
-                hasUncaughtExceptionCaptureCallbackotel: reservation.hotel || null,
+                hotel: reservation.hotel || null,
                 TravelDate: reservation.travelDate || null,
-                hotelName: reservation.hotel?.name || null,
-                hotelPrice: reservation.hotel?.price || null,
-                startDate: reservation.travelDate.startDate || null,
-                endDate: reservation.travelDate?.endDate || null,
+                createdAt: reservation.createdAt,
             }));
             setReservations(enrichedReservations);
         } catch (error) {
