@@ -126,9 +126,11 @@ const averageRating = reviewCount > 0
   // ];
 
   const sampleAvailableDates = tour.dates?.map((date: TourDate) => ({
-    value: `${new Date(date.startDate!).toLocaleDateString("fr-FR")} - ${new Date(date.endDate!).toLocaleDateString("fr-FR")} (${tour.priceDiscounted} dh)`,
-    label: `${new Date(date.startDate!).toLocaleDateString("fr-FR")} - ${new Date(date.endDate!).toLocaleDateString("fr-FR")} (${tour.priceDiscounted} dh)`,
-  })) || [];
+  id: date.id,
+  name: `${new Date(date.startDate!).toLocaleDateString("fr-FR")} - ${new Date(date.endDate!).toLocaleDateString("fr-FR")} (${tour.priceDiscounted} dh)`,
+})) || [];
+
+
 
   // const sampleHotels = [
   //   { value: "Fuar Hotel 4*", label: "Fuar Hotel 4*" },
@@ -136,10 +138,11 @@ const averageRating = reviewCount > 0
   //   { value: "Autre Hotel", label: "Autre Hotel (à préciser)" },
   // ];
  
-  const sampleHotels = tour.hotels?.map((hotel: any) => ({
-    value: hotel.name,
-    label: hotel.name,
-  })) || [];
+const sampleHotels = tour.hotels?.map((hotel: any) => ({
+  id: hotel.id,
+  name: hotel.name,
+})) || [];
+
 
   const plugin = React.useRef(
     Autoplay({ delay: 2000, stopOnInteraction: true }) // Optional Autoplay
@@ -185,9 +188,16 @@ const averageRating = reviewCount > 0
       <div className="bg-[#F6F3F2] p-4 md:p-8 lg:p-12">
         {/* Breadcrumbs */}
         <nav className="mb-4 text-sm text-gray-500">
-          <span className="text-red-600 hover:underline cursor-pointer">
-            maroc
-          </span>
+            {tour.type === "NATIONAL" && (
+              <span className="text-red-600 hover:underline cursor-pointer">
+              maroc
+              </span>
+            )}
+            {tour.type === "INTERNATIONAL" && (
+              <span className="text-red-600 hover:underline cursor-pointer">
+              International
+              </span>
+            )}
           <span className="mx-2">&gt;</span>
           <span className="text-red-600 hover:underline cursor-pointer">
             {tour.destinations[0]?.name}
@@ -578,6 +588,7 @@ const averageRating = reviewCount > 0
       <ReservationSection
         availableDates={sampleAvailableDates}
         hotels={sampleHotels}
+        tour = {tour}
         imageSrc="/path/to/your/image.jpg" // Provide image path
       />
       <div className="bg-[#F6F3F2] p-6 rounded-lg shadow-sm mb-8">

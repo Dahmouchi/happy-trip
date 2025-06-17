@@ -80,7 +80,7 @@ model Hotel {
   name        String
   description String?
   price       Float
-  reservation reservation[]
+  reservation Reservation[]
   tours       Tour[]        @relation("HotelTours")
 }
 
@@ -118,7 +118,7 @@ model Tour {
   programs          Program[]     @relation("TourPrograms")
   reviews           Review[]
   dates             TourDate[]
-  reservation       reservation[]
+  reservation       Reservation[]
   categories        Category[]    @relation("CategoryTours")
   hotels            Hotel[]       @relation("HotelTours")
   natures           Nature[]      @relation("NatureTours")
@@ -134,10 +134,11 @@ model File {
   tour      Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
 }
 
-model reservation {
+model Reservation {
   id              String   @id @default(cuid())
   tourId          String
-  userId          String
+  hotelId         String?
+  travelDateId    String  
   fullName        String
   email           String
   phone           String
@@ -147,14 +148,17 @@ model reservation {
   singleRoom      Boolean  @default(false)
   specialRequests String?
   totalPrice      Float
-  status          Boolean  @default(false)
+  termsAccepted   Boolean  @default(false)
+  status          ReservationStatus @default(PENDING)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-  hotelId         String
-  hotel           Hotel    @relation(fields: [hotelId], references: [id])
+
+  // Relations
+  travelDate      TourDate @relation(fields: [travelDateId], references: [id])
+  hotel           Hotel?    @relation(fields: [hotelId], references: [id])
   tour            Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
 
 model Review {
   id        String   @id @default(cuid())
@@ -174,6 +178,8 @@ model TourDate {
   endDate     DateTime?
   description String?
   tour        Tour      @relation(fields: [tourId], references: [id])
+
+  Reservation Reservation[]
 }
 
 model User {
@@ -197,7 +203,6 @@ model User {
   accounts         Account[]
   Authenticator    Authenticator[]
   sessions         Session[]
-  reservation      reservation[]
 }
 
 model Account {
@@ -264,4 +269,10 @@ enum TravelType {
 enum DestinaionType {
   NATIONAL
   INTERNATIONAL
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELED
 }
