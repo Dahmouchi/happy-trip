@@ -1,99 +1,5 @@
-// // components/reservations/reservation-details.tsx
-
-// import React from "react";
-// import { Reservation, Hotel, TourDate } from "@prisma/client";
-// import { Float } from "aws-sdk/clients/batch";
-// import { DateTime } from "aws-sdk/clients/devicefarm";
-
-// type Props = {
-//   reservation: Reservation & {
-//     reservationDate: Date;
-//     tourTitle: string;
-//     hotel: Hotel;
-//     travelDate: TourDate;
-//     hotelName: string;
-//     hotelPrice: Float;
-//     startDate: DateTime;
-//     endDate: DateTime;
-//   };
-// };
-
-// export const ReservationDetails: React.FC<Props> = ({ reservation }) => {
-//   return (
-//     <div className="bg-white rounded-lg shadow p-6 max-w-md mx-auto space-y-4 border border-gray-100">
-//       <h2 className="text-xl font-semibold mb-4 text-gray-800">Détails de la réservation</h2>
-//       <div className="grid grid-cols-1 gap-y-3">
-//         <div className="flex justify-between">
-//           <span className="font-medium text-gray-600">Nom complet:</span>
-//           <span className="text-gray-900">{reservation.fullName}</span>
-//         </div>
-//         <div className="flex justify-between">
-//           <span className="font-medium text-gray-600">Email:</span>
-//           <span className="text-gray-900">{reservation.email}</span>
-//         </div>
-//         <div className="flex justify-between">
-//           <span className="font-medium text-gray-600">Téléphone:</span>
-//           <span className="text-gray-900">{reservation.phone}</span>
-//         </div>
-//         <div className="flex justify-between">
-//           <span className="font-medium text-gray-600">Titre du circuit:</span>
-//           <span className="text-gray-900">{reservation.tourTitle}</span>
-//         </div>
-//         <div className="flex justify-between">
-//           <span className="font-medium text-gray-600">Date de voyage:</span>
-//           <span className="text-gray-900">
-//             {reservation.travelDate.startDate
-//               ? new Date(reservation.travelDate.startDate).toLocaleDateString("fr-FR")
-//               : "N/A"}{" "}
-//             –{" "}
-//             {reservation.travelDate.endDate
-//               ? new Date(reservation.travelDate.endDate).toLocaleDateString("fr-FR")
-//               : "N/A"}
-//           </span>
-//         </div>
-//         <div className="flex justify-between">
-//           <span className="font-medium text-gray-600">Adulte(s):</span>
-//           <span className="text-gray-900">{reservation.adultCount}</span>
-//         </div>
-//         <div className="flex justify-between">
-//           <span className="font-medium text-gray-600">Enfant(s):</span>
-//           <span className="text-gray-900">{reservation.childCount}</span>
-//         </div>
-//         <div className="flex justify-between">
-//           <span className="font-medium text-gray-600">Bébé(s):</span>
-//           <span className="text-gray-900">{reservation.infantCount}</span>
-//         </div>
-//         <div className="flex justify-between">
-//           <span className="font-medium text-gray-600">Chambre Single:</span>
-//           <span className="text-gray-900">{reservation.singleRoom ? "Oui" : "Non"}</span>
-//         </div>
-//         <div className="flex justify-between">
-//           <span className="font-medium text-gray-600">Prix total:</span>
-//           <span className="text-gray-900">{reservation.totalPrice} MAD</span>
-//         </div>
-//         <div className="flex justify-between">
-//           <span className="font-medium text-gray-600">Hôtel:</span>
-//           <span className="text-gray-900">
-//             {reservation.hotel?.name ?? "Aucun"}
-//             {reservation.hotel?.price && ` - ${reservation.hotel.price} MAD`}
-//           </span>
-//         </div>
-//         <div className="flex justify-between">
-//           <span className="font-medium text-gray-600">Demandes spéciales:</span>
-//           <span className="text-gray-900">{reservation.specialRequests || "Aucune"}</span>
-//         </div>
-//         <div className="flex justify-between">
-//           <span className="font-medium text-gray-600">Statut:</span>
-//           <span className="text-gray-900">{reservation.status}</span>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-
-
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -114,6 +20,7 @@ import {
   AlertCircle
 } from "lucide-react";
 import { Hotel, TourDate } from "@prisma/client";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 // Simplified types for the component (removing AWS SDK dependencies)
 type ReservationDetailsProps = {
@@ -137,46 +44,7 @@ type ReservationDetailsProps = {
   };
 };
 
-const StatusBadge = ({ status }: { status: string }) => {
-  const getStatusStyle = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'confirmed':
-      case 'confirmé':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'pending':
-      case 'en attente':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'cancelled':
-      case 'annulé':
-        return 'bg-red-100 text-red-800 border-red-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
 
-  const getStatusIcon = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'confirmed':
-      case 'confirmé':
-        return <CheckCircle className="w-4 h-4" />;
-      case 'pending':
-      case 'en attente':
-        return <Clock className="w-4 h-4" />;
-      case 'cancelled':
-      case 'annulé':
-        return <AlertCircle className="w-4 h-4" />;
-      default:
-        return <Clock className="w-4 h-4" />;
-    }
-  };
-
-  return (
-    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium border ${getStatusStyle(status)}`}>
-      {getStatusIcon(status)}
-      {status}
-    </span>
-  );
-};
 
 const DetailRow = ({ icon: Icon, label, value }: { icon: any; label: string; value: string | number }) => (
   <div className="flex items-center justify-between py-2">
@@ -206,7 +74,9 @@ export const ReservationDetails: React.FC<ReservationDetailsProps> = ({ reservat
             <MapPin className="w-6 h-6 text-blue-600" />
             Détails de la réservation
           </CardTitle>
-          <StatusBadge status={reservation.status} />
+        </div>
+        <div className="flex items-center justify-between mt-2">
+          <StatusBadge status={reservation.status}/>
         </div>
         <div className="mt-2">
             <p className="text-sm text-gray-500 mt-2">
@@ -242,12 +112,14 @@ export const ReservationDetails: React.FC<ReservationDetailsProps> = ({ reservat
           </h3>
           <div className="bg-white rounded-lg p-4 space-y-1 border border-gray-100">
            <div className="flex items-center justify-between py-2">
-                <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3">
                 <MapPin className="w-4 h-4 text-gray-500" />
-                <span className="font-medium text-gray-600">Titre du circuit</span>
+                <span className="font-medium text-gray-600">Titre de tour</span>
+                <div className="flex flex-col text-sm text-gray-500">
+                  <span>{reservation.tourTitle}</span>
                 </div>
-                <span className="text-gray-900 font-medium">{reservation.tourTitle}</span>
-            </div>
+              </div>
+              </div>
 
             <div className="flex items-center justify-between py-2">
               <div className="flex items-center gap-3">

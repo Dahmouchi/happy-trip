@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import React, { useState } from "react";
@@ -15,14 +18,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "react-toastify";
-import { Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { DeleteReservation, UpdateReservationStatus } from "@/actions/reservationsActions";
 import { Hotel, Prisma, Reservation, ReservationStatus, TourDate } from "@prisma/client";
 import { DateTime } from "aws-sdk/clients/devicefarm";
 import { Float } from "aws-sdk/clients/batch";
 import { ReservationDetails } from "./reservation-details-form";
 import TourDetails from "@/app/(landing)/_components/ProductDetails";
-// Replace with your actual reservation actions
+import { ReservationEditForm } from "./reservation-edit-form";
 
 
 type ReservationData = Reservation & {
@@ -58,7 +61,7 @@ export const reservationColumns = ({ refresh, onEdit }: { refresh: () => void; o
 
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Détails de la réservation</AlertDialogTitle>
+            {/* <AlertDialogTitle>Détails de la réservation</AlertDialogTitle> */}
           </AlertDialogHeader>
 
           <div className="p-2">
@@ -66,7 +69,7 @@ export const reservationColumns = ({ refresh, onEdit }: { refresh: () => void; o
           </div>
 
           <AlertDialogFooter>
-            <Button
+            {/* <Button
                 variant="outline"
                 onClick={() => {
                     setOpen(false);
@@ -74,7 +77,7 @@ export const reservationColumns = ({ refresh, onEdit }: { refresh: () => void; o
                 }}
             >
                 Modifier
-            </Button>
+            </Button> */}
             <AlertDialogCancel>Fermer</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -185,7 +188,7 @@ export const reservationColumns = ({ refresh, onEdit }: { refresh: () => void; o
             cell: ({ row }) => {
             const reservationId = row.original.id;
             const [open, setOpen] = useState(false);
-
+            const [editOpen, setEditOpen] = useState(false);
             const handleDelete = async () => {
                 try {
                     const response = await DeleteReservation(reservationId);
@@ -204,16 +207,40 @@ export const reservationColumns = ({ refresh, onEdit }: { refresh: () => void; o
 
             return (
                 <div className="flex items-center gap-2">
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => onEdit && onEdit(row.original)}
-                        aria-label="Edit"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a4 4 0 01-1.414.828l-4.243 1.414 1.414-4.243a4 4 0 01.828-1.414z" />
-                        </svg>
-                    </Button>
+                    <AlertDialog open={editOpen} onOpenChange={setEditOpen}>
+                        <AlertDialogTrigger asChild>
+                                <Button variant="outline" size="icon" aria-label="Edit">
+                                    <Pencil className="h-4 w-4" />
+                                </Button>
+                        </AlertDialogTrigger>
+                       <AlertDialogContent>
+                            <ReservationEditForm
+                            reservation={{
+                                reservation: row.original,
+                            }}
+                            onSave={(updatedData) => {
+                                console.log("Updated reservation:", updatedData);
+                                setOpen(false); // close dialog after saving
+                            }}
+                            onCancel={() => setOpen(false)} // closes dialog when cancel is clicked
+                            />
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Annuler</AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={() => {
+                                    setEditOpen(false);
+                                    onEdit && onEdit(row.original);
+                                }}
+                                className="bg-lime-600 hover:bg-lime-700 focus:ring-lime-600"
+                            >
+                                Enregistrer
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+
+
+
                     <AlertDialog open={open} onOpenChange={setOpen}>
                         <AlertDialogTrigger asChild>
                             <Button variant="destructive" size="icon" aria-label="Delete">
