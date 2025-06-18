@@ -48,9 +48,9 @@ const [strings, setStrings] = useState<string[]>(value ?? []);
         )}
       </CardHeader>
       <CardContent>
-        <div className="flex gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
           <Input
-            className="w-full"
+            className="w-full sm:col-span-2 border-gray-300 focus:border-lime-500 focus:ring-lime-500"
             type="text"
             value={inputValue}
             onChange={e => setInputValue(e.target.value)}
@@ -64,7 +64,7 @@ const [strings, setStrings] = useState<string[]>(value ?? []);
                 setInputValue('');
               }
             }}
-            className="bg-lime-600 hover:bg-lime-700 text-white"
+            className=" w-full sm:w-auto bg-lime-600 hover:bg-lime-700 text-white"
           >
             Ajouter
           </Button>

@@ -4,11 +4,12 @@
 'use server';
 import prisma from "@/lib/prisma";
 import { ReservationStatus } from "@prisma/client";
+import { Turtle } from "lucide-react";
 
 
 interface Reservation {
   tourId: string;
-  hotelId: string;
+  hotelId?: string | null;
   travelDateId: string;
   fullName: string;
   email: string;
@@ -18,17 +19,35 @@ interface Reservation {
   infantCount: number;
   singleRoom?: boolean;
   specialRequests?: string;
-  travelDate: Date;
   totalPrice: number;
   termsAccepted: boolean;
 }
 
+
 export async function CreateReservation(data: Reservation) {
   try {
+    let hotelPrice = 0;
+    if (data.hotelId) {
+      const hotel = await prisma.hotel.findUnique({
+        where: { id: data.hotelId },
+        select: { price: true },
+      });
+      hotelPrice = hotel?.price || 0;
+    }
+
+    let tourPrice = 0;
+    if (data.tourId) {
+      const tour = await prisma.tour.findUnique({
+        where: { id: data.tourId },
+        select: { priceDiscounted: true },
+      });
+      tourPrice = tour?.priceDiscounted || 0;
+    }
+
     const reservation = await prisma.reservation.create({
       data: {
         tourId: data.tourId,
-        hotelId: data.hotelId? data.hotelId : null,
+        hotelId: data.hotelId ? data.hotelId : null,
         travelDateId: data.travelDateId,
         fullName: data.fullName,
         email: data.email,
@@ -38,10 +57,11 @@ export async function CreateReservation(data: Reservation) {
         infantCount: data.infantCount,
         singleRoom: data.singleRoom ?? false,
         specialRequests: data.specialRequests,
-        totalPrice: data.totalPrice,
+        totalPrice: data.totalPrice + (data.singleRoom ? 100 : 0) + hotelPrice + tourPrice,
         termsAccepted: data.termsAccepted,
         status: ReservationStatus.PENDING,
       },
+      
     });
 
     return reservation;
@@ -86,22 +106,29 @@ export async function UpdateReservationStatus(id: string, status: ReservationSta
 
 export async function UpdateReservation(id: string, data: Partial<Reservation>) {
   try {
-    const updateData: any = {};
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined) {
-        updateData[key] = value;
-      }
-    });
-
     const updatedReservation = await prisma.reservation.update({
       where: { id },
-      data: updateData,
+      data: {
+        hotelId: data.hotelId ? data.hotelId : null,
+        travelDateId: data.travelDateId,
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        adultCount: data.adultCount,
+        childCount: data.childCount,
+        infantCount: data.infantCount,
+        singleRoom: data.singleRoom ?? false,
+        specialRequests: data.specialRequests,
+        totalPrice: data.totalPrice,
+        termsAccepted: data.termsAccepted,
+      },
     });
 
-    return updatedReservation;
+    return { success: true, reservation: updatedReservation };
   } catch (error) {
-    throw new Error("Failed to update reservation");
+    return { success: false, error: "Failed to update reservation" };
   }
+  
 }
 
 export async function DeleteReservation(id: string) {

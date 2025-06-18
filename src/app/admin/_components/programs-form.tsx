@@ -169,35 +169,35 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                 </div>
                 
                 <div className="flex gap-1">
-                  <div
+                    <div
                     onClick={() => handleEditProgram(program.id)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-primary hover:text-primary/80 hover:bg-primary/10 cursor-pointer rounded p-1.5 border "
+                    className="opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-primary hover:text-primary/80 hover:bg-primary/10 cursor-pointer rounded p-1.5 border "
                     title="Modifier le programme"
                     role="button"
                     tabIndex={0}
                     onKeyPress={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
-                        handleEditProgram(program.id);
+                      handleEditProgram(program.id);
                       }
                     }}
-                  >
+                    >
                     <Edit className="w-4 h-4" />
-                  </div>
-                
-                  <div
+                    </div>
+                  
+                    <div
                     onClick={() => handleRemoveProgram(program.id)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-destructive hover:text-destructive/80 hover:bg-destructive/10 cursor-pointer rounded p-1.5 border border-destructive/20"
+                    className="opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-destructive hover:text-destructive/80 hover:bg-destructive/10 cursor-pointer rounded p-1.5 border border-destructive/20"
                     title="Supprimer le programme"
                     role="button"
                     tabIndex={0}
                     onKeyPress={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
-                        handleRemoveProgram(program.id);
+                      handleRemoveProgram(program.id);
                       }
                     }}
-                  >
+                    >
                     <X className="w-4 h-4" />
-                  </div>
+                    </div>
                 </div>
               </div>
             </CardContent>

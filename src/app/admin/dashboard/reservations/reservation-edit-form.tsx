@@ -19,12 +19,15 @@ import {
   Building2, 
   MessageSquare} from "lucide-react";
 import { Hotel, TourDate } from "@prisma/client";
+import { getTourById } from "@/actions/toursActions";
+import { updateBlog } from "@/actions/blogs";
+import { UpdateReservation } from "@/actions/reservationsActions";
+import { toast } from "react-toastify";
 
 
 // Type definition for the reservation form data
 type ReservationFormData = {
   reservation: {
-    
     id: string;
     fullName: string;
     email: string;
@@ -68,11 +71,38 @@ const FormField = ({
   </div>
 );
 
+
 export const ReservationEditForm: React.FC<ReservationEditFormProps> = ({ 
   reservation, 
-  onSave}) => {
+  onSave,
+  onCancel
+}) => {
   const [formData, setFormData] = useState<ReservationFormData>(reservation);
+  const [availableTourDates, setAvailableTourDates] = useState<TourDate[]>(() => (reservation as any).availableTourDates || []);
+  const [availableHotels, setAvailableHotels] = useState<Hotel[]>(() => (reservation as any).availableHotels || []);
 
+
+  React.useEffect(() => {
+    async function fetchTourDates() {
+      if (formData.reservation && (formData.reservation as any).tourId) {
+        const tour = await getTourById((formData.reservation as any).tourId);
+        if (tour && tour.data?.dates) {
+          setAvailableTourDates(tour.data.dates);
+        }
+      }
+    }
+    async function fetchHotels() {
+      if (formData.reservation && (formData.reservation as any).tourId) {
+        const tour = await getTourById((formData.reservation as any).tourId);
+        if (tour && tour.data?.hotels) {
+          setAvailableHotels(tour.data.hotels);
+        }
+      }
+    }
+    fetchHotels();
+    fetchTourDates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.reservation?.tourTitle]);
   const handleInputChange = (field: keyof ReservationFormData['reservation'], value: any) => {
     setFormData(prev => ({
       ...prev,
@@ -83,19 +113,27 @@ export const ReservationEditForm: React.FC<ReservationEditFormProps> = ({
     }));
   };
 
-  const handleNestedChange = (parent: string, field: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [parent]: {
-        ...prev[parent as keyof ReservationFormData] as any,
-        [field]: value
-      }
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    const reservationData = {
+      travelDateId: formData.reservation.travelDate.id,
+      hotelId: formData.reservation.hotel?.id || null,
+      termsAccepted: true, // Assuming terms are always accepted for edit
+      speacialRequests: formData.reservation.specialRequests || null,
+      ...formData.reservation,
+      specialRequests: formData.reservation.specialRequests ?? undefined,
+    };
+    try {
+      const result = await UpdateReservation(formData.reservation.id, reservationData);
+      if (result.error) {
+        toast.error("Erreur lors de la mise à jour de la réservation.");
+        return;
+      }
+      toast.success("Réservation mise à jour avec succès !");
+      onSave(formData);
+    } catch (error) {
+      toast.error("Erreur lors de la mise à jour de la réservation. Veuillez réessayer.");
+    }
   };
 
   const formatDateForInput = (date: Date | string | null) => {
@@ -105,235 +143,257 @@ export const ReservationEditForm: React.FC<ReservationEditFormProps> = ({
   };
 
   return (
-    <Card className="max-w-2xl mx-auto shadow-none border-none bg-gradient-to-br from-white to-gray-50">
+    <Card className="w-full max-w-7xl mx-auto shadow-none border-none bg-gradient-to-br from-white to-gray-50">
       <CardHeader className="pb-4">
-        <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-          <MapPin className="w-6 h-6 text-blue-600" />
-          Modifier la réservation
-        </CardTitle>
-        <div className="flex justify-between items-center mt-4">
-          <span className="flex text-base font-medium text-lime-700 bg-lime-50 px-3 py-1  shadow-sm">
-            {formData.reservation.tourTitle}
-          </span>
-        </div>
+      <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+        <MapPin className="w-6 h-6 text-blue-600" />
+        Modifier la réservation
+      </CardTitle>
+      <div className="flex justify-between items-center mt-4">
+        <span className="flex items-center gap-2 text-base font-semibold text-lime-800 bg-gradient-to-r from-lime-100 to-lime-50 px-4 py-2 rounded-lg shadow-sm border border-lime-200">
+          <MapPin className="w-4 h-4 text-lime-600" />
+          {formData.reservation.tourTitle}
+        </span>
+      </div>
       </CardHeader>
 
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Personal Information Section */}
-        {/* status section 
-            <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <Save className="w-5 h-5 text-green-600" />
-              Statut de la réservation
-            </h3>
-            <div className="bg-white rounded-lg p-4 space-y-4 border border-gray-100">
-            <FormField icon={Save} label="Statut">
-                <select
-                    className="w-full border rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                    value={formData.reservation.status}
-                    onChange={(e) => handleInputChange('status', e.target.value)}
-                >
-                    <option value="pending">En attente</option>
-                    <option value="confirmed">Confirmée</option>
-                    <option value="cancelled">Annulée</option>
-                </select>
-            </FormField>
-            
-            </div>
-            </div>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Personal Information Section */}
+        <div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <User className="w-5 h-5 text-blue-600" />
+          Informations personnelles
+        </h3>
+        <div className="bg-white rounded-lg p-4 space-y-4 border border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <FormField icon={User} label="Nom complet">
+          <Input
+            value={formData.reservation.fullName}
+            onChange={(e) => handleInputChange('fullName', e.target.value)}
+            placeholder="Nom complet"
+          />
+          </FormField>
+          
+          <FormField icon={Mail} label="Email">
+          <Input
+            type="email"
+            value={formData.reservation.email}
+            onChange={(e) => handleInputChange('email', e.target.value)}
+            placeholder="Email"
+          />
+          </FormField>
+          
+          <FormField icon={Phone} label="Téléphone">
+          <Input
+            value={formData.reservation.phone}
+            onChange={(e) => handleInputChange('phone', e.target.value)}
+            placeholder="Téléphone"
+          />
+          </FormField>
+        </div>
+        </div>
 
-          <Separator /> */}
-          <div>
+        <Separator />
 
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <User className="w-5 h-5 text-blue-600" />
-              Informations personnelles
-            </h3>
-            <div className="bg-white rounded-lg p-4 space-y-4 border border-gray-100">
-              <FormField icon={User} label="Nom complet">
-                <Input
-                  value={formData.reservation.fullName}
-                  onChange={(e) => handleInputChange('fullName', e.target.value)}
-                  placeholder="Nom complet"
-                />
-              </FormField>
-              
-              <FormField icon={Mail} label="Email">
-                <Input
-                  type="email"
-                  value={formData.reservation.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  placeholder="Email"
-                />
-              </FormField>
-              
-              <FormField icon={Phone} label="Téléphone">
-                <Input
-                  value={formData.reservation.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
-                  placeholder="Téléphone"
-                />
-              </FormField>
-            </div>
+        {/* Tour Information Section */}
+        <div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <MapPin className="w-5 h-5 text-green-600" />
+          Détails du voyage
+        </h3>
+        <div className="bg-white rounded-lg p-4 space-y-4 border border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField icon={Calendar} label="Date de voyage">
+          <select
+            className="w-full border rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            value={formData.reservation.travelDate.id}
+            onChange={(e) => {
+            const selectedId = e.target.value;
+            // Find the selected TourDate object from available dates
+            const selectedDate = availableTourDates?.find(
+              (date: TourDate) => date.id === selectedId
+            );
+            if (selectedDate) {
+              handleInputChange('travelDate', selectedDate);
+            }
+            }}
+          >
+            {availableTourDates?.map((date: TourDate) => (
+              <option
+              key={date.id}
+              value={date.id}
+              style={{
+              backgroundColor: "#f0f9ff",
+              color: "#1e293b",
+              fontWeight: formData.reservation.travelDate.id === date.id ? "bold" : "normal",
+              padding: "8px 12px"
+              }}
+              >
+              {`${date.startDate ? new Date(date.startDate).toLocaleDateString() : ''} - ${date.endDate ? new Date(date.endDate).toLocaleDateString() : ''}`}
+              </option>
+            ))}
+          </select>
+          </FormField>
+        </div>
+        </div>
+
+        <Separator />
+
+        {/* Booking Details Section */}
+        <div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <Users className="w-5 h-5 text-purple-600" />
+          Détails de la réservation
+        </h3>
+        <div className="bg-white rounded-lg p-4 space-y-4 border border-gray-100">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <FormField icon={Users} label="Adulte(s)">
+            <Input
+            type="number"
+            min="0"
+            value={formData.reservation.adultCount}
+            onChange={(e) => handleInputChange('adultCount', parseInt(e.target.value) || 0)}
+            />
+          </FormField>
+          
+          <FormField icon={Users} label="Enfant(s)">
+            <Input
+            type="number"
+            min="0"
+            value={formData.reservation.childCount}
+            onChange={(e) => handleInputChange('childCount', parseInt(e.target.value) || 0)}
+            />
+          </FormField>
+          
+          <FormField icon={Baby} label="Bébé(s)">
+            <Input
+            type="number"
+            min="0"
+            value={formData.reservation.infantCount}
+            onChange={(e) => handleInputChange('infantCount', parseInt(e.target.value) || 0)}
+            />
+          </FormField>
           </div>
 
-          <Separator />
-
-          {/* Tour Information Section */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-green-600" />
-              Détails du voyage
-            </h3>
-            <div className="bg-white rounded-lg p-4 space-y-4 border border-gray-100">
-              {/* <FormField icon={MapPin} label="Circuit">
-                <Input
-                  value={formData.reservation.tourTitle}
-                  onChange={(e) => handleInputChange('tourTitle', e.target.value)}
-                  placeholder="Nom du circuit"
-                />
-              </FormField> */}
-              
-              <div className="grid grid-cols-2 gap-4">
-                <FormField icon={Calendar} label="Date de début">
-                  <Input
-                    type="date"
-                    value={formatDateForInput(formData.reservation.travelDate.startDate)}
-                    onChange={(e) => handleNestedChange('travelDate', 'startDate', e.target.value)}
-                  />
-                </FormField>
-                
-                <FormField icon={Calendar} label="Date de fin">
-                  <Input
-                    type="date"
-                    value={formatDateForInput(formData.reservation.travelDate.endDate)}
-                    onChange={(e) => handleNestedChange('travelDate', 'endDate', e.target.value)}
-                  />
-                </FormField>
-              </div>
-            </div>
+          <FormField icon={Bed} label="Chambre Single">
+          <div className="flex items-center space-x-2">
+            <Switch
+            checked={formData.reservation.singleRoom}
+            onCheckedChange={(checked) => handleInputChange('singleRoom', checked)}
+            />
+            <span className="text-sm text-gray-600">
+            {formData.reservation.singleRoom ? "Oui" : "Non"}
+            </span>
           </div>
+          </FormField>
+        </div>
+        </div>
 
-          <Separator />
+        <Separator />
 
-          {/* Booking Details Section */}
+        {/* Hotel & Pricing Section */}
+        <div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <Building2 className="w-5 h-5 text-orange-600" />
+          Hébergement & Prix
+        </h3>
+        <div className="bg-white rounded-lg p-4 space-y-4 border border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField icon={Building2} label="Nom de l'hôtel">
+          <select
+            className="w-full border rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            value={formData.reservation.hotel?.id || ''}
+            onChange={(e) => {
+            const selectedId = e.target.value;
+            const selectedHotel = availableHotels.find((hotel) => hotel.id === selectedId);
+            if (selectedHotel) {
+              handleInputChange('hotel', selectedHotel);
+            }
+            }}
+          >
+            {availableHotels.map((hotel) => (
+            <option key={hotel.id} value={hotel.id}>
+              {hotel.name}
+            </option>
+            ))}
+          </select>
+          </FormField>
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <Users className="w-5 h-5 text-purple-600" />
-              Détails de la réservation
-            </h3>
-            <div className="bg-white rounded-lg p-4 space-y-4 border border-gray-100">
-              <div className="grid grid-cols-3 gap-4">
-                <FormField icon={Users} label="Adulte(s)">
-                  <Input
-                    type="number"
-                    min="0"
-                    value={formData.reservation.adultCount}
-                    onChange={(e) => handleInputChange('adultCount', parseInt(e.target.value) || 0)}
-                  />
-                </FormField>
-                
-                <FormField icon={Users} label="Enfant(s)">
-                  <Input
-                    type="number"
-                    min="0"
-                    value={formData.reservation.childCount}
-                    onChange={(e) => handleInputChange('childCount', parseInt(e.target.value) || 0)}
-                  />
-                </FormField>
-                
-                <FormField icon={Baby} label="Bébé(s)">
-                  <Input
-                    type="number"
-                    min="0"
-                    value={formData.reservation.infantCount}
-                    onChange={(e) => handleInputChange('infantCount', parseInt(e.target.value) || 0)}
-                  />
-                </FormField>
-              </div>
-
-              <FormField icon={Bed} label="Chambre Single">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    checked={formData.reservation.singleRoom}
-                    onCheckedChange={(checked) => handleInputChange('singleRoom', checked)}
-                  />
-                  <span className="text-sm text-gray-600">
-                    {formData.reservation.singleRoom ? "Oui" : "Non"}
-                  </span>
-                </div>
-              </FormField>
-            </div>
+          {formData.reservation.hotel?.description && (
+            <>
+            <span className="block mb-1 text-xs font-semibold text-orange-700 uppercase tracking-wide">
+              Description de l'hôtel
+            </span>
+            <div
+              className="mb-2 text-sm text-gray-600 bg-gray-50 rounded p-2"
+              dangerouslySetInnerHTML={{ __html: formData.reservation.hotel.description }} />
+            </>
+          )}
+          <span className="block mb-1 text-xs font-semibold text-orange-700 uppercase tracking-wide">
+            Prix par nuit
+          </span>
+          <div className="flex items-center justify-between bg-gray-50 rounded px-3 py-2 mt-2">
+            <span className="text-base font-semibold text-orange-700 flex items-center gap-1">
+            {formData.reservation.hotel?.price != null ? (
+              <>
+              {formData.reservation.hotel.price}
+              <span className="text-xs font-normal text-gray-500 ml-1">MAD / nuit</span>
+              </>
+            ) : (
+              <span className="text-gray-400">Prix non disponible</span>
+            )}
+            </span>
           </div>
-
-          <Separator />
-
-          {/* Hotel & Pricing Section */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-orange-600" />
-              Hébergement & Prix
-            </h3>
-            <div className="bg-white rounded-lg p-4 space-y-4 border border-gray-100">
-              <FormField icon={Building2} label="Nom de l'hôtel">
-                <Input
-                  value={formData.reservation.hotel?.name || ''}
-                  onChange={(e) => handleNestedChange('hotel', 'name', e.target.value)}
-                  placeholder="Nom de l'hôtel"
-                />
-              </FormField>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <FormField icon={DollarSign} label="Prix hôtel (MAD)">
-                  <Input
-                    type="number"
-                    min="0"
-                    value={formData.reservation.hotel?.price || ''}
-                    onChange={(e) => handleNestedChange('hotel', 'price', parseFloat(e.target.value) || 0)}
-                    placeholder="Prix hôtel"
-                  />
-                </FormField>
-               
-              </div>
-            </div>
           </div>
+        </div>
+        </div>
 
-          <Separator />
+        <Separator />
 
-          {/* Special Requests Section */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-indigo-600" />
-              Demandes spéciales
-            </h3>
-            <div className="bg-white rounded-lg p-4 border border-gray-100">
-              <Textarea
-                value={formData.reservation.specialRequests || ''}
-                onChange={(e) => handleInputChange('specialRequests', e.target.value)}
-                placeholder="Demandes spéciales..."
-                className="min-h-[100px]"
-              />
-            </div>
-          </div>
-            <Separator />
-            {/* total price section  */}
-            <div className="flex items-center justify-between">
-              <FormField icon={DollarSign} label="Prix total (MAD)">
-                <Input
-                  type="number"
-                  min="0"
-                  value={formData.reservation.totalPrice}
-                  onChange={(e) => handleInputChange('totalPrice', parseFloat(e.target.value) || 0)}
-                  placeholder="Prix total"
-                />
-              </FormField>
-            </div>
-
-
-            
-            {/* Status Section */}
-        </form>
+        {/* Special Requests Section */}
+        <div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <MessageSquare className="w-5 h-5 text-indigo-600" />
+          Demandes spéciales
+        </h3>
+        <div className="bg-white rounded-lg p-4 border border-gray-100">
+          <Textarea
+          value={formData.reservation.specialRequests || ''}
+          onChange={(e) => handleInputChange('specialRequests', e.target.value)}
+          placeholder="Demandes spéciales..."
+          className="min-h-[100px]"
+          />
+        </div>
+        </div>
+        <Separator />
+        {/* total price section  */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        <FormField icon={DollarSign} label="Prix total (MAD)">
+          <Input
+          type="number"
+          min="0"
+          value={formData.reservation.totalPrice}
+          onChange={(e) => handleInputChange('totalPrice', parseFloat(e.target.value) || 0)}
+          placeholder="Prix total"
+          />
+        </FormField>
+        </div>
+        <Separator />
+        {/* Save and Cancel Buttons */}
+        <div className="flex flex-col md:flex-row justify-end space-y-2 md:space-y-0 md:space-x-4">
+        <button
+          type="submit"
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+        >
+          Enregistrer
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition-colors"
+        >
+          Annuler
+        </button>
+        </div>
+      </form>
       </CardContent>
     </Card>
   );
