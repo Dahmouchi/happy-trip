@@ -19,7 +19,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "react-toastify";
 import { Pencil, Trash2 } from "lucide-react";
 import { DeleteReservation, UpdateReservationStatus } from "@/actions/reservationsActions";
-import { Hotel, Prisma, Reservation, ReservationStatus, TourDate } from "@prisma/client";
+import { Hotel, Prisma, Reservation, ReservationStatus, Tour, TourDate } from "@prisma/client";
 import { DateTime } from "aws-sdk/clients/devicefarm";
 import { Float } from "aws-sdk/clients/batch";
 import { ReservationDetails } from "./reservation-details-form";
@@ -30,6 +30,7 @@ import { ReservationEditForm } from "./reservation-edit-form";
 type ReservationData = Reservation & {
     tourTitle: string;
     hotel:Hotel;
+    tour:Tour;
     travelDate: TourDate;
     createdAt: DateTime;
 };

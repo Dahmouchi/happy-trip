@@ -19,7 +19,7 @@ import {
   Clock,
   AlertCircle
 } from "lucide-react";
-import { Hotel, TourDate } from "@prisma/client";
+import { Hotel, Tour, TourDate } from "@prisma/client";
 import { StatusBadge } from "@/components/ui/status-badge";
 
 // Simplified types for the component (removing AWS SDK dependencies)
@@ -41,6 +41,7 @@ type ReservationDetailsProps = {
     createdAt: Date;
     travelDate: TourDate;
     hotel?: Hotel;
+    tour:Tour;
   };
 };
 
@@ -173,7 +174,9 @@ export const ReservationDetails: React.FC<ReservationDetailsProps> = ({ reservat
       )}
 
       {/* Hotel & Pricing Section */}
-      <div>
+      {reservation.tour.type === "INTERNATIONAL" && (
+
+        <div>
         <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
         <Building2 className="w-5 h-5 text-orange-600" />
         Hébergement & Prix
@@ -196,6 +199,7 @@ export const ReservationDetails: React.FC<ReservationDetailsProps> = ({ reservat
         </div>
         </div>
       </div>
+      )}
 
       
       </CardContent>

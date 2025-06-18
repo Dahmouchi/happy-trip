@@ -19,11 +19,12 @@ import {
   DollarSign, 
   Building2, 
   MessageSquare} from "lucide-react";
-import { Hotel, TourDate } from "@prisma/client";
+import { Hotel, Tour, TourDate } from "@prisma/client";
 import { getTourById } from "@/actions/toursActions";
 import { updateBlog } from "@/actions/blogs";
 import { UpdateReservation } from "@/actions/reservationsActions";
 import { toast } from "react-toastify";
+import { spec } from "node:test/reporters";
 
 
 // Type definition for the reservation form data
@@ -46,6 +47,7 @@ type ReservationFormData = {
     status: string;
     travelDate: TourDate;
     hotel?: Hotel;
+    tour: Tour;
   };
 };
 
@@ -120,10 +122,9 @@ export const ReservationEditForm: React.FC<ReservationEditFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const reservationData = {
-      termsAccepted: true, // Assuming terms are always accepted for edit
-      speacialRequests: formData.reservation.specialRequests || null,
       ...formData.reservation,
       specialRequests: formData.reservation.specialRequests ?? undefined,
+      termsAccepted: true, // Assuming terms are always accepted for edit
     };
     try {
       const result = await UpdateReservation(formData.reservation.id, reservationData);
@@ -290,10 +291,44 @@ export const ReservationEditForm: React.FC<ReservationEditFormProps> = ({
         </div>
         </div>
 
+
+        <Separator />
+
+        {/* Special Requests Section */}
+        <div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <MessageSquare className="w-5 h-5 text-indigo-600" />
+          Demandes spéciales
+        </h3>
+        <div className="bg-white rounded-lg p-4 border border-gray-100">
+          <Textarea
+          value={formData.reservation.specialRequests || ''}
+          onChange={(e) => handleInputChange('specialRequests', e.target.value)}
+          placeholder="Demandes spéciales..."
+          className="min-h-[100px]"
+          />
+        </div>
+        </div>
+        <Separator />
+        {/* total price section  */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        <FormField icon={DollarSign} label="Prix total (MAD)">
+          <Input
+          type="number"
+          min="0"
+          value={formData.reservation.totalPrice}
+          onChange={(e) => handleInputChange('totalPrice', parseFloat(e.target.value) || 0)}
+          placeholder="Prix total"
+          />
+        </FormField>
+        </div>
+
         <Separator />
 
         {/* Hotel & Pricing Section */}
-        <div>
+        {reservation.reservation.tour.type === "INTERNATIONAL" && (
+
+          <div>
         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
           <Building2 className="w-5 h-5 text-orange-600" />
           Hébergement & Prix
@@ -347,53 +382,35 @@ export const ReservationEditForm: React.FC<ReservationEditFormProps> = ({
         </div>
         </div>
 
-        <Separator />
+      )}
 
-        {/* Special Requests Section */}
-        <div>
-        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <MessageSquare className="w-5 h-5 text-indigo-600" />
-          Demandes spéciales
-        </h3>
-        <div className="bg-white rounded-lg p-4 border border-gray-100">
-          <Textarea
-          value={formData.reservation.specialRequests || ''}
-          onChange={(e) => handleInputChange('specialRequests', e.target.value)}
-          placeholder="Demandes spéciales..."
-          className="min-h-[100px]"
-          />
-        </div>
-        </div>
-        <Separator />
-        {/* total price section  */}
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-        <FormField icon={DollarSign} label="Prix total (MAD)">
-          <Input
-          type="number"
-          min="0"
-          value={formData.reservation.totalPrice}
-          onChange={(e) => handleInputChange('totalPrice', parseFloat(e.target.value) || 0)}
-          placeholder="Prix total"
-          />
-        </FormField>
-        </div>
+
         <Separator />
         {/* Save and Cancel Buttons */}
-        <div className="flex flex-col md:flex-row justify-end space-y-2 md:space-y-0 md:space-x-4">
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-        >
-          Enregistrer
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition-colors"
-        >
-          Annuler
-        </button>
+        <div className="flex flex-col md:flex-row justify-end space-y-2 md:space-y-0 md:space-x-4 mt-6">
+          <button
+            type="submit"
+            className="inline-flex items-center gap-2 px-5 py-2 bg-lime-600 text-white rounded-lg shadow hover:bg-lime-700 transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Enregistrer
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="inline-flex items-center gap-2 px-5 py-2 bg-gray-200 text-gray-800 rounded-lg shadow hover:bg-gray-300 transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Annuler
+          </button>
         </div>
+
+
+        
       </form>
       </CardContent>
     </Card>
