@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // reservationActions.ts
 'use server';
@@ -90,7 +89,6 @@ export async function GetAllReservations() {
   }
 }
 
-
 export async function UpdateReservationStatus(id: string, status: ReservationStatus) {
   try {
     const updatedReservation = await prisma.reservation.update({
@@ -128,7 +126,6 @@ export async function UpdateReservation(id: string, data: Partial<Reservation>) 
   } catch (error) {
     return { success: false, error: "Failed to update reservation" };
   }
-  
 }
 
 export async function DeleteReservation(id: string) {

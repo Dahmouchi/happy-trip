@@ -300,15 +300,15 @@ export function UpdateTourForm({
       const result = await updateTour(tourId, formData);
 
       if (result.success) {
-        toast.success("Circuit créé avec succès");
+        toast.success("Le circuit a été modifié avec succès");
         setIsSubmitting(false);
         form.reset(values);
       } else {
-        toast.error("Erreur lors de la création du circuit");
+        toast.error("Erreur lors de la modification du circuit");
         setIsSubmitting(false);
       }
     } catch (error) {
-      toast.error("Erreur lors de la création du circuit");
+      toast.error("Erreur lors de la modification du circuit");
     } finally {
       setIsSubmitting(false);
     }

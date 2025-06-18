@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,6 +30,9 @@ import { toast } from "react-toastify";
 type ReservationFormData = {
   reservation: {
     id: string;
+    tourId: string;
+    hotelId?: string | null;
+    travelDateId: string ;
     fullName: string;
     email: string;
     phone: string;
@@ -116,8 +120,6 @@ export const ReservationEditForm: React.FC<ReservationEditFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const reservationData = {
-      travelDateId: formData.reservation.travelDate.id,
-      hotelId: formData.reservation.hotel?.id || null,
       termsAccepted: true, // Assuming terms are always accepted for edit
       speacialRequests: formData.reservation.specialRequests || null,
       ...formData.reservation,
@@ -205,15 +207,15 @@ export const ReservationEditForm: React.FC<ReservationEditFormProps> = ({
           <FormField icon={Calendar} label="Date de voyage">
           <select
             className="w-full border rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
-            value={formData.reservation.travelDate.id}
-            onChange={(e) => {
+            value={formData.reservation.travelDateId}
+            onChange={(e: { target: { value: any; }; }) => {
             const selectedId = e.target.value;
             // Find the selected TourDate object from available dates
             const selectedDate = availableTourDates?.find(
               (date: TourDate) => date.id === selectedId
             );
             if (selectedDate) {
-              handleInputChange('travelDate', selectedDate);
+              handleInputChange('travelDateId', selectedDate);
             }
             }}
           >
@@ -300,19 +302,18 @@ export const ReservationEditForm: React.FC<ReservationEditFormProps> = ({
           <FormField icon={Building2} label="Nom de l'hôtel">
           <select
             className="w-full border rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
-            value={formData.reservation.hotel?.id || ''}
+            value={formData.reservation.hotelId || ''}
             onChange={(e) => {
-            const selectedId = e.target.value;
-            const selectedHotel = availableHotels.find((hotel) => hotel.id === selectedId);
-            if (selectedHotel) {
-              handleInputChange('hotel', selectedHotel);
-            }
+              const selectedId = e.target.value;
+              const selectedHotel = availableHotels.find((hotel) => hotel.id === selectedId);
+              handleInputChange('hotelId', selectedId);
+              handleInputChange('hotel', selectedHotel || null);
             }}
           >
             {availableHotels.map((hotel) => (
-            <option key={hotel.id} value={hotel.id}>
-              {hotel.name}
-            </option>
+              <option key={hotel.id} value={hotel.id}>
+                {hotel.name}
+              </option>
             ))}
           </select>
           </FormField>
@@ -320,7 +321,7 @@ export const ReservationEditForm: React.FC<ReservationEditFormProps> = ({
           {formData.reservation.hotel?.description && (
             <>
             <span className="block mb-1 text-xs font-semibold text-orange-700 uppercase tracking-wide">
-              Description de l'hôtel
+              Description de l&apos;hôtel
             </span>
             <div
               className="mb-2 text-sm text-gray-600 bg-gray-50 rounded p-2"
