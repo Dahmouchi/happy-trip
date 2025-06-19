@@ -250,9 +250,9 @@ export const reservationColumns = ({ refresh, onEdit }: { refresh: () => void; o
                                 reservation={{
                                     reservation: row.original,
                                 }}
-                                onSave={(updatedData) => {
-                                    console.log("Updated reservation:", updatedData);
+                                onSave={() => {
                                     setEditOpen(false); // close dialog after saving
+                                    // refresh(); // refresh the table after saving
                                 }}
                                 onCancel={() => setEditOpen(false)} // closes dialog when cancel is clicked
                             />

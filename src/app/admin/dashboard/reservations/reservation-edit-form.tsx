@@ -81,7 +81,7 @@ const FormField = ({
 export const ReservationEditForm: React.FC<ReservationEditFormProps> = ({ 
   reservation, 
   onSave,
-  onCancel
+  onCancel,
 }) => {
   const [formData, setFormData] = useState<ReservationFormData>(reservation);
   const [availableTourDates, setAvailableTourDates] = useState<TourDate[]>(() => (reservation as any).availableTourDates || []);
@@ -206,35 +206,25 @@ export const ReservationEditForm: React.FC<ReservationEditFormProps> = ({
         </h3>
         <div className="bg-white rounded-lg p-4 space-y-4 border border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField icon={Calendar} label="Date de voyage">
-          <select
-            className="w-full border rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
-            value={formData.reservation.travelDateId}
-            onChange={(e: { target: { value: any; }; }) => {
+        <select
+          className="w-full border rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
+          value={formData.reservation.travelDateId || ''}
+          onChange={(e) => {
             const selectedId = e.target.value;
-            // Find the selected TourDate object from available dates
-            const selectedDate = availableTourDates?.find(
-              (date: TourDate) => date.id === selectedId
-            );
-            if (selectedDate) {
-              handleInputChange('travelDateId', selectedDate);
-            }
-            }}
-          >
-            {availableTourDates?.map((date: TourDate) => (
-              <option
-              key={date.id}
-              value={date.id}
-              style={{
-              backgroundColor: "#f0f9ff",
-              color: "#1e293b",
-              fontWeight: formData.reservation.travelDate.id === date.id ? "bold" : "normal",
-              padding: "8px 12px"
-              }}
-              >
-              {`${date.startDate ? new Date(date.startDate).toLocaleDateString() : ''} - ${date.endDate ? new Date(date.endDate).toLocaleDateString() : ''}`}
-              </option>
-            ))}
-          </select>
+            const selectedDate = availableTourDates.find((date) => date.id === selectedId);
+            handleInputChange('travelDateId', selectedId);
+            handleInputChange('travelDate', selectedDate || null);
+          }}
+        >
+          <option value="" disabled>
+            Sélectionnez une date
+          </option>
+          {availableTourDates.map((date) => (
+            <option key={date.id} value={date.id}>
+              du {date.startDate ? new Date(date.startDate).toLocaleDateString("fr-FR") : ""} au {date.endDate ? new Date(date.endDate).toLocaleDateString("fr-FR") : ""}
+            </option>
+          ))}
+        </select>
           </FormField>
         </div>
         </div>
@@ -309,19 +299,7 @@ export const ReservationEditForm: React.FC<ReservationEditFormProps> = ({
           />
         </div>
         </div>
-        <Separator />
-        {/* total price section  */}
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-        <FormField icon={DollarSign} label="Prix total (MAD)">
-          <Input
-          type="number"
-          min="0"
-          value={formData.reservation.totalPrice}
-          onChange={(e) => handleInputChange('totalPrice', parseFloat(e.target.value) || 0)}
-          placeholder="Prix total"
-          />
-        </FormField>
-        </div>
+       
 
         <Separator />
 
@@ -383,6 +361,21 @@ export const ReservationEditForm: React.FC<ReservationEditFormProps> = ({
         </div>
 
       )}
+
+         <Separator />
+        {/* total price section  */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        <FormField icon={DollarSign} label="Prix total (MAD)">
+          <Input
+          type="number"
+          min="0"
+          value={formData.reservation.totalPrice}
+          onChange={(e) => handleInputChange('totalPrice', parseFloat(e.target.value) || 0)}
+          placeholder="Prix total"
+          />
+        </FormField>
+        </div>
+
 
 
         <Separator />

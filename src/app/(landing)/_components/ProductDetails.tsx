@@ -189,12 +189,17 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
         {/* Breadcrumbs */}
         <nav className="mb-4 text-sm text-gray-500">
             {tour.type === "NATIONAL" && (
-              <span className="text-red-600 hover:underline cursor-pointer">
-              maroc
-              </span>
+                <span
+                className="text-red-600 hover:underline cursor-pointer"
+                onClick={() => window.location.href = "/destination/national"}
+                >
+                maroc
+                </span>
             )}
             {tour.type === "INTERNATIONAL" && (
-              <span className="text-red-600 hover:underline cursor-pointer">
+              <span className="text-red-600 hover:underline cursor-pointer"
+                onClick={() => window.location.href = "/destination/international"}
+              >
               International
               </span>
             )}
@@ -268,18 +273,18 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
             <div className="flex items-center gap-2">
               <img src={"/icons/money.png"} className="w-7 h-7" />{" "}
               {/* Replace with money icon */}
-                <span>
-                {tour.type === "INTERNATIONAL" ? "À partir de " : ""}
-                {tour.priceDiscounted}
-                {" MAD"}
+                <span style={{ whiteSpace: "nowrap" }}>
+                  {tour.type === "INTERNATIONAL" ? "À partir de " : ""}
+                  {tour.priceDiscounted}
+                  {" MAD"}
                 </span>
             </div>
-            <Link
-              href={"#"}
-              className="ml-2 bg-white text-slate-700 px-6 py-2 rounded-full  text-sm hover:bg-lime-700 transition-colors"
+            <a
+              href="#reservation-form"
+              className="ml-8 bg-white text-slate-700 px-6 py-2 rounded-full text-sm hover:bg-lime-700 hover:text-white transition-colors"
             >
               Réserver
-            </Link>
+            </a>
           </div>
           <div className="flex items-center lg:px-0 px-8 justify-between lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4 ">
             <img src={"/icons/night-mode.png"} className="w-7 h-7" />{" "}
@@ -373,8 +378,8 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
                         key={`inc-${index}`}
                         className="flex items-start gap-2 mt-2"
                       >
-                        <span className="pt-1">
-                          <BadgeCheck className="w-6 h-6 min-w-[20px] min-h-[20px]" />
+                        <span className="pt-1 text-green-600">
+                          <BadgeCheck className="w-6.5 h-6.5 min-w-[20px] min-h-[20px] bg-green-100 rounded-full p-1" />
                         </span>
                         <p className="break-words">{item}</p>
                       </div>
@@ -394,11 +399,13 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
                   <ul className="list-none p-0 m-0">
                     {excludes.map((item: any, index: any) => (
                       <div
-                        key={`inc-${index}`}
-                        className="flex items-center gap-2 mt-2"
+                        key={`exc-${index}`}
+                        className="flex items-start gap-2 mt-2"
                       >
-                        <BadgeX />
-                        <p>{item}</p>
+                        <span className="pt-1 text-red-600">
+                          <BadgeX className="w-6.5 h-6.5 min-w-[20px] min-h-[20px] bg-red-100 rounded-full p-1" />
+                        </span>
+                        <p className="break-words">{item}</p>
                       </div>
                     ))}
                   </ul>
@@ -585,12 +592,14 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
         </div>
       </div>
 
-      <ReservationSection
-        availableDates={sampleAvailableDates}
-        hotels={sampleHotels}
-        tour = {tour}
-        imageSrc="/path/to/your/image.jpg" // Provide image path
-      />
+      <div id="reservation-form">
+        <ReservationSection
+          availableDates={sampleAvailableDates}
+          hotels={sampleHotels}
+          tour={tour}
+          imageSrc="/path/to/your/image.jpg" // Provide image path
+        />
+      </div>
       <div className="bg-[#F6F3F2] p-6 rounded-lg shadow-sm mb-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-8 flex items-center justify-center">
           <CalendarIcon />
