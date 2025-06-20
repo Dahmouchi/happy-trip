@@ -32,10 +32,11 @@ import {
   MountainSnow,
   PhoneIcon,
   Star,
+  Tickets,
   Users,
 } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -50,14 +51,30 @@ import DiscountTimerProduct from "./DiscountBadgeProductPage";
 import { ReviewModal } from "./ReviewsForm";
 
 const TourDetails = ({ tour }: { tour: any }) => {
-  const approvedReviews = tour.reviews?.filter(
-  (review: Review) => review.status === true
-) ?? [];
+  const [selectedDate, setSelectedDate] = useState("");
+  const [availableDates, setAvailableDates] = useState<any[]>(tour?.dates);
 
-const reviewCount = approvedReviews.length;
-const averageRating = reviewCount > 0
-  ? approvedReviews.reduce((sum:any, review:any) => sum + review.rating, 0) / reviewCount
-  : 0;
+  useEffect(() => {
+    // Filter and sort dates to only show future dates
+    const now = new Date();
+    const futureDates = tour.dates.filter(
+      (date: any) => new Date(date.startDate) > now
+    );
+    setAvailableDates(futureDates);
+    setSelectedDate(futureDates[0]?.id || null);
+  }, [tour.dates]);
+
+  const approvedReviews =
+    tour.reviews?.filter((review: Review) => review.status === true) ?? [];
+
+  const reviewCount = approvedReviews.length;
+  const averageRating =
+    reviewCount > 0
+      ? approvedReviews.reduce(
+          (sum: any, review: any) => sum + review.rating,
+          0
+        ) / reviewCount
+      : 0;
 
   // const sampleTestimonials = [
   //   {
@@ -86,13 +103,14 @@ const averageRating = reviewCount > 0
   //   },
   // ];
 
-  const reviews = tour.reviews?.map((review: Review) => ({
-    name: review.fullName,
-    message: review.message,
-    rating: review.rating,
-    role: "Client", 
-    avatarUrl: "/home/ubuntu/upload/image.png", 
-  })) || [];
+  const reviews =
+    tour.reviews?.map((review: Review) => ({
+      name: review.fullName,
+      message: review.message,
+      rating: review.rating,
+      role: "Client",
+      avatarUrl: "/home/ubuntu/upload/image.png",
+    })) || [];
   const sampleFaqData = [
     {
       id: "item-1",
@@ -119,31 +137,23 @@ const averageRating = reviewCount > 0
         "Oui, nous proposons une réduction de 10% pour les étudiants sur présentation d'un justificatif valide. Contactez notre service client pour obtenir votre code de réduction.",
     },
   ];
-  // const sampleAvailableDates = [
-  //   { value: "08-15-juin-9500", label: "08 - 15 Juin (9500 dh)" },
-  //   { value: "15-22-juin-9700", label: "15 - 22 Juin (9700 dh)" },
-  //   { value: "22-29-juin-9800", label: "22 - 29 Juin (9800 dh)" },
-  // ];
 
-  const sampleAvailableDates = tour.dates?.map((date: TourDate) => ({
-  id: date.id,
-  name: `${new Date(date.startDate!).toLocaleDateString("fr-FR")} - ${new Date(date.endDate!).toLocaleDateString("fr-FR")} (${tour.priceDiscounted} dh)`,
-})) || [];
+  const sampleAvailableDates =
+    tour.dates?.map((date: TourDate) => ({
+      id: date.id,
+      name: `${new Date(date.startDate!).toLocaleDateString(
+        "fr-FR"
+      )} - ${new Date(date.endDate!).toLocaleDateString("fr-FR")} (${
+        tour.priceDiscounted
+      } dh)`,
+    })) || [];
 
-
-
-  // const sampleHotels = [
-  //   { value: "Fuar Hotel 4*", label: "Fuar Hotel 4*" },
-  //   { value: "Park Bosphorus 5*", label: "Park Bosphorus 5*" },
-  //   { value: "Autre Hotel", label: "Autre Hotel (à préciser)" },
-  // ];
- 
-const sampleHotels = tour.hotels?.map((hotel: any) => ({
-  id: hotel.id,
-  name: hotel.name,
-  price: hotel.price,
-})) || [];
-
+  const sampleHotels =
+    tour.hotels?.map((hotel: any) => ({
+      id: hotel.id,
+      name: hotel.name,
+      price: hotel.price,
+    })) || [];
 
   const plugin = React.useRef(
     Autoplay({ delay: 2000, stopOnInteraction: true }) // Optional Autoplay
@@ -176,6 +186,7 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
 
     return formatDate(new Date(futureDates[0].startDate!));
   }
+
   if (!tour) {
     return <Loading />;
   }
@@ -189,25 +200,46 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
       <div className="bg-[#F6F3F2] p-4 md:p-8 lg:p-12">
         {/* Breadcrumbs */}
         <nav className="mb-4 text-sm text-gray-500">
-            {tour.type === "NATIONAL" && (
-                <span
-                className="text-red-600 hover:underline cursor-pointer"
-                onClick={() => window.location.href = "/destination/national"}
-                >
-                maroc
-                </span>
-            )}
-            {tour.type === "INTERNATIONAL" && (
-              <span className="text-red-600 hover:underline cursor-pointer"
-                onClick={() => window.location.href = "/destination/international"}
-              >
+          {tour.type === "NATIONAL" && (
+            <span
+              className="text-red-600 hover:underline cursor-pointer"
+              onClick={() => (window.location.href = "/destination/national")}
+            >
+              maroc
+            </span>
+          )}
+          {tour.type === "INTERNATIONAL" && (
+            <span
+              className="text-red-600 hover:underline cursor-pointer"
+              onClick={() =>
+                (window.location.href = "/destination/international")
+              }
+            >
               International
-              </span>
-            )}
+            </span>
+          )}
           <span className="mx-2">&gt;</span>
-          <span className="text-red-600 hover:underline cursor-pointer">
-            {tour.destinations[0]?.name}
-          </span>
+          {tour.type === "NATIONAL" && (
+            <span
+              className="text-red-600 hover:underline cursor-pointer"
+              onClick={() =>
+                (window.location.href = `/destination/national?destinations=${tour.destinations[0]?.id}`)
+              }
+            >
+              {tour.destinations[0]?.name}
+            </span>
+          )}
+          {tour.type === "INTERNATIONAL" && (
+            <span
+              className="text-red-600 hover:underline cursor-pointer"
+              onClick={() =>
+                (window.location.href = `/destination/international?destinations=${tour.destinations[0]?.id}`)
+              }
+            >
+              {tour.destinations[0]?.name}
+            </span>
+          )}
+
           <span className="mx-2">&gt;</span>
           <span>{tour.title}</span>
         </nav>
@@ -215,9 +247,6 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
         <div className="flex flex-col-reverse lg:flex-row lg:gap-8 gap-4 items-center">
           {/* Colonne de gauche : Informations */}
           <div className="lg:w-1/2 lg:py-6">
-            <p className="text-green-700 font-semibold mb-2">
-              Maroc - {tour.destinations[0]?.name}
-            </p>
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
               {tour.title}
             </h1>
@@ -226,7 +255,7 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
             {tour.showReviews && (
               <div className="flex items-center mb-6">
                 <div className="flex mr-2">
-                 <StarRatingDisplay averageRating={averageRating} />
+                  <StarRatingDisplay averageRating={averageRating} />
                 </div>
                 <span className="text-gray-600 text-sm ml-1">
                   ({reviewCount} {reviewCount === 1 ? "avis" : "avis"}) •{" "}
@@ -252,8 +281,11 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
           <div className="lg:w-1/2 w-full h-full relative">
             <div className="lg:block hidden">
               {tour.showDiscount &&
-                tour.priceOriginal !== tour.priceDiscounted && tour.discountEndDate &&  (
-                  <DiscountTimerProduct endDate={tour.discountEndDate.toString()} />
+                tour.priceOriginal !== tour.priceDiscounted &&
+                tour.discountEndDate && (
+                  <DiscountTimerProduct
+                    endDate={tour.discountEndDate.toString()}
+                  />
                 )}
             </div>
             <img
@@ -269,53 +301,234 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
       </div>
       <div className="bg-white">
         {/* Top Info Bar */}
-        <div className="bg-[#83CD20] text-white  lg:px-24  grid grid-cols-1 lg:grid-cols-4 lg:gap-8 mb-4">
-          <div className="flex items-center gap-2 bg-[#47663B] w-auto text-white px-8 py-8 rounded font-semibold lg:justify-center justify-between">
-            <div className="flex items-center gap-2">
-              <img src={"/icons/money.png"} className="w-7 h-7" />{" "}
-              {/* Replace with money icon */}
-                <span style={{ whiteSpace: "nowrap" }}>
-                  {tour.type === "INTERNATIONAL" ? "À partir de " : ""}
-                  {tour.priceDiscounted}
-                  {" MAD"}
-                </span>
-            </div>
-            <Link
-              href="#"
-              className="ml-8 bg-white text-slate-700 px-6 py-2 rounded-full text-sm hover:bg-lime-700 hover:text-white transition-colors"
-                 onClick={() => {
-                  const el = document.getElementById("reservation-form");
-                  if (el) {
-                    el.scrollIntoView({ behavior: "smooth" });
-                  }
-                }}
-            >
-              Réserver
-            </Link>
-          </div>
-          <div className="flex items-center lg:px-0 px-8 justify-between lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4 ">
+        <div className="bg-[#8ebd21] text-white  grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 lg:gap-8 mb-4">
+          <div className="flex items-center lg:px-0 px-8 justify-start lg:text-nowrap text-xl lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4 ">
             <img src={"/icons/night-mode.png"} className="w-7 h-7" />{" "}
             {/* Replace with moon/duration icon */}
             <span>
               {tour.durationDays} Jours / {tour.durationNights} Nuités
             </span>
           </div>
-          <div className="flex items-center lg:px-0 px-8 justify-between lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4">
+          <div className="flex items-center lg:px-0 px-8 justify-start lg:text-nowrap text-xl lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4">
             <img src={"/icons/map-pin.png"} className="w-7 h-7" />{" "}
             {/* Replace with location/pin icon */}
             <span>{tour.accommodationType}</span>
           </div>
-          <div className="flex items-center lg:px-0 px-8 gap-2 justify-between lg:justify-center py-4">
+          <div className="flex items-center lg:px-0 px-8 gap-2 justify-start lg:text-nowrap text-xl lg:justify-center py-4">
             <img src={"/icons/calendar.png"} className="w-7 h-7" />{" "}
             {/* Replace with calendar icon */}
             <span>Prochaine date {getNextTourDate(tour.dates)}</span>
           </div>
-        </div>
+          <div className="flex flex-col  items-center  px-2 lg:col-span-2 gap-4 bg-[#47663B] text-white py-4  font-semibold">
+            {/* Price Section - Now shows price for selected date */}
+            <div className="flex items-center gap-2">
+              <Tickets className="w-6 h-6" />
+              <span className="whitespace-nowrap text-2xl font-bold">
+                {selectedDate
+                  ? `${tour.type === "INTERNATIONAL" ? "À partir de " : ""}${
+                      tour.priceDiscounted
+                    } MAD`
+                  : "Sélectionnez une date"}
+              </span>
+            </div>
 
+            {/* Date Dropdown and Booking Button */}
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+              {/* Modern Dropdown */}
+              {availableDates.length > 0 ? (
+                <div className="relative w-full lg:w-auto">
+                  <select
+                    value={selectedDate || ""}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className="appearance-none text-center bg-white/10 border border-white/20 rounded-full pl-4 pr-8 py-2 text-white focus:outline-none focus:ring-2 focus:ring-white/30 w-full"
+                  >
+                    {availableDates.map((date) => (
+                      <option
+                        key={date.id}
+                        value={date.id}
+                        className="text-gray-900"
+                      >
+                        {formatDate(date.startDate)} - {tour.priceDiscounted}{" "}
+                        MAD
+                      </option>
+                    ))}
+                  </select>
+                  {/* Custom dropdown arrow */}
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white">
+                    <svg
+                      className="h-4 w-4"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-white/80 italic">
+                  Aucune date disponible actuellement
+                </div>
+              )}
+
+              {/* Booking Button - Disabled if no dates available */}
+              <div>
+                <Link
+                  href="#"
+                  className={`px-6 py-2 rounded-full  text-sm transition-colors whitespace-nowrap w-full sm:w-auto text-center ${
+                    availableDates.length > 0
+                      ? "bg-white text-[#47663B] hover:bg-lime-700 hover:text-white"
+                      : "bg-gray-400 cursor-not-allowed"
+                  }`}
+                  onClick={(e) => {
+                    const el = document.getElementById("reservation-form");
+                    if (el) {
+                      el.scrollIntoView({ behavior: "smooth" });
+                    }
+                  }}
+                >
+                  {availableDates.length > 0 ? "Réserver" : "Complet"}
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="lg:col-span-1 space-y-2 lg:hidden px-2">
+          <div className="bg-[#F6F3F2] rounded-lg shadow border border-slate-200 p-4 space-y-4">
+            <h3 className="text-xl font-bold text-center text-gray-800 mb-4  border-b pb-2">
+              Voyage Details
+            </h3>
+
+            {/* Detail Item */}
+            {tour.showDifficulty && (
+              <div className="flex items-center gap-3 border-b pb-3 justify-between">
+                <div className="flex items-center gap-2">
+                  <ChartNoAxesColumnDecreasing className="w-6 h-6 text-gray-400" />{" "}
+                  {/* Replace with level icon */}
+                  <span className="text-gray-600 font-medium w-24">Niveau</span>
+                </div>
+
+                <div className="flex gap-2">
+                  {[...Array(5)].map((_, i) => (
+                    <img
+                      src="/boot.png"
+                      alt=""
+                      key={i}
+                      className={
+                        i < tour.difficultyLevel
+                          ? "bg-green-600 w-8 rounded-md p-1 h-8"
+                          : "bg-gray-300 w-8 rounded-md p-1 h-8"
+                      }
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Detail Item */}
+            <div className="flex items-center gap-3 border-b pb-3 justify-between">
+              <div className="flex items-center gap-2">
+                <Map className="w-6 h-6 text-gray-400" />{" "}
+                {/* Replace with destination icon */}
+                <span className="text-gray-600 font-medium w-24">
+                  Déstination
+                </span>
+              </div>
+              <p>
+                {tour.destinations.map((des: any, index: any) => (
+                  <span className="text-gray-800" key={index}>
+                    {des.name}
+                  </span>
+                ))}
+              </p>
+            </div>
+
+            {/* Detail Item */}
+            <div className="flex items-center gap-3 border-b pb-3 justify-between">
+              <div className="flex items-center gap-2">
+                <MountainSnow className="w-6 h-6 text-gray-400" />{" "}
+                {/* Replace with theme icon */}
+                <span className="text-gray-600 font-medium w-24">
+                  Thématique
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {tour.natures.map((des: any, index: any) => (
+                  <div
+                    className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium border border-blue-200"
+                    key={index}
+                  >
+                    {des.name}{" "}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Detail Item */}
+            <div className="flex items-center gap-3 border-b pb-3 justify-between">
+              <div className="flex items-center gap-2">
+                <Users className="w-6 h-6 text-gray-400" />{" "}
+                {/* Replace with group size icon */}
+                <span className="text-gray-600 font-medium ">
+                  Taille du groupe
+                </span>
+              </div>
+
+              <span className="text-gray-800">{tour.groupSizeMax}</span>
+            </div>
+
+            {/* Detail Item */}
+            <div className="flex items-center gap-3 border-b pb-3 justify-between">
+              <div className="flex items-center gap-2">
+                <Hotel className="w-6 h-6 text-gray-400" />{" "}
+                {/* Replace with accommodation icon */}
+                <span className="text-gray-600 font-medium w-24">
+                  Hébergement
+                </span>
+              </div>
+              <span className="text-gray-800">{tour.accommodationType}</span>
+            </div>
+
+            {/* Detail Item */}
+            <div className="flex items-center gap-3 pb-3 justify-between">
+              <div className="flex items-center justify-between gap-2">
+                <Boxes className="w-6 h-6 text-gray-400" />{" "}
+                {/* Replace with services icon */}
+                <span className="text-gray-600 font-medium w-24">Services</span>
+              </div>
+              <div className="flex flex-col gap-2">
+                {tour.services?.map((ser: any, index: any) => (
+                  <span
+                    key={index}
+                    className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium border border-green-200"
+                  >
+                    {ser.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Reserve Button */}
+            <button
+              className="w-full bg-green-800 text-white py-3 rounded-lg font-semibold hover:bg-green-900 transition-colors mt-4"
+              onClick={() => {
+                const el = document.getElementById("reservation-form");
+                if (el) {
+                  el.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+            >
+              Réserver
+            </button>
+          </div>
+        </div>
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:py-4 py-2 px-2 lg:px-12 ">
           {/* Left Column (Video & Itinerary) */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4">
             {/* Video Section */}
             <div className="bg-black rounded-lg overflow-hidden aspect-video relative">
               {/* Placeholder for video player - replace with actual video embed */}
@@ -338,14 +551,18 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
             </div>
 
             {/* Itinerary Section */}
+            <div className="mt-8">
+              <h1 className="text-2xl font-bold">Programme : </h1>
+            </div>
             <Accordion
-              type="multiple"
+              type="single"
+              collapsible
               className="space-y-3"
-              defaultValue={tour.programs.map((prog: Program) => prog.id)}
+              defaultValue={tour.programs[0]?.id}
             >
               {tour.programs.map((prog: Program) => (
                 <AccordionItem value={prog.id} key={prog.id}>
-                  <AccordionTrigger className="bg-[#83CD20] rounded-t-lg cursor-pointer px-4 py-3 text-white">
+                  <AccordionTrigger className="bg-[#8ebd21] rounded-t-lg cursor-pointer px-4 py-3 text-white">
                     {prog.title}
                   </AccordionTrigger>
                   <AccordionContent className=" p-2 border border-slate-200 shadow-xs rounded-b-lg ">
@@ -422,33 +639,39 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
           </div>
 
           {/* Right Column (Sidebar) */}
-          <div className="lg:col-span-1 space-y-2">
-            <div className="bg-[#F6F3F2] rounded-lg shadow border border-slate-200 p-4 space-y-4">
-              <h3 className="text-xl font-bold text-center text-gray-800 mb-4">
-                Voyage
+          <div className="lg:col-span-1 space-y-2 ">
+            <div className="bg-[#F6F3F2] rounded-lg shadow border lg:block hidden border-slate-200 p-4 space-y-4">
+              <h3 className="text-xl font-bold text-center text-gray-800 mb-4  border-b pb-2">
+                Voyage Details
               </h3>
 
               {/* Detail Item */}
-              <div className="flex items-center gap-3 border-b pb-3 justify-between">
-                <div className="flex items-center gap-2">
-                  <ChartNoAxesColumnDecreasing className="w-6 h-6 text-gray-400" />{" "}
-                  {/* Replace with level icon */}
-                  <span className="text-gray-600 font-medium w-24">Niveau</span>
-                </div>
+              {tour.showDifficulty && (
+                <div className="flex items-center gap-3 border-b pb-3 justify-between">
+                  <div className="flex items-center gap-2">
+                    <ChartNoAxesColumnDecreasing className="w-6 h-6 text-gray-400" />{" "}
+                    {/* Replace with level icon */}
+                    <span className="text-gray-600 font-medium w-24">
+                      Niveau
+                    </span>
+                  </div>
 
-                <div className="flex gap-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Construction
-                      key={i}
-                      className={
-                        i < tour.difficultyLevel
-                          ? "text-green-600"
-                          : "text-gray-300"
-                      }
-                    />
-                  ))}
+                  <div className="flex gap-2">
+                    {[...Array(5)].map((_, i) => (
+                      <img
+                        src="/boot.png"
+                        alt=""
+                        key={i}
+                        className={
+                          i < tour.difficultyLevel
+                            ? "bg-green-600 w-8 rounded-md p-1 h-8"
+                            : "bg-gray-300 w-8 rounded-md p-1 h-8"
+                        }
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Detail Item */}
               <div className="flex items-center gap-3 border-b pb-3 justify-between">
@@ -456,7 +679,7 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
                   <Map className="w-6 h-6 text-gray-400" />{" "}
                   {/* Replace with destination icon */}
                   <span className="text-gray-600 font-medium w-24">
-                    Distination
+                    Déstination
                   </span>
                 </div>
                 <p>
@@ -477,13 +700,16 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
                     Thématique
                   </span>
                 </div>
-                <p>
+                <div className="flex flex-wrap gap-1">
                   {tour.natures.map((des: any, index: any) => (
-                    <span className="text-gray-800" key={index}>
-                      {des.name}
-                    </span>
+                    <div
+                      className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium border border-blue-200"
+                      key={index}
+                    >
+                      {des.name}{" "}
+                    </div>
                   ))}
-                </p>
+                </div>
               </div>
 
               {/* Detail Item */}
@@ -513,14 +739,14 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
 
               {/* Detail Item */}
               <div className="flex items-center gap-3 pb-3 justify-between">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 justify-between">
                   <Boxes className="w-6 h-6 text-gray-400" />{" "}
                   {/* Replace with services icon */}
                   <span className="text-gray-600 font-medium w-24">
                     Services
                   </span>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="gap-2 flex flex-col">
                   {tour.services?.map((ser: any, index: any) => (
                     <span
                       key={index}
@@ -546,7 +772,7 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
               </button>
             </div>
             {/* Reviews Section */}
-            <div className="bg-[#F6F3F2] p-6 md:p-8 rounded-xl border border-slate-200 shadow-lg max-w-2xl mx-auto font-sans">
+            <div className="bg-[#F6F3F2]  p-6 md:p-8 rounded-xl border border-slate-200 shadow-lg max-w-2xl mx-auto font-sans">
               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center justify-center">
                 <MessageCircle />
                 Les avis
@@ -650,17 +876,17 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
                 {tour.priceDiscounted} DH
               </div>
               <div className="mt-2 md:mt-0">
-                <button className="w-full md:w-auto bg-green-700 hover:bg-green-800 text-white text-sm font-semibold py-2 px-4 rounded-md flex items-center justify-center transition-colors"
-                onClick={() => {
-                  const el = document.getElementById("reservation-form");
-                  if (el) {
-                    el.scrollIntoView({ behavior: "smooth" });
-                  }
-                }}
+                <button
+                  className="w-full md:w-auto bg-green-700 hover:bg-green-800 text-white text-sm font-semibold py-2 px-4 rounded-md flex items-center justify-center transition-colors"
+                  onClick={() => {
+                    const el = document.getElementById("reservation-form");
+                    if (el) {
+                      el.scrollIntoView({ behavior: "smooth" });
+                    }
+                  }}
                 >
                   Réserver
                   <ArrowRightIcon />
-                  
                 </button>
               </div>
             </div>
@@ -670,14 +896,13 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
       <div className="bg-white p-6 lg:px-12 rounded-lg shadow-sm">
         <h2 className="text-2xl font-bold text-gray-800 mb-8 flex items-center gap-3 justify-center">
           <MapPinHouse />
-          Localisation
-          
+          Votre Destination.
         </h2>
         {/* Map Placeholder - Replace with actual map embed or component */}
         <div className="mb-3 rounded overflow-hidden border border-gray-200 w-full">
-         <iframe
+          <iframe
             className="w-full rounded-xl"
-            src= {tour.googleMapsUrl}
+            src={tour.googleMapsUrl}
             width={600}
             height={450}
             style={{ border: 0 }}
@@ -685,7 +910,6 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
           />
-
         </div>
       </div>
       <FaqSection faqData={sampleFaqData} />
@@ -718,15 +942,17 @@ const ReviewsCard = ({ review }: { review: any }) => {
     <Card className="mx-2 border border-gray-200 rounded-lg shadow-sm overflow-hidden mb-4">
       <CardContent className="p-6 flex flex-col items-start text-left">
         <div className="flex justify-between items-center w-full mb-3">
-            <div className="flex items-center">
+          <div className="flex items-center">
             {[...Array(5)].map((_, i) => (
               <Star
-              key={i}
-              className={i < review?.rating ? "text-yellow-400" : "text-gray-300"}
-              fill={i < review?.rating ? "#facc15" : "none"}
+                key={i}
+                className={
+                  i < review?.rating ? "text-yellow-400" : "text-gray-300"
+                }
+                fill={i < review?.rating ? "#facc15" : "none"}
               />
             ))}
-            </div>
+          </div>
           <div className="flex"></div>
         </div>
         <p className="text-gray-600 text-sm mb-4 leading-relaxed">
@@ -806,7 +1032,6 @@ const BookingSteps = ({ advance }: { advance: any }) => {
   };
 
   return (
-   
     <div className="w-full max-w-4xl mx-auto p-6 md:p-8 font-sans bg-[#F6F3F2] rounded-lg shadow border border-slate-200">
       <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-8">
         Comment faire la réservation
@@ -912,7 +1137,7 @@ const BookingSteps = ({ advance }: { advance: any }) => {
         <p className="text-sm text-gray-600">Email: {email}</p>
       </div>
       <div className="text-center mt-6">
-        <WhatsappShare/>
+        <WhatsappShare />
       </div>
     </div>
   );

@@ -28,7 +28,7 @@ export default function DestinationFilter({
       </label>
       <select
         id="destination-filter"
-        className="block w-full rounded-md border-gray-300 bg-[#83CD20] text-white py-2 pl-3 pr-10 text-base focus:border-green-500 focus:outline-none focus:ring-green-500"
+        className="block w-full rounded-md border-gray-300 bg-[#8ebd21] text-white py-2 pl-3 pr-10 text-base focus:border-green-500 focus:outline-none focus:ring-green-500"
         value={currentDestinationId || ""}
         onChange={handleChange}
       >

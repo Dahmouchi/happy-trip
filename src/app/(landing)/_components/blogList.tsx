@@ -191,7 +191,7 @@ const BlogPage = ({ blogs: initialBlogs }: any) => {
           description={`Discover the latest insights, tips, and news from our team of experts`}
           breadcrumbLinks={breadcrumbLinks}
         />
-        <div className="flex items-center justify-end px-4 py-2  bg-[#83CD20]">
+        <div className="flex items-center justify-end px-4 py-2  bg-[#8ebd21]">
           <SearchBar
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}

@@ -57,7 +57,7 @@ export function NatureSearchAndViewControls({
   };
 
   return (
-    <div className="sticky top-0 z-10 bg-[#83CD20] backdrop-blur-md border-b border-gray-100 shadow-sm">
+    <div className="sticky top-0 z-10 bg-[#8ebd21] backdrop-blur-md border-b border-gray-100 shadow-sm">
       <div className="container mx-auto px-4 py-4">
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-end justify-between">
           {/* Search and Filter Section */}
