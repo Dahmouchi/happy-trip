@@ -34,7 +34,7 @@ export function InternationalCard({tour}:{tour:TourWithReviews}) {
         >
 
         </div>
-        {tour.showDiscount && tour.discountEndDate && (
+        {tour.showDiscount && tour.priceOriginal !== tour.priceDiscounted && tour.discountEndDate && (
           <DiscountBadge endDate={tour.discountEndDate.toString()} />
         )}
         <div className="w-full h-1/3 bg-gradient-to-t from-white to-white/0 absolute bottom-0 z-0"></div>

@@ -25,7 +25,7 @@ export function PromotionCard({ tour }: { tour: any }) {
             backgroundImage: `url(${tour?.imageUrl || "/images/product.jpg"})`,
           }}
         ></div>
-        {tour.showDiscount && (
+        {tour.showDiscount && tour.priceOriginal !== tour.priceDiscounted && tour.discountEndDate && (
           <DiscountBadge endDate={tour.discountEndDate.toString()} />
         )}
         <div className="w-full h-1/3 bg-gradient-to-t from-white to-white/0 absolute bottom-0 z-0"></div>

@@ -253,7 +253,7 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
           <div className="lg:w-1/2 w-full h-full relative">
             <div className="lg:block hidden">
               {tour.showDiscount &&
-                tour.priceOriginal !== tour.priceDiscounted && (
+                tour.priceOriginal !== tour.priceDiscounted && tour.discountEndDate &&  (
                   <DiscountTimerProduct endDate={tour.discountEndDate.toString()} />
                 )}
             </div>
@@ -271,7 +271,7 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
       <div className="bg-white">
         {/* Top Info Bar */}
         <div className="bg-[#83CD20] text-white  lg:px-24  grid grid-cols-1 lg:grid-cols-4 lg:gap-8 mb-4">
-          <div className="flex items-center gap-2 bg-[#47663B] text-white px-8 py-8 rounded font-semibold lg:justify-center justify-between">
+          <div className="flex items-center gap-2 bg-[#47663B] w-auto text-white px-8 py-8 rounded font-semibold lg:justify-center justify-between">
             <div className="flex items-center gap-2">
               <img src={"/icons/money.png"} className="w-7 h-7" />{" "}
               {/* Replace with money icon */}
@@ -281,7 +281,8 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
                   {" MAD"}
                 </span>
             </div>
-            <a
+            <Link
+              href="#"
               className="ml-8 bg-white text-slate-700 px-6 py-2 rounded-full text-sm hover:bg-lime-700 hover:text-white transition-colors"
                  onClick={() => {
                   const el = document.getElementById("reservation-form");
@@ -291,7 +292,7 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
                 }}
             >
               Réserver
-            </a>
+            </Link>
           </div>
           <div className="flex items-center lg:px-0 px-8 justify-between lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4 ">
             <img src={"/icons/night-mode.png"} className="w-7 h-7" />{" "}
