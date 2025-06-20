@@ -441,7 +441,7 @@ export function AddTourForm({
                                   variant="outline"
                                   role="combobox"
                                   className="w-fit justify-between"
-                                   style={{ 
+                                  style={{ 
                                     maxWidth: '100%', 
                                     whiteSpace: 'normal', 
                                     overflowWrap: 'break-word',
@@ -449,16 +449,8 @@ export function AddTourForm({
                                   }}
                                 >
                                   {field.value && field.value.length > 0
-                                    ? destinations
-                                        .filter(
-                                          (dest: any) =>
-                                            Array.isArray(field.value) &&
-                                            field.value.includes(dest.id)
-                                        )
-                                        .map((dest: any) => dest.name)
-                                        .join(", ")
-                                    : "Sélectionnez la/les destination(s)"}
-                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    ? `${field.value.length} destination(s) sélectionnée(s)`
+                                    : "Sélectionnez la/les destination(s)"}  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
                               </PopoverTrigger>
                               <PopoverContent className="p-0">
@@ -511,22 +503,36 @@ export function AddTourForm({
                               </PopoverContent>
                             </Popover>
                             <FormDescription
-                             style={{ 
-                                  maxWidth: '100%', 
-                                  whiteSpace: 'normal', 
-                                  overflowWrap: 'break-word',
-                                  wordBreak: 'break-word'
-                                }}>
+                              style={{ 
+                                maxWidth: '100%', 
+                                whiteSpace: 'normal', 
+                                overflowWrap: 'break-word',
+                                wordBreak: 'break-word'
+                              }}>
                               Sélectionnez une ou plusieurs destinations
                               associées à ce circuit.
                             </FormDescription>
+                            {/* Show selected destinations */}
+                            {Array.isArray(field.value) && field.value.length > 0 && (
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                {destinations
+                                  .filter((dest: any) => field.value.includes(dest.id))
+                                  .map((dest: any) => (
+                                    <span
+                                      key={dest.id}
+                                      className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs"
+                                    >
+                                      {dest.name}
+                                    </span>
+                                  ))}
+                              </div>
+                            )}
                             <FormMessage />
                           </FormItem>
                         );
                       }}
                     />
-                  </div>
-                  {/* activities  (natures)*/}
+                  </div>  {/* activities  (natures)*/}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 my-8">
                     {/* Natures */}
                     <FormField
@@ -550,16 +556,8 @@ export function AddTourForm({
                                   }}
                                 >
                                   {field.value && field.value.length > 0
-                                    ? natures
-                                        .filter((nature: any) =>
-                                          Array.isArray(field.value)
-                                            ? field.value.includes(nature.id)
-                                            : false
-                                        )
-                                        .map((nature: any) => nature.name)
-                                        .join(", ")
-                                    : "Sélectionnez la/les nature(s)"}
-                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    ? `${field.value.length} nature(s) sélectionnée(s)`
+                                    : "Sélectionnez la/les nature(s)"}  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
                               </PopoverTrigger>
                               <PopoverContent className="p-0">
@@ -708,18 +706,17 @@ export function AddTourForm({
                                   variant="outline"
                                   role="combobox"
                                   className="w-fit justify-between"
-                                >
-                                  {field.value && field.value.length > 0
-                                    ? services
-                                        .filter((service: any) =>
-                                          Array.isArray(field.value)
-                                            ? field.value.includes(service.id)
-                                            : false
-                                        )
-                                        .map((service: any) => service.name)
-                                        .join(", ")
-                                    : "Sélectionnez la/les service(s)"}
-                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                   style={{
+                                    maxWidth: '100%',
+                                    whiteSpace: 'normal',
+                                    overflowWrap: 'break-word',
+                                    wordBreak: 'break-word'
+                                  }}
+                                  >
+                                    {field.value && field.value.length > 0
+                                      ? `${field.value.length} service(s) sélectionné(s)`
+                                      : "Sélectionnez la/les service(s)"}  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+
                                 </Button>
                               </PopoverTrigger>
                               <PopoverContent className="p-0">

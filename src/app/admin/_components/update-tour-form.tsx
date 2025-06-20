@@ -326,7 +326,7 @@ export function UpdateTourForm({
             <div className="space-y-8 ">
               {/* Basic Information */}
               <div className="space-y-4 p-6 shadow-lg rounded-lg border border-gray-200">
-                <h3 className="text-lime-600 text-xl font-medium">
+                <h3 className="text-lime-600 text-l font-medium">
                   <Info className="inline mr-2" />
                   Informations de base
                 </h3>
@@ -438,6 +438,11 @@ export function UpdateTourForm({
                             ? internationalDestinations
                             : nationalDestinations;
 
+                        // Get selected destination objects
+                        const selectedDestObjects = destinations.filter((dest: any) =>
+                          Array.isArray(field.value) ? field.value.includes(dest.id) : false
+                        );
+
                         return (
                           <FormItem>
                             <FormLabel>
@@ -453,14 +458,7 @@ export function UpdateTourForm({
                                   className="w-fit justify-between"
                                 >
                                   {field.value && field.value.length > 0
-                                    ? destinations
-                                        .filter(
-                                          (dest: any) =>
-                                            Array.isArray(field.value) &&
-                                            field.value.includes(dest.id)
-                                        )
-                                        .map((dest: any) => dest.name)
-                                        .join(", ")
+                                    ? `${field.value.length} sélectionné${field.value.length > 1 ? "s" : ""}`
                                     : "Sélectionnez la/les destination(s)"}
                                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
@@ -518,222 +516,272 @@ export function UpdateTourForm({
                               Sélectionnez une ou plusieurs destinations
                               associées à ce circuit.
                             </FormDescription>
+                            {/* Show selected items below */}
+                            {selectedDestObjects.length > 0 && (
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                {selectedDestObjects.map((dest: any) => (
+                                  <span
+                                    key={dest.id}
+                                    className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs"
+                                  >
+                                    {dest.name}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                             <FormMessage />
                           </FormItem>
                         );
                       }}
                     />
-                  </div>
-                  {/* activities  (natures)*/}
+                  </div>  {/* activities  (natures)*/}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 my-8">
+                    {/* Natures */}
                     <FormField
                       control={form.control}
                       name="natures"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Nature(s)</FormLabel>
-                          <FormControl>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  role="combobox"
-                                  className="w-fit justify-between"
-                                >
-                                  {field.value && field.value.length > 0
-                                    ? natures
-                                        .filter((nature: any) =>
-                                          Array.isArray(field.value)
-                                            ? field.value.includes(nature.id)
-                                            : false
-                                        )
-                                        .map((nature: any) => nature.name)
-                                        .join(", ")
-                                    : "Sélectionnez la/les nature(s)"}
-                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="p-0">
-                                <Command>
-                                  <CommandInput placeholder="Rechercher une nature..." />
-                                  <CommandList>
-                                    <CommandEmpty>
-                                      Aucune nature trouvée.
-                                    </CommandEmpty>
-                                    <CommandGroup>
-                                      {natures.map((nature: any) => (
-                                        <CommandItem
-                                          key={nature.id}
-                                          value={nature.id}
-                                          onSelect={() => {
-                                            const currentValue = Array.isArray(
-                                              field.value
-                                            )
-                                              ? [...field.value]
-                                              : [];
-                                            const index = currentValue.indexOf(
-                                              nature.id
-                                            );
-                                            if (index === -1) {
-                                              field.onChange([
-                                                ...currentValue,
-                                                nature.id,
-                                              ]);
-                                            } else {
-                                              currentValue.splice(index, 1);
-                                              field.onChange(currentValue);
-                                            }
-                                          }}
-                                        >
-                                          <Check
-                                            className={cn(
-                                              "mr-2 h-4 w-4",
-                                              field.value &&
-                                                field.value.includes(nature.id)
-                                                ? "opacity-100"
-                                                : "opacity-0"
-                                            )}
-                                          />
-                                          {nature.name}
-                                        </CommandItem>
-                                      ))}
-                                    </CommandGroup>
-                                  </CommandList>
-                                </Command>
-                              </PopoverContent>
-                            </Popover>
-                          </FormControl>
-                          <FormDescription>
-                            Sélectionnez toutes les natures associées à ce
-                            circuit
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                      render={({ field }) => {
+                        // Get selected nature objects
+                        const selectedNatureObjects = natures.filter((nature: any) =>
+                          Array.isArray(field.value) ? field.value.includes(nature.id) : false
+                        );
+                        return (
+                          <FormItem>
+                            <FormLabel>Nature(s)</FormLabel>
+                            <FormControl>
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    className="w-fit justify-between"
+                                  >
+                                    {field.value && field.value.length > 0
+                                      ? `${field.value.length} sélectionné${field.value.length > 1 ? "s" : ""}`
+                                      : "Sélectionnez la/les nature(s)"}{" "}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="p-0">
+                                  <Command>
+                                    <CommandInput placeholder="Rechercher une nature..." />
+                                    <CommandList>
+                                      <CommandEmpty>
+                                        Aucune nature trouvée.
+                                      </CommandEmpty>
+                                      <CommandGroup>
+                                        {natures.map((nature: any) => (
+                                          <CommandItem
+                                            key={nature.id}
+                                            value={nature.id}
+                                            onSelect={() => {
+                                              const currentValue = Array.isArray(
+                                                field.value
+                                              )
+                                                ? [...field.value]
+                                                : [];
+                                              const index = currentValue.indexOf(
+                                                nature.id
+                                              );
+                                              if (index === -1) {
+                                                field.onChange([
+                                                  ...currentValue,
+                                                  nature.id,
+                                                ]);
+                                              } else {
+                                                currentValue.splice(index, 1);
+                                                field.onChange(currentValue);
+                                              }
+                                            }}
+                                          >
+                                            <Check
+                                              className={cn(
+                                                "mr-2 h-4 w-4",
+                                                field.value &&
+                                                  field.value.includes(nature.id)
+                                                  ? "opacity-100"
+                                                  : "opacity-0"
+                                              )}
+                                            />
+                                            {nature.name}
+                                          </CommandItem>
+                                        ))}
+                                      </CommandGroup>
+                                    </CommandList>
+                                  </Command>
+                                </PopoverContent>
+                              </Popover>
+                            </FormControl>
+                            <FormDescription>
+                              Sélectionnez toutes les natures associées à ce circuit
+                            </FormDescription>
+                            {/* Show selected items below */}
+                            {selectedNatureObjects.length > 0 && (
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                {selectedNatureObjects.map((nature: any) => (
+                                  <span
+                                    key={nature.id}
+                                    className="bg-lime-100 text-lime-800 px-2 py-1 rounded text-xs"
+                                  >
+                                    {nature.name}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }}
                     />
 
-                    {/* groupe type or category */}
+                    {/* Categories */}
                     <FormField
                       control={form.control}
                       name="categories"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Catégorie</FormLabel>
-                          <FormControl>
-                            <Select
-                              onValueChange={(value) => field.onChange([value])}
-                              value={
-                                Array.isArray(field.value) &&
-                                field.value.length > 0
-                                  ? field.value[0]
-                                  : ""
-                              }
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Sélectionnez la catégorie" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {categories.map((cat: any) => (
-                                  <SelectItem key={cat.id} value={cat.id}>
-                                    {cat.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormDescription>
-                            Sélectionnez la catégorie associée à ce circuit
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                      render={({ field }) => {
+                        // Get selected category object
+                        const selectedCategory =
+                          Array.isArray(field.value) && field.value.length > 0
+                            ? categories.find((cat: any) => cat.id === field.value[0])
+                            : null;
+                        return (
+                          <FormItem>
+                            <FormLabel>Catégorie</FormLabel>
+                            <FormControl>
+                              <Select
+                                onValueChange={(value) => field.onChange([value])}
+                                value={
+                                  Array.isArray(field.value) &&
+                                  field.value.length > 0
+                                    ? field.value[0]
+                                    : ""
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Sélectionnez la catégorie" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {categories.map((cat: any) => (
+                                    <SelectItem key={cat.id} value={cat.id}>
+                                      {cat.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormDescription>
+                              Sélectionnez la catégorie associée à ce circuit
+                            </FormDescription>
+                            {/* Show selected category below */}
+                            {selectedCategory && (
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                                  {selectedCategory.name}
+                                </span>
+                              </div>
+                            )}
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }}
                     />
 
-                    {/* services */}
+                    {/* Services */}
                     <FormField
                       control={form.control}
                       name="services"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Service(s)</FormLabel>
-                          <FormControl>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  role="combobox"
-                                  className="w-fit justify-between"
-                                >
-                                  {field.value && field.value.length > 0
-                                    ? services
-                                        .filter((service: any) =>
-                                          Array.isArray(field.value)
-                                            ? field.value.includes(service.id)
-                                            : false
-                                        )
-                                        .map((service: any) => service.name)
-                                        .join(", ")
-                                    : "Sélectionnez le(s) service(s)"}
-                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="p-0">
-                                <Command>
-                                  <CommandInput placeholder="Rechercher un service..." />
-                                  <CommandList>
-                                    <CommandEmpty>
-                                      Aucun service trouvé.
-                                    </CommandEmpty>
-                                    <CommandGroup>
-                                      {services.map((service: any) => (
-                                        <CommandItem
-                                          key={service.id}
-                                          value={service.id}
-                                          onSelect={() => {
-                                            const currentValue = Array.isArray(
-                                              field.value
-                                            )
-                                              ? [...field.value]
-                                              : [];
-                                            const index = currentValue.indexOf(
-                                              service.id
-                                            );
-                                            if (index === -1) {
-                                              field.onChange([
-                                                ...currentValue,
-                                                service.id,
-                                              ]);
-                                            } else {
-                                              currentValue.splice(index, 1);
-                                              field.onChange(currentValue);
-                                            }
-                                          }}
-                                        >
-                                          <Check
-                                            className={cn(
-                                              "mr-2 h-4 w-4",
-                                              field.value &&
-                                                field.value.includes(service.id)
-                                                ? "opacity-100"
-                                                : "opacity-0"
-                                            )}
-                                          />
-                                          {service.name}
-                                        </CommandItem>
-                                      ))}
-                                    </CommandGroup>
-                                  </CommandList>
-                                </Command>
-                              </PopoverContent>
-                            </Popover>
-                          </FormControl>
-                          <FormDescription>
-                            Sélectionnez tous les services associés à ce
-                            circuit
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                      render={({ field }) => {
+                        // Get selected service objects
+                        const selectedServiceObjects = services.filter((service: any) =>
+                          Array.isArray(field.value) ? field.value.includes(service.id) : false
+                        );
+                        return (
+                          <FormItem>
+                            <FormLabel>Service(s)</FormLabel>
+                            <FormControl>
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    className="w-fit justify-between"
+                                  >
+                                    {field.value && field.value.length > 0
+                                      ? `${field.value.length} sélectionné${field.value.length > 1 ? "s" : ""}`
+                                      : "Sélectionnez le(s) service(s)"}{" "}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="p-0">
+                                  <Command>
+                                    <CommandInput placeholder="Rechercher un service..." />
+                                    <CommandList>
+                                      <CommandEmpty>
+                                        Aucun service trouvé.
+                                      </CommandEmpty>
+                                      <CommandGroup>
+                                        {services.map((service: any) => (
+                                          <CommandItem
+                                            key={service.id}
+                                            value={service.id}
+                                            onSelect={() => {
+                                              const currentValue = Array.isArray(
+                                                field.value
+                                              )
+                                                ? [...field.value]
+                                                : [];
+                                              const index = currentValue.indexOf(
+                                                service.id
+                                              );
+                                              if (index === -1) {
+                                                field.onChange([
+                                                  ...currentValue,
+                                                  service.id,
+                                                ]);
+                                              } else {
+                                                currentValue.splice(index, 1);
+                                                field.onChange(currentValue);
+                                              }
+                                            }}
+                                          >
+                                            <Check
+                                              className={cn(
+                                                "mr-2 h-4 w-4",
+                                                field.value &&
+                                                  field.value.includes(service.id)
+                                                  ? "opacity-100"
+                                                  : "opacity-0"
+                                              )}
+                                            />
+                                            {service.name}
+                                          </CommandItem>
+                                        ))}
+                                      </CommandGroup>
+                                    </CommandList>
+                                  </Command>
+                                </PopoverContent>
+                              </Popover>
+                            </FormControl>
+                            <FormDescription>
+                              Sélectionnez tous les services associés à ce circuit
+                            </FormDescription>
+                            {/* Show selected items below */}
+                            {selectedServiceObjects.length > 0 && (
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                {selectedServiceObjects.map((service: any) => (
+                                  <span
+                                    key={service.id}
+                                    className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs"
+                                  >
+                                    {service.name}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }}
                     />
                   </div>
 
@@ -954,7 +1002,7 @@ export function UpdateTourForm({
               {/* Hotels Information */}
               {form.watch("type") === "INTERNATIONAL" && (
                 <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                  <h3 className="text-lime-600 text-xl font-medium">
+                  <h3 className="text-lime-600 text-l font-medium">
                     <BedDouble className="inline mr-2" />
                     Informations sur les hôtels
                   </h3>
@@ -1084,7 +1132,7 @@ export function UpdateTourForm({
 
               {/* programms information */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="text-lime-600 text-xl font-medium">
+                <h3 className="text-lime-600 text-l font-medium">
                   <ClipboardPenLine className="inline mr-2" />
                   Informations sur le programmes
                 </h3>
@@ -1117,7 +1165,7 @@ export function UpdateTourForm({
 
               {/* Pricing Information */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="text-lime-600 text-xl font-medium">
+                <h3 className="text-lime-600 text-l font-medium">
                   <Banknote className="inline mr-2" />
                   Informations sur les prix
                 </h3>
@@ -1273,7 +1321,7 @@ export function UpdateTourForm({
 
               {/* Dates and Duration */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="text-lime-600 text-xl font-medium">
+                <h3 className="text-lime-600 text-l font-medium">
                   <Calendar className="inline mr-2" />
                   Dates et durée
                 </h3>
@@ -1399,7 +1447,7 @@ export function UpdateTourForm({
 
               {/* inclus et exclus */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="text-lime-600 text-xl font-medium">
+                <h3 className="text-lime-600 text-l font-medium">
                   <CheckCircle className="inline mr-2" />
                   Inclus & Exclus
                 </h3>
@@ -1436,7 +1484,7 @@ export function UpdateTourForm({
 
               {/* Additional Details */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="text-lime-600 text-xl font-medium">
+                <h3 className="text-lime-600 text-l font-medium">
                   <ImagesIcon className="inline mr-2" />
                   Détails supplémentaires
                 </h3>
@@ -1499,7 +1547,7 @@ export function UpdateTourForm({
 
               {/* Display Options */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="text-lime-600 text-xl font-medium">
+                <h3 className="text-lime-600 text-l font-medium">
                   <Eye className="inline mr-2" />
                   Options d&apos;affichage
                 </h3>
