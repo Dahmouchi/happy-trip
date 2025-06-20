@@ -141,6 +141,7 @@ const averageRating = reviewCount > 0
 const sampleHotels = tour.hotels?.map((hotel: any) => ({
   id: hotel.id,
   name: hotel.name,
+  price: hotel.price,
 })) || [];
 
 
@@ -182,8 +183,9 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
     <div className="relative">
       <div className="block lg:hidden">
         {tour.showDiscount && tour.priceOriginal !== tour.priceDiscounted && (
-          <DiscountTimerProduct endDate={tour.createdAt.toString()} />
+          <DiscountTimerProduct endDate={tour.discountEndDate?.toString()} />
         )}
+        asdasdasd
       </div>
       <div className="bg-[#F6F3F2] p-4 md:p-8 lg:p-12">
         {/* Breadcrumbs */}
@@ -280,8 +282,13 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
                 </span>
             </div>
             <a
-              href="#reservation-form"
               className="ml-8 bg-white text-slate-700 px-6 py-2 rounded-full text-sm hover:bg-lime-700 hover:text-white transition-colors"
+                 onClick={() => {
+                  const el = document.getElementById("reservation-form");
+                  if (el) {
+                    el.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
             >
               Réserver
             </a>
@@ -513,17 +520,28 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
                     Services
                   </span>
                 </div>
-                <p>
+                <div className="flex flex-wrap gap-2">
                   {tour.services?.map((ser: any, index: any) => (
-                    <span className="text-gray-800" key={index}>
-                      {ser.name},
+                    <span
+                      key={index}
+                      className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium border border-green-200"
+                    >
+                      {ser.name}
                     </span>
                   ))}
-                </p>
+                </div>
               </div>
 
               {/* Reserve Button */}
-              <button className="w-full bg-green-800 text-white py-3 rounded-lg font-semibold hover:bg-green-900 transition-colors mt-4">
+              <button
+                className="w-full bg-green-800 text-white py-3 rounded-lg font-semibold hover:bg-green-900 transition-colors mt-4"
+                onClick={() => {
+                  const el = document.getElementById("reservation-form");
+                  if (el) {
+                    el.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
+              >
                 Réserver
               </button>
             </div>
@@ -632,9 +650,17 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
                 {tour.priceDiscounted} DH
               </div>
               <div className="mt-2 md:mt-0">
-                <button className="w-full md:w-auto bg-green-700 hover:bg-green-800 text-white text-sm font-semibold py-2 px-4 rounded-md flex items-center justify-center transition-colors">
+                <button className="w-full md:w-auto bg-green-700 hover:bg-green-800 text-white text-sm font-semibold py-2 px-4 rounded-md flex items-center justify-center transition-colors"
+                onClick={() => {
+                  const el = document.getElementById("reservation-form");
+                  if (el) {
+                    el.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
+                >
                   Réserver
                   <ArrowRightIcon />
+                  
                 </button>
               </div>
             </div>

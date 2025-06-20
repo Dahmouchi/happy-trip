@@ -40,14 +40,16 @@ export function ToursDisplay({
         {displayMode === 'carousel' ? (
         <Carousel opts={{ align: "center" }}>
           <CarouselContent className="px-8">
-            {tours.map((tour) => (
-              <CarouselItem
-                key={tour.id}
-                className="basis-full sm:basis-1/2 lg:basis-1/3 pb-2 lg:pt-4 py-4"
-              >
-                <PromotionCard tour={tour} />
-              </CarouselItem>
-            ))}
+            {tours
+              .filter((tour) => tour.active)
+              .map((tour) => (
+                <CarouselItem
+                  key={tour.id}
+                  className="basis-full sm:basis-1/2 lg:basis-1/3 pb-2 lg:pt-4 py-4"
+                >
+                  <PromotionCard tour={tour} />
+                </CarouselItem>
+              ))}
           </CarouselContent>
 
           <div className="w-full flex justify-center items-center gap-4 mt-4 sm:justify-end sm:absolute sm:top-1/2 sm:left-auto sm:right-4 sm:translate-y-[-50%]">

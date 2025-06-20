@@ -317,7 +317,7 @@ export function AddTourForm({
             <div className="space-y-8 ">
               {/* Basic Information */}
               <div className="space-y-4 p-6 shadow-lg rounded-lg border border-gray-200">
-                <h3 className="text-lime-600 text-xl font-medium">
+                <h3 className="text-lime-600 text-l font-medium">
                   <Info className="inline mr-2" />
                   Informations de base
                 </h3>
@@ -441,6 +441,12 @@ export function AddTourForm({
                                   variant="outline"
                                   role="combobox"
                                   className="w-fit justify-between"
+                                   style={{ 
+                                    maxWidth: '100%', 
+                                    whiteSpace: 'normal', 
+                                    overflowWrap: 'break-word',
+                                    wordBreak: 'break-word'
+                                  }}
                                 >
                                   {field.value && field.value.length > 0
                                     ? destinations
@@ -504,7 +510,13 @@ export function AddTourForm({
                                 </Command>
                               </PopoverContent>
                             </Popover>
-                            <FormDescription>
+                            <FormDescription
+                             style={{ 
+                                  maxWidth: '100%', 
+                                  whiteSpace: 'normal', 
+                                  overflowWrap: 'break-word',
+                                  wordBreak: 'break-word'
+                                }}>
                               Sélectionnez une ou plusieurs destinations
                               associées à ce circuit.
                             </FormDescription>
@@ -516,6 +528,7 @@ export function AddTourForm({
                   </div>
                   {/* activities  (natures)*/}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 my-8">
+                    {/* Natures */}
                     <FormField
                       control={form.control}
                       name="natures"
@@ -528,7 +541,13 @@ export function AddTourForm({
                                 <Button
                                   variant="outline"
                                   role="combobox"
-                                  className="w-fit justify-between"
+                                  className="w-full justify-between whitespace-normal text-left"
+                                  style={{
+                                    maxWidth: '100%',
+                                    whiteSpace: 'normal',
+                                    overflowWrap: 'break-word',
+                                    wordBreak: 'break-word'
+                                  }}
                                 >
                                   {field.value && field.value.length > 0
                                     ? natures
@@ -593,16 +612,37 @@ export function AddTourForm({
                               </PopoverContent>
                             </Popover>
                           </FormControl>
-                          <FormDescription>
+                          <FormDescription
+                            style={{
+                              maxWidth: '100%',
+                              whiteSpace: 'normal',
+                              overflowWrap: 'break-word',
+                              wordBreak: 'break-word'
+                            }}>
                             Sélectionnez toutes les natures associées à ce
                             circuit
                           </FormDescription>
+                          {/* Show selected natures */}
+                          {Array.isArray(field.value) && field.value.length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {natures
+                                .filter((nature: any) => field.value.includes(nature.id))
+                                .map((nature: any) => (
+                                  <span
+                                    key={nature.id}
+                                    className="bg-lime-100 text-lime-800 px-2 py-1 rounded text-xs"
+                                  >
+                                    {nature.name}
+                                  </span>
+                                ))}
+                            </div>
+                          )}
                           <FormMessage />
                         </FormItem>
                       )}
                     />
 
-                    {/* groupe type or category */}
+                    {/* Categories */}
                     <FormField
                       control={form.control}
                       name="categories"
@@ -634,12 +674,27 @@ export function AddTourForm({
                           <FormDescription>
                             Sélectionnez la catégorie associée à ce circuit
                           </FormDescription>
+                          {/* Show selected category */}
+                          {Array.isArray(field.value) && field.value.length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {categories
+                                .filter((cat: any) => field.value.includes(cat.id))
+                                .map((cat: any) => (
+                                  <span
+                                    key={cat.id}
+                                    className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs"
+                                  >
+                                    {cat.name}
+                                  </span>
+                                ))}
+                            </div>
+                          )}
                           <FormMessage />
                         </FormItem>
                       )}
                     />
 
-                    {/* services list  */}
+                    {/* Services */}
                     <FormField
                       control={form.control}
                       name="services"
@@ -721,6 +776,21 @@ export function AddTourForm({
                             Sélectionnez toutes les services associées à ce
                             circuit
                           </FormDescription>
+                          {/* Show selected services */}
+                          {Array.isArray(field.value) && field.value.length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {services
+                                .filter((service: any) => field.value.includes(service.id))
+                                .map((service: any) => (
+                                  <span
+                                    key={service.id}
+                                    className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs"
+                                  >
+                                    {service.name}
+                                  </span>
+                                ))}
+                            </div>
+                          )}
                           <FormMessage />
                         </FormItem>
                       )}
@@ -861,7 +931,7 @@ export function AddTourForm({
                     name="videoUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Lien vidéo YouTube</FormLabel>
+                        <FormLabel >Lien vidéo YouTube</FormLabel>
                         <FormControl>
                           <Input
                             type="text"
@@ -938,7 +1008,7 @@ export function AddTourForm({
                 {/* Hotels Information */}
                   {form.watch("type") === "INTERNATIONAL" && (
                 <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="text-lime-600 text-xl font-medium">
+                <h3 className="text-lime-600 text-l font-medium">
                   <BedDouble className="inline mr-2" />
                   Informations sur les hotels
                 </h3>
@@ -1066,7 +1136,7 @@ export function AddTourForm({
 
               {/* programms information */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="text-lime-600 text-xl font-medium">
+                <h3 className="text-lime-600 text-l font-medium">
                   <ClipboardPenLine className="inline mr-2" />
                   Informations sur le programmes
                 </h3>
@@ -1102,7 +1172,7 @@ export function AddTourForm({
 
               {/* Pricing Information */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="text-lime-600 text-xl font-medium">
+                <h3 className="text-lime-600 text-l font-medium">
                   <Banknote className="inline mr-2" />
                   Informations sur les prix
                 </h3>
@@ -1259,7 +1329,7 @@ export function AddTourForm({
 
               {/* Dates and Duration */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="text-lime-600 text-xl font-medium">
+                <h3 className="text-lime-600 text-l font-medium">
                   <Calendar className="inline mr-2" />
                   Dates et durée
                 </h3>
@@ -1385,7 +1455,7 @@ export function AddTourForm({
 
               {/* inclus et exclus */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="text-lime-600 text-xl font-medium">
+                <h3 className="text-lime-600 text-l font-medium">
                   <CheckSquare className="inline mr-2" />
                   Inclus & Exclus
                 </h3>
@@ -1422,7 +1492,7 @@ export function AddTourForm({
 
               {/* Additional Details */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="text-lime-600 text-xl font-medium">
+                <h3 className="text-lime-600 text-l font-medium">
                   <ImagesIcon className="inline mr-2" />
                   Détails supplémentaires
                 </h3>
@@ -1485,7 +1555,7 @@ export function AddTourForm({
 
               {/* Display Options */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="text-lime-600 text-xl font-medium">
+                <h3 className="text-lime-600 text-l font-medium">
                   <EyeIcon className="inline mr-2" />
                   Options d&apos;affichage
                 </h3>

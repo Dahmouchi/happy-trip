@@ -319,27 +319,38 @@ const form = useForm({
                   name="hotelId"
                   render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                    Hôtel <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <Select
-                    value={field.value || ""}
-                    onValueChange={field.onChange}
-                    >
-                    <FormControl>
-                      <SelectTrigger className="rounded-md border-gray-300">
-                      <SelectValue placeholder="Sélectionnez un hôtel" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {hotels.map((hotel: any) => (
-                      <SelectItem key={hotel.id} value={hotel.id}>
-                        {hotel.name}
-                      </SelectItem>
-                      ))}
-                    </SelectContent>
-                    </Select>
-                    <FormMessage />
+                  <FormLabel>
+                  Hôtel <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <Select
+                  value={field.value || ""}
+                  onValueChange={field.onChange}
+                  >
+                  <FormControl>
+                    <SelectTrigger className="rounded-md border-gray-300">
+                    <SelectValue placeholder="Sélectionnez un hôtel" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {hotels.map((hotel: any) => (
+                    <SelectItem key={hotel.id} value={hotel.id}>
+                    {hotel.name}
+                    </SelectItem>
+                    ))}
+                  </SelectContent>
+                  </Select>
+                  {/* Show hotel price if selected */}
+                  {field.value && (
+                    <div className="mt-2 text-sm text-gray-700">
+                    Prix:{" "}
+                    <span className="font-semibold">
+                      {hotels.find((h: any) => h.id === field.value)?.price
+                      ? `${hotels.find((h: any) => h.id === field.value)?.price} MAD`
+                      : "N/A"}
+                    </span>
+                    </div>
+                  )}
+                  <FormMessage />
                   </FormItem>
                   )}
                 />
@@ -348,26 +359,26 @@ const form = useForm({
                   control={form.control}
                   name="singleRoom"
                   render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>
-                      Chambre Single <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(value === "Oui")}
-                      value={field.value ? "Oui" : "Non"}
-                    >
-                      <FormControl>
-                      <SelectTrigger className="rounded-md border-gray-300">
-                        <SelectValue placeholder="Non" />
-                      </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                      <SelectItem value="Non">Non</SelectItem>
-                      <SelectItem value="Oui">Oui</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                    </FormItem>
+                  <FormItem>
+                  <FormLabel>
+                    Chambre Single <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <Select
+                    onValueChange={(value) => field.onChange(value === "Oui")}
+                    value={field.value ? "Oui" : "Non"}
+                  >
+                    <FormControl>
+                    <SelectTrigger className="rounded-md border-gray-300">
+                    <SelectValue placeholder="Non" />
+                    </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                    <SelectItem value="Non">Non</SelectItem>
+                    <SelectItem value="Oui">Oui</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                  </FormItem>
                   )}
                   />
                 </div>

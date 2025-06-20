@@ -32,15 +32,16 @@ const Footer = () => {
             </p>
             <form className="flex lg:flex-row md:flex-col lg:flex-center flex-col lg:mt-3 lg:mr-60">
               <input
-                type="email"
-                placeholder="Votre email address"
-                className="lg:w-[75%] md:w-l lg:p-4 md:p-4 p-2 w-full rounded bg-white placeholder:text-white focus:border-lime-900 "
+              type="email"
+              placeholder="Votre email address"
+              className="lg:w-[75%] md:w-l lg:p-4 md:p-4 p-2 w-full rounded bg-white placeholder:text-white focus:border-lime-900 focus:outline-none focus:ring-2 focus:ring-lime-900 focus:ring-offset-0 text-black"
+              style={{ boxShadow: "none" }}
               />
               <button
-                type="submit"
-                className="lg:w-[25%] w-full bg-lime-950 text-white text-sm lg:text-l md:text-xl lg:p-4 md:p-4 p-2 lg:ml-4 rounded mt-3 lg:mt-0 self-start"
+              type="submit"
+              className="lg:w-[25%] w-full bg-lime-950 text-white text-sm lg:text-l md:text-xl lg:p-4 md:p-4 p-2 lg:ml-4 rounded mt-3 lg:mt-0 self-start"
               >
-                Subscribe
+              Subscribe
               </button>
             </form>
           </div>

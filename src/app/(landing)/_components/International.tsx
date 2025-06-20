@@ -28,11 +28,13 @@ const International = ({tour}:{tour:Tour[]}) => {
       <div className=" relative container lg:px-28 py-8  ">
         <Carousel opts={{ align: "center" }} className=" ">
           <CarouselContent className="px-8">
-            {tour.map((tr,index)=>(
-                          <CarouselItem key={index} className="sm:basis-1/3 pb-2 lg:pt-4 py-4">
-                          <InternationalCard tour={tr}/>{" "}
-                        </CarouselItem>
-                        ))}
+            {tour
+              .filter((tr) => tr.active)
+              .map((tr, index) => (
+                <CarouselItem key={index} className="sm:basis-1/3 pb-2 lg:pt-4 py-4">
+                  <InternationalCard tour={tr} />
+                </CarouselItem>
+              ))}
           </CarouselContent>
           {/* <div className="w-full flex items-center justify-end gap-2 pt-8">
             <CarouselPrevious className="custom-next text-center w-8 h-8 flex items-center justify-center bg-orange-800 text-white rounded-full shadow-lg hover:bg-orange-600 transition" />

@@ -4,8 +4,15 @@ import { Tour } from "@prisma/client";
 import { CalendarDays, Eye } from "lucide-react";
 import { redirect } from "next/navigation";
 import React from "react";
+import DiscountBadge from "./DiscountBadge";
+import { Rating } from "react-simple-star-rating";
 
-export function InternationalCard({tour}:{tour:Tour}) {
+type TourWithReviews = Tour & {
+  reviewCount?: number;
+  averageRating?: number;
+};
+
+export function InternationalCard({tour}:{tour:TourWithReviews}) {
   return (
     <div className="max-w-sm h-full flex flex-col justify-between rounded-lg overflow-hidden shadow-lg border border-gray-200 bg-white">
       {/* Discount Ribbon
@@ -18,44 +25,38 @@ export function InternationalCard({tour}:{tour:Tour}) {
           23 : 07 : 51
         </div>
       </div> */}
-      <div
-        className="w-full h-[40vh] bg-green-500 relative bg-cover bg-center"
-        style={{ backgroundImage: `url(${tour?.imageUrl || "/images/product.jpg"})` }}
-      >
-        <div className="absolute top-0 right-0 space-y-2">
-        <div className="py-1 px-4 bg-red-500 rounded-tr-lg rounded-bl-lg flex itce justify-center text-white">
-            <h1 className="text-sm">Réduction de 10%</h1>
-        </div>
+      <div className="w-full h-[40vh] bg-green-500 relative bg-cover bg-center group">
+        <div
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-500 "
+          style={{
+            backgroundImage: `url(${tour?.imageUrl || "/images/product.jpg"})`,
+          }}
+        >
 
-        <div className="flex items-center justify-between text-white font-black mr-2">
-        <div className="bg-red-500 border-[2px] border-white rounded-md p-2 flex items-center justify-center text-xs text-white font-bold">15</div>
-        <h1>:</h1>
-        <div className="bg-red-500 border-[2px] border-white rounded-md p-2 flex items-center justify-center text-xs text-white font-bold">02</div>
-        <h1>:</h1>
-        <div className="bg-red-500 border-[2px] border-white rounded-md p-2 flex items-center justify-center text-xs text-white font-bold">37</div>
         </div>
-        </div>
+        {tour.showDiscount && tour.discountEndDate && (
+          <DiscountBadge endDate={tour.discountEndDate.toString()} />
+        )}
         <div className="w-full h-1/3 bg-gradient-to-t from-white to-white/0 absolute bottom-0 z-0"></div>
-        <div className="flex items-center mb-4 z-10 absolute -bottom-2 left-2">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <svg
-                key={i}
-                className={`w-5 h-5 ${
-                  i < 2 ? "text-yellow-400" : "text-gray-400"
-                }`}
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-            ))}
-          </div>
-          <span className="text-gray-600 ml-2">(25)</span>
-        </div>
-        <div className="items-baseline mb-4 text-right absolute py-1 -bottom-8 bg-[#4FA8FF] w-1/2 rounded-l-full px-2 right-0">
-          <h1 className="text-white line-through mr-2 text-xs">{tour?.priceOriginal} DH</h1>
-          <h1 className="text-xl font-bold text-white">{tour?.priceDiscounted} DH</h1>
+          {tour.showReviews && (
+              <div className="absolute bottom-0 left-2 z-50">
+                <div className="flex items-center mr-2">
+                 <StarRatingDisplay averageRating={tour.averageRating ?? 0} />
+                 <span className="text-gray-600 text-sm ml-1">
+                  ({tour.reviewCount ?? 0} {(tour.reviewCount ?? 0) === 1 ? "avis" : "avis"}) •{" "}
+                </span>
+                </div>
+              </div>
+            )}
+        <div className={`items-baseline mb-4 text-right absolute ${tour.showDiscount && tour.priceOriginal !== tour.priceDiscounted ? "py-1":"py-2"} z-50 -bottom-8 bg-[#4FA8FF] w-fit rounded-l-full px-8 right-0`}>
+          {tour.showDiscount && tour.priceOriginal !== tour.priceDiscounted && (
+            <h1 className="text-white line-through mr-2 text-xs">
+              {tour?.priceOriginal} DH
+            </h1>
+          )}
+          <h1 className="text-xl font-bold text-white">
+            {tour?.priceDiscounted} DH
+          </h1>
         </div>
       </div>
       
@@ -98,6 +99,23 @@ export function InternationalCard({tour}:{tour:Tour}) {
         </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+
+const StarRatingDisplay = ({ averageRating }: { averageRating: number }) => {
+  return (
+    <div className="flex items-center">
+      <Rating
+        readonly
+        initialValue={averageRating}
+        size={20}
+        allowFraction
+        SVGstyle={{ display: "inline-block" }}
+        fillColor="#facc15" // Tailwind's yellow-400
+        emptyColor="#d1d5db" // Tailwind's gray-300
+      />
     </div>
   );
 }
