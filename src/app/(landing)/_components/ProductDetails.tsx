@@ -185,7 +185,6 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
         {tour.showDiscount && tour.priceOriginal !== tour.priceDiscounted && (
           <DiscountTimerProduct endDate={tour.discountEndDate?.toString()} />
         )}
-        asdasdasd
       </div>
       <div className="bg-[#F6F3F2] p-4 md:p-8 lg:p-12">
         {/* Breadcrumbs */}
