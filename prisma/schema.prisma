@@ -177,6 +177,7 @@ model TourDate {
   startDate   DateTime?
   endDate     DateTime?
   description String?
+  visible      Boolean   @default(true)
   tour        Tour      @relation(fields: [tourId], references: [id])
 
   Reservation Reservation[]

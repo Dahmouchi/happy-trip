@@ -75,6 +75,7 @@ const tourSchema = z.object({
       startDate: z.date(),
       endDate: z.date(),
       description: z.string().optional(),
+      visible : z.boolean().default(true),
     })
   ).optional(),
   images: z.array(
@@ -146,6 +147,7 @@ export type TourFormData = z.infer<typeof tourSchema>
           startDate: dateObj.startDate,
           endDate: dateObj.endDate,
           description: dateObj.description,
+          visible: dateObj.visible ?? true, // Default to true if not provided
           })),
         }
         : undefined,
@@ -396,6 +398,7 @@ export async function updateTour(tourId: string, formData: TourFormData) {
                 startDate: d.startDate,
                 endDate: d.endDate,
                 description: d.description,
+                visible: d.visible ?? true, // Default to true if not provided
               })),
             }
           : undefined,

@@ -177,6 +177,7 @@ const tourSchema = z.object({
         startDate: z.date(),
         endDate: z.date(),
         description: z.string().optional(),
+        visible: z.boolean().default(true),
       })
     )
     .optional(),
@@ -278,7 +279,12 @@ export function AddTourForm({
       const formData = {
         ...restValues,
         programs,
-        dates,
+        dates: dates
+          ? dates.map((d: any) => ({
+              ...d,
+              visible: d.visible !== undefined ? d.visible : true,
+            }))
+          : undefined,
         images,
         inclus: Array.isArray(values.arrayInclus)
           ? values.arrayInclus.join(";")
@@ -1482,6 +1488,7 @@ export function AddTourForm({
                                 d.startDate ?? d.dateDebut ?? new Date(),
                               dateFin: d.endDate ?? d.dateFin ?? new Date(),
                               description: d.description ?? "",
+                              visible: d.visible ?? true,
                             })
                           )}
                           onChange={(dates) =>
