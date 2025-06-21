@@ -686,33 +686,73 @@ export function AddTourForm({
                       name="categories"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Catégorie</FormLabel>
+                          <FormLabel>Catégorie(s)</FormLabel>
                           <FormControl>
-                            <Select
-                              onValueChange={(value) => field.onChange([value])}
-                              value={
-                                Array.isArray(field.value) &&
-                                field.value.length > 0
-                                  ? field.value[0]
-                                  : ""
-                              }
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Sélectionnez la catégorie" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {categories.map((cat: any) => (
-                                  <SelectItem key={cat.id} value={cat.id}>
-                                    {cat.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className="w-full justify-between whitespace-normal text-left"
+                                  style={{
+                                    maxWidth: '100%',
+                                    whiteSpace: 'normal',
+                                    overflowWrap: 'break-word',
+                                    wordBreak: 'break-word'
+                                  }}
+                                >
+                                  {field.value && field.value.length > 0
+                                    ? `${field.value.length} catégorie(s) sélectionnée(s)`
+                                    : "Sélectionnez la/les catégorie(s)"}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="p-0">
+                                <Command>
+                                  <CommandInput placeholder="Rechercher une catégorie..." />
+                                  <CommandList>
+                                    <CommandEmpty>
+                                      Aucune catégorie trouvée.
+                                    </CommandEmpty>
+                                    <CommandGroup>
+                                      {categories.map((cat: any) => (
+                                        <CommandItem
+                                          key={cat.id}
+                                          value={cat.id}
+                                          onSelect={() => {
+                                            const currentValue = Array.isArray(field.value)
+                                              ? [...field.value]
+                                              : [];
+                                            const index = currentValue.indexOf(cat.id);
+                                            if (index === -1) {
+                                              field.onChange([...currentValue, cat.id]);
+                                            } else {
+                                              currentValue.splice(index, 1);
+                                              field.onChange(currentValue);
+                                            }
+                                          }}
+                                        >
+                                          <Check
+                                            className={cn(
+                                              "mr-2 h-4 w-4",
+                                              field.value && field.value.includes(cat.id)
+                                                ? "opacity-100"
+                                                : "opacity-0"
+                                            )}
+                                          />
+                                          {cat.name}
+                                        </CommandItem>
+                                      ))}
+                                    </CommandGroup>
+                                  </CommandList>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
                           </FormControl>
                           <FormDescription>
-                            Sélectionnez la catégorie associée à ce circuit
+                            Sélectionnez une ou plusieurs catégories associées à ce circuit
                           </FormDescription>
-                          {/* Show selected category */}
+                          {/* Show selected categories */}
                           {Array.isArray(field.value) && field.value.length > 0 && (
                             <div className="mt-2 flex flex-wrap gap-2">
                               {categories
@@ -1043,7 +1083,7 @@ export function AddTourForm({
 
 
                 {/* Hotels Information */}
-                  {form.watch("type") === "INTERNATIONAL" && (
+              {form.watch("type") === "INTERNATIONAL" && (
                 <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
                 <h3 className="text-lime-600 text-l font-medium">
                   <BedDouble className="inline mr-2" />
@@ -1054,7 +1094,7 @@ export function AddTourForm({
                 </p>  <Separator className="mb-6" />
 
                 <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 my-8">
+                    <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-4 my-8">
                       <FormField
                         control={form.control}
                         name="hotels"
@@ -1070,14 +1110,7 @@ export function AddTourForm({
                                     className="w-fit justify-between"
                                   >
                                     {field.value && field.value.length > 0
-                                      ? hotels
-                                          .filter((hotel: any) =>
-                                            Array.isArray(field.value)
-                                              ? field.value.includes(hotel.id)
-                                              : false
-                                          )
-                                          .map((hotel: any) => hotel.name)
-                                          .join(", ")
+                                      ? `${field.value.length} hôtel(s) sélectionné(s)`
                                       : "Sélectionnez le(s) hôtel(s)"}
                                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                   </Button>
@@ -1116,7 +1149,14 @@ export function AddTourForm({
                                                   : "opacity-0"
                                               )}
                                             />
-                                            {hotel.name}
+                                            <span>
+                                              {hotel.name}
+                                              {hotel.price && (
+                                                <span className="ml-1 text-gray-600">
+                                                  ({hotel.price} DH)
+                                                </span>
+                                              )}
+                                            </span>
                                           </CommandItem>
                                         ))}
                                       </CommandGroup>
@@ -1128,48 +1168,33 @@ export function AddTourForm({
                             <FormDescription>
                               Sélectionnez tous les hôtels associés à ce circuit
                             </FormDescription>
+                            {/* Show selected hotels with their prices */}
+                            {Array.isArray(field.value) && field.value.length > 0 && (
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                {hotels
+                                  .filter((hotel: any) => (field.value ?? []).includes(hotel.id))
+                                  .map((hotel: any) => (
+                                    <span
+                                      key={hotel.id}
+                                      className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs flex items-center gap-1"
+                                    >
+                                      {hotel.name}
+                                      {hotel.price && (
+                                        <span className="ml-1 text-gray-600">
+                                          ({hotel.price} DH)
+                                        </span>
+                                      )}
+                                    </span>
+                                  ))}
+                              </div>
+                            )}
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-
-                      {/* Hotel price field (read-only, shows prices of selected hotels) */}
-                      <FormField
-                        control={form.control}
-                        name="hotels"
-                        render={({ field }) => {
-                          const selectedHotels = hotels.filter((hotel: any) =>
-                            Array.isArray(field.value) ? field.value.includes(hotel.id) : false
-                          );
-                          const price =
-                            selectedHotels.length === 1
-                              ? selectedHotels[0]?.price ?? ""
-                              : selectedHotels.length > 1
-                              ? selectedHotels.map((h: any) => h.price).join(", ")
-                              : "";
-
-                          return (
-                            <FormItem>
-                              <FormLabel>Prix hôtel(s) MAD</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="text"
-                                  readOnly
-                                  value={price}
-                                  placeholder="Prix de l'hôtel sélectionné"
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Prix du ou des hôtels sélectionnés (lecture seule)
-                              </FormDescription>
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    </div>
-                   </div>
+                    </div>  </div>
               </div>
-                  )} 
+              )} 
 
               {/* programms information */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">

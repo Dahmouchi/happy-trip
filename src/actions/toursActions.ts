@@ -95,7 +95,10 @@ const tourSchema = z.object({
 
 export type TourFormData = z.infer<typeof tourSchema>
  
-
+  function getCorrectId(id:string)
+  {
+    return id.replace(/\s+/g, "-");
+  }
  
 
   export async function addTour(formData: TourFormData) {
@@ -108,7 +111,7 @@ export type TourFormData = z.infer<typeof tourSchema>
   
     const tour = await prisma.tour.create({
       data: {
-      id: validatedData.id, // Use the provided ID
+      id: getCorrectId(validatedData.id), // Use the provided ID
       active: validatedData.active, // Default to true if not provided
       title: validatedData.title,
       description: validatedData.description,
