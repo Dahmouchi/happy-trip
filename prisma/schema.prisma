@@ -85,7 +85,7 @@ model Hotel {
 }
 
 model Tour {
-  id                String        @id @default(cuid())
+  id                String        @id 
   title             String
   description       String?
   type              TravelType    @default(NATIONAL)

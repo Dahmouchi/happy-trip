@@ -13,6 +13,7 @@ import { getYouTubeEmbedUrl } from "@/utils/getYouTubeEmbedUrl";
 import { uploadImage} from "@/utils/uploadImage";
 import { getHotels } from "./hotelsActions";
 import { updateProgram } from "./programsActions";
+import { id } from "zod/v4/locales";
 
 
 const prisma = new PrismaClient()
@@ -20,6 +21,7 @@ const prisma = new PrismaClient()
 // Schema for validating tour data
 
 const tourSchema = z.object({
+  id: z.string(),
   active: z.boolean().default(true),
   title: z.string().min(1, "Le titre est requis"),
   description: z.string().min(1, "La description est requise").optional(),
@@ -106,6 +108,7 @@ export type TourFormData = z.infer<typeof tourSchema>
   
     const tour = await prisma.tour.create({
       data: {
+      id: validatedData.id, // Use the provided ID
       active: validatedData.active, // Default to true if not provided
       title: validatedData.title,
       description: validatedData.description,
@@ -511,5 +514,21 @@ async function updateProgramsForTour(
         },
       });
     }
+  }
+}
+
+
+
+export async function checkTourIdExists(tourId: string) {
+  try {
+    const tour = await prisma.tour.findUnique({
+      where: { id: tourId },
+    });
+    return { exists: !!tour };
+  } catch (error) {
+    console.error("Error checking tour ID:", error);
+    return { exists: false, error: "Failed to check tour ID" };
+  } finally {
+    await prisma.$disconnect();
   }
 }

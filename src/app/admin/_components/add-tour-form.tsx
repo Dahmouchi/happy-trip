@@ -50,7 +50,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { addTour } from "@/actions/toursActions";
+import { addTour, checkTourIdExists } from "@/actions/toursActions";
 import {
   JSXElementConstructor,
   Key,
@@ -80,6 +80,7 @@ import { setgid } from "process";
 import { Switch } from "@radix-ui/react-switch";
 
 const tourSchema = z.object({
+  id: z.string(),
   active: z.boolean().default(true),
   title: z.string().min(1, "Le titre est requis"),
   description: z.string().min(1, "La description est requise").optional(),
@@ -328,6 +329,43 @@ export function AddTourForm({
 
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 align-middle">
+
+                  <FormField
+                    control={form.control}
+                    name="id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>ID du circuit <span className="text-red-600 font-semibold italic">(ID non modifiable après la création du circuit.)</span></FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            placeholder="ID du circuit (doit être unique)"
+                            {...field}
+                            onBlur={async () => {
+                              if (field.value) {
+                                try {
+                                  const res = await checkTourIdExists(field.value);
+                                  if (res.exists) {
+                                    form.setError("id", { type: "manual", message: "Cet ID est déjà utilisé." });
+                                  } else {
+                                    form.clearErrors("id");
+                                  }
+                                } catch (err) {
+                                  form.setError("id", { type: "manual", message: "Erreur lors de la vérification de l'ID" });
+                                }
+                              }
+                            }}
+                          />
+                        </FormControl> 
+                        <FormDescription>
+                          L&apos;identifiant du circuit doit être unique. Veuillez choisir un ID qui n&apos;est pas déjà utilisé.
+                        </FormDescription>
+                       <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+
                   <FormField
                     control={form.control}
                     name="title"
@@ -341,7 +379,9 @@ export function AddTourForm({
                             {...field}
                           />
                         </FormControl>
-                        <FormMessage />
+                        <FormDescription>
+                          Entrez le titre du circuit.
+                        </FormDescription>  <FormMessage />
                       </FormItem>
                     )}
                   />

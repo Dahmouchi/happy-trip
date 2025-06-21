@@ -80,6 +80,7 @@ import { setgid, title } from "process";
 import { getRandomValues } from "crypto";
 
 const tourSchema = z.object({
+  id: z.string(),
   active: z.boolean().default(true),
   title: z.string().min(1, "Le titre est requis"),
   description: z.string().min(1, "La description est requise").optional(),
@@ -215,6 +216,7 @@ export function UpdateTourForm({
 
   const form = useForm<z.infer<typeof tourSchema>>({
     defaultValues: {
+      id: initialData.id,
       active: initialData.active ?? true,
       title: initialData.title ?? "",
       description: initialData.description ?? "",
@@ -337,6 +339,30 @@ export function UpdateTourForm({
 
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 align-middle">
+
+                  <FormField
+                    control={form.control}
+                    name="id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>ID du circuit</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            placeholder="ID du circuit"
+                            disabled
+                            {...field}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormDescription className="text-red-600 font-semibold italic">
+                          Cet ID ne peut pas être modifié.
+                        </FormDescription>  
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   <FormField
                     control={form.control}
                     name="title"

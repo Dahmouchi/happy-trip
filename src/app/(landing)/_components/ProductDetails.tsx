@@ -301,35 +301,8 @@ const TourDetails = ({ tour }: { tour: any }) => {
       </div>
       <div className="bg-white">
         {/* Top Info Bar */}
-<<<<<<< HEAD
-        <div className="bg-[#83CD20] text-white  lg:px-24  grid grid-cols-1 lg:grid-cols-4 lg:gap-8 mb-4">
-          <div className="flex items-center gap-2 bg-[#47663B] text-white px-8 py-8 rounded font-semibold lg:justify-center justify-between">
-            <div className="flex items-center gap-2">
-              <img src={"/icons/money.png"} className="w-7 h-7" />{" "}
-              {/* Replace with money icon */}
-                <span style={{ whiteSpace: "nowrap" }}>
-                  {tour.type === "INTERNATIONAL" ? "À partir de " : ""}
-                  {tour.priceDiscounted}
-                  {" MAD"}
-                </span>
-            </div>
-            <a
-              className="hover:cursor-pointer ml-8 bg-white text-slate-700 px-6 py-2 rounded-full text-sm hover:bg-lime-700 hover:text-white transition-colors"
-                 onClick={() => {
-                  const el = document.getElementById("reservation-form");
-                  if (el) {
-                    el.scrollIntoView({ behavior: "smooth" });
-                  }
-                }}
-            >
-              Réserver
-            </a>
-          </div>
-          <div className="flex items-center lg:px-0 px-8 justify-between lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4 ">
-=======
         <div className="bg-[#8ebd21] text-white  grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 lg:gap-8 mb-4">
           <div className="flex items-center lg:px-0 px-8 justify-start lg:text-nowrap text-xl lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4 ">
->>>>>>> origin
             <img src={"/icons/night-mode.png"} className="w-7 h-7" />{" "}
             {/* Replace with moon/duration icon */}
             <span>
