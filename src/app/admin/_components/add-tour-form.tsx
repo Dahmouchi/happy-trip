@@ -1506,6 +1506,7 @@ export function AddTourForm({
                                     ? d.dateFin
                                     : new Date(d.dateFin),
                                 description: d.description,
+                                visible: d.visible,
                               }))
                             )
                           }

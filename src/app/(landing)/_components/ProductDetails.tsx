@@ -146,6 +146,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
       )} - ${new Date(date.endDate!).toLocaleDateString("fr-FR")} (${
         tour.priceDiscounted
       } dh)`,
+      visible: date.visible,
     })) || [];
 
   const sampleHotels =
@@ -342,16 +343,17 @@ const TourDetails = ({ tour }: { tour: any }) => {
                     onChange={(e) => setSelectedDate(e.target.value)}
                     className="appearance-none text-center bg-white/10 border border-white/20 rounded-full pl-4 pr-8 py-2 text-white focus:outline-none focus:ring-2 focus:ring-white/30 w-full"
                   >
-                    {availableDates.map((date) => (
-                      <option
-                        key={date.id}
-                        value={date.id}
-                        className="text-gray-900"
-                      >
-                        {formatDate(date.startDate)} - {tour.priceDiscounted}{" "}
-                        MAD
-                      </option>
-                    ))}
+                    {availableDates
+                      .filter((date) => date.visible)
+                      .map((date) => (
+                        <option
+                          key={date.id}
+                          value={date.id}
+                          className="text-gray-900"
+                        >
+                          {formatDate(date.startDate)} - {tour.priceDiscounted} MAD
+                        </option>
+                      ))}
                   </select>
                   {/* Custom dropdown arrow */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white">

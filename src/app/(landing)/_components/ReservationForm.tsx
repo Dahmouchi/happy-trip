@@ -403,10 +403,12 @@ const form = useForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {availableDates.map((date: any) => (
-                          <SelectItem key={date.id} value={date.id}>
-                            {date.name}
-                          </SelectItem>
+                        {availableDates
+                          .filter((date: any) => date.visible)
+                          .map((date: any) => (
+                            <SelectItem key={date.id} value={date.id}>
+                              {date.name}
+                            </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>

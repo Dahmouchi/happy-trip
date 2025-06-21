@@ -1278,10 +1278,16 @@ export function UpdateTourForm({
                           <Input
                             type="number"
                             placeholder="Entrez le prix réduit"
-                            {...field}
+                            value={field.value}
                             onChange={(e) => {
-                              const value = parseFloat(e.target.value);
-                              field.onChange(value);
+                              const inputValue = e.target.value;
+                              if (inputValue === "") {
+                                field.onChange("");
+                                form.setValue("discountPercent", 0);
+                                return;
+                              }
+                              const value = parseFloat(inputValue);
+                              field.onChange(isNaN(value) ? "" : value);
 
                               const originalPrice = form.getValues("priceOriginal") || 0;
                               if (originalPrice > 0 && value < originalPrice) {
@@ -1488,6 +1494,7 @@ export function UpdateTourForm({
                                     ? d.dateFin
                                     : new Date(d.dateFin),
                                 description: d.description,
+                                visible: d.visible,
                               }))
                             )
                           }

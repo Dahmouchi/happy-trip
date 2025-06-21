@@ -25,7 +25,7 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
     dateDebut: undefined as unknown as Date,
     dateFin: undefined as unknown as Date,
     description: '',
-    visible : true
+    visible: true
   });
 
   const handleAddDate = () => {
@@ -59,7 +59,7 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
     if (newDate.dateDebut && newDate.dateFin && newDate.description.trim() && editingDateId) {
       const updatedDates = dates.map(date =>
         date.id === editingDateId
-          ? { ...date, dateDebut: newDate.dateDebut, dateFin: newDate.dateFin, description: newDate.description }
+          ? { ...date, dateDebut: newDate.dateDebut, dateFin: newDate.dateFin, description: newDate.description, visible: newDate.visible }
           : date
       );
       onChange(updatedDates);
@@ -75,45 +75,6 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
 
 
   
-const handleDateVisibility = (id: string) => {
-  console.log("Toggling visibility for date ID:", id);
-
-  // Toggle the 'visible' state of the corresponding date entry
-  const updatedDates = dates.map(date =>
-    date.id === id ? { ...date, visible: !date.visible } : date
-  );
-
-  console.log("Updated dates array:", updatedDates);  // Check the updated dates array
-
-  // Update the parent component's state with the new dates array
-  onChange(updatedDates);
-
-  // Reset date editing state if necessary
-  if (editingDateId === id) {
-    setEditingDateId(null);
-    setNewDate({
-      dateDebut: undefined as unknown as Date,
-      dateFin: undefined as unknown as Date,
-      description: '',
-      visible: true,
-    });
-  }
-
-  // Hide add form if it's visible
-  if (showAddForm) {
-    setShowAddForm(false);
-    setNewDate({
-      dateDebut: undefined as unknown as Date,
-      dateFin: undefined as unknown as Date,
-      description: '',
-      visible: true,
-    });
-  }
-};
-
-
-
-
 
 
 
@@ -150,18 +111,6 @@ const handleDateVisibility = (id: string) => {
                   <p className="text-gray-600 text-sm leading-relaxed">{dateEntry.description}</p>
                 </div>
                 <div className="flex items-center gap-1">
-                   <label className="flex items-center space-x-2">
-      {/* Checkbox to toggle visible state */}
-      <input
-        type="checkbox"
-        checked={dateEntry.visible}
-        onChange={() => handleDateVisibility(dateEntry.id)}  // Toggle visible state
-        className="form-checkbox h-5 w-5 text-lime-600"
-      />
-      <span>{dateEntry.visible ? 'Visible' : 'Invisible'}</span>
-    </label>
-
-
                     <div
                     onClick={() => handleEditDate(dateEntry)}
                     className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200 text-primary hover:text-primary/80 hover:bg-primary/10 cursor-pointer rounded p-1.5 border "
@@ -275,6 +224,19 @@ const handleDateVisibility = (id: string) => {
                 >
                   Annuler
                 </Button>
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                  type="checkbox"
+                  checked={newDate.visible}
+                  onChange={e => setNewDate(prev => ({ ...prev, visible: e.target.checked }))}
+                  className="accent-lime-600 w-4 h-4"
+                  />
+                  <span className="text-sm">
+                  {newDate.visible ? 'Visible' : 'Masqué'}
+                  </span>
+                </label>
+
+
               </div>
             </div>
           </CardContent>
