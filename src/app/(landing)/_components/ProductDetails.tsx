@@ -281,7 +281,7 @@ const sampleHotels = tour.hotels?.map((hotel: any) => ({
                 </span>
             </div>
             <a
-              className="ml-8 bg-white text-slate-700 px-6 py-2 rounded-full text-sm hover:bg-lime-700 hover:text-white transition-colors"
+              className="hover:cursor-pointer ml-8 bg-white text-slate-700 px-6 py-2 rounded-full text-sm hover:bg-lime-700 hover:text-white transition-colors"
                  onClick={() => {
                   const el = document.getElementById("reservation-form");
                   if (el) {

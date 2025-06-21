@@ -53,10 +53,15 @@ export function Navbar({
 
 
   return (
-    <header className="relative flex items-center justify-between px-6 py-4 shadow-md bg-white">
+    <header className="relative flex items-center justify-between px-4 py-3 md:px-6 md:py-4 shadow-md bg-white w-full">
       {/* Logo */}
       <Link href="/" className="flex items-center space-x-2">
-        <img src="/horizontal.png" alt="Happy Trip" className="h-10" />
+        <img
+          src="/horizontal.png"
+          alt="Happy Trip"
+          className="h-6 md:h-10 max-w-[120px] w-auto object-fit"
+          style={{ maxHeight: "2.5rem" }}
+        />
       </Link>
 
       {/* Desktop Navigation */}
@@ -213,7 +218,7 @@ export function Navbar({
             Login
           </Button>
         </Link>
-        <Button className="bg-[#8EBD22] text-white shadow-md rounded-full px-5">
+        <Button className="bg-[#8EBD22] text-white shadow-md rounded-full px-3 py-2 text-xs md:px-5 md:py-2 md:text-base">
           Appelez-nous
         </Button>
         <Button
