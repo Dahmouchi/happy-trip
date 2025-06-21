@@ -24,70 +24,116 @@ const tourSchema = z.object({
   id: z.string(),
   active: z.boolean().default(true),
   title: z.string().min(1, "Le titre est requis"),
-  description: z.string().min(1, "La description est requise").optional(),
+  description: z.string().min(1, "La description est requise"),
   type: z.enum(["NATIONAL", "INTERNATIONAL"]),
-  priceOriginal: z.preprocess((val) => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(0, "Le prix doit être positif").optional()),
-  priceDiscounted: z.preprocess((val) => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(0, "Le prix doit être positif").optional()),
-  discountEndDate: z.preprocess((val) => val === "" ? undefined : typeof val === "string" ? new Date(val) : val, z.date().optional()),
-  advancedPrice: z.preprocess((val) => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(0, "Le prix doit être positif").optional()),
-  dateCard: z.string().optional(),
-  durationDays: z.preprocess((val) => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(1, "Au moins 1 jour").optional()),
-  durationNights: z.preprocess((val) => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(0, "Nuits >= 0").optional()),
- googleMapsUrl: z
+  priceOriginal: z.preprocess(
+    (val) =>
+      val === "" ? undefined : typeof val === "string" ? Number(val) : val,
+    z.number().min(0, "Le prix doit être positif"),
+  ),
+  priceDiscounted: z.preprocess(
+    (val) =>
+      val === "" ? undefined : typeof val === "string" ? Number(val) : val,
+    z.number().min(0, "Le prix doit être positif").optional()
+  ),
+  discountEndDate: z
+    .date()
+    .optional()
+    .or(z.literal(""))
+    .transform((val) => (val === "" ? undefined : val)),
+  advancedPrice: z.preprocess(
+    (val) =>
+      val === "" ? undefined : typeof val === "string" ? Number(val) : val,
+    z.number().min(0, "Le prix doit être positif").optional()
+  ),
+  dateCard: z.string(),
+  durationDays: z.preprocess(
+    (val) =>
+      val === "" ? undefined : typeof val === "string" ? Number(val) : val,
+    z.number().min(1, "Au moins 1 jour"),
+  ),
+  durationNights: z.preprocess(
+    (val) =>
+      val === "" ? undefined : typeof val === "string" ? Number(val) : val,
+    z.number().min(0, "Nuits >= 0"),
+  ),
+  videoUrl: z
+    .string()
+    .url("URL de la vidéo invalide")
+    .optional()
+    .or(z.literal("")),
+  imageURL: z
+    .instanceof(File)
+    .or(z.literal(""))
+    .transform((val) => (val === "" ? undefined : val)),
+  groupType: z.string(),
+  groupSizeMax: z.preprocess(
+    (val) =>
+      val === "" ? undefined : typeof val === "string" ? Number(val) : val,
+    z.number().min(1, "Taille min 1")
+  ),
+  showReviews: z.boolean().default(true),
+  showDifficulty: z.boolean().default(true),
+  showDiscount: z.boolean().default(true),
+  difficultyLevel: z
+    .number()
+    .min(1)
+    .max(5)
+    .or(z.literal(""))
+    .transform((val) => (val === "" ? undefined : val)),
+  discountPercent: z
+    .number()
+    .min(0)
+    .max(100)
+    .optional()
+    .or(z.literal(""))
+    .transform((val) => (val === "" ? undefined : val)),
+  accommodationType: z.string(),
+  googleMapsUrl: z
     .string()
     .url("Lien Google Maps invalide")
     .optional()
     .or(z.literal("")),
-  videoUrl: z
-    .string()
-    .url("Lien vidéo invalide")
-    .optional()
-    .or(z.literal("")),
-  imageURL: z.instanceof(File).optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
-  groupType: z.string().optional(),
-  groupSizeMax: z.preprocess((val) => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(1, "Taille min 1").optional()),
-  showReviews: z.boolean().default(true),
-  showDifficulty: z.boolean().default(true),
-  showDiscount: z.boolean().default(true),
-  difficultyLevel: z.number().min(1).max(5).optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
-  discountPercent: z.preprocess(val => val === "" ? undefined : typeof val === "string" ? Number(val) : val, z.number().min(0).max(100).optional()),
-  accommodationType: z.string().optional(),
-  googleMapsLink: z.string().url("Lien Google Maps invalide").optional().or(z.literal("")),
   programs: z
-  .array(
-    z.object({
-      id: z.string().optional(),
-      title: z.string().min(1, "Titre requis"),
-      description: z.string().optional(),
-      image: z
-        .union([z.instanceof(File), z.string()])
-        .optional()
-        .transform((val) => {
-          if (val === "" || val === undefined) return undefined;
-          return val;
-        }),
-    })
-  )
-  .optional(),
+    .array(
+      z.object({
+        title: z.string().min(1, "Titre requis"),
+        description: z.string(),
+        image: z
+          .union([z.instanceof(File), z.string()])
+          .optional()
+          .transform((val) => {
+            if (val === "" || val === undefined) return undefined;
+            return val;
+          }),
+      })
+    )
+    .optional(),
 
-  dates: z.array(
-    z.object({
-      startDate: z.date(),
-      endDate: z.date(),
-      description: z.string().optional(),
-      visible : z.boolean().default(true),
-    })
-  ).optional(),
+  dates: z
+    .array(
+      z.object({
+        startDate: z.date(),
+        endDate: z.date(),
+        description: z.string().optional(),
+        visible: z.boolean().default(true),
+      })
+    )
+    .optional(),
   images: z.array(
     z.object({
-      link: z.instanceof(File).optional().or(z.literal("")).transform(val => val === "" ? undefined : val),
+      link: z
+        .instanceof(File)
+        .or(z.literal(""))
+        .transform((val) => (val === "" ? undefined : val)),
     })
   ),
-  hotels: z.array(z.string()).optional(),
-  services: z.array(z.string()),
+
   destinations: z.array(z.string()),
   categories: z.array(z.string()),
+  services: z.array(z.string()),
   natures: z.array(z.string()),
+  hotels: z.array(z.string()).optional(),
   inclus: z.string(),
   exclus: z.string(),
   arrayInclus: z.array(z.string()),

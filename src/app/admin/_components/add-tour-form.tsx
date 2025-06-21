@@ -83,12 +83,12 @@ const tourSchema = z.object({
   id: z.string(),
   active: z.boolean().default(true),
   title: z.string().min(1, "Le titre est requis"),
-  description: z.string().min(1, "La description est requise").optional(),
+  description: z.string().min(1, "La description est requise"),
   type: z.enum(["NATIONAL", "INTERNATIONAL"]),
   priceOriginal: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(0, "Le prix doit être positif").optional()
+    z.number().min(0, "Le prix doit être positif"),
   ),
   priceDiscounted: z.preprocess(
     (val) =>
@@ -105,16 +105,16 @@ const tourSchema = z.object({
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
     z.number().min(0, "Le prix doit être positif").optional()
   ),
-  dateCard: z.string().optional(),
+  dateCard: z.string(),
   durationDays: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(1, "Au moins 1 jour").optional()
+    z.number().min(1, "Au moins 1 jour"),
   ),
   durationNights: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(0, "Nuits >= 0").optional()
+    z.number().min(0, "Nuits >= 0"),
   ),
   videoUrl: z
     .string()
@@ -123,14 +123,13 @@ const tourSchema = z.object({
     .or(z.literal("")),
   imageURL: z
     .instanceof(File)
-    .optional()
     .or(z.literal(""))
     .transform((val) => (val === "" ? undefined : val)),
-  groupType: z.string().optional(),
+  groupType: z.string(),
   groupSizeMax: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(1, "Taille min 1").optional()
+    z.number().min(1, "Taille min 1")
   ),
   showReviews: z.boolean().default(true),
   showDifficulty: z.boolean().default(true),
@@ -139,7 +138,6 @@ const tourSchema = z.object({
     .number()
     .min(1)
     .max(5)
-    .optional()
     .or(z.literal(""))
     .transform((val) => (val === "" ? undefined : val)),
   discountPercent: z
@@ -149,7 +147,7 @@ const tourSchema = z.object({
     .optional()
     .or(z.literal(""))
     .transform((val) => (val === "" ? undefined : val)),
-  accommodationType: z.string().optional(),
+  accommodationType: z.string(),
   googleMapsUrl: z
     .string()
     .url("Lien Google Maps invalide")
@@ -159,7 +157,7 @@ const tourSchema = z.object({
     .array(
       z.object({
         title: z.string().min(1, "Titre requis"),
-        description: z.string().optional(),
+        description: z.string(),
         image: z
           .union([z.instanceof(File), z.string()])
           .optional()
@@ -185,7 +183,6 @@ const tourSchema = z.object({
     z.object({
       link: z
         .instanceof(File)
-        .optional()
         .or(z.literal(""))
         .transform((val) => (val === "" ? undefined : val)),
     })
@@ -293,7 +290,6 @@ export function AddTourForm({
           ? values.arrayExlus.join(";")
           : values.exclus,
       };
-      console.log(values.arrayInclus);
 
       const result = await addTour(formData);
 
@@ -301,6 +297,8 @@ export function AddTourForm({
         toast.success("Circuit créé avec succès");
         setIsSubmitting(false);
         form.reset();
+        setCardImage(null);
+        setGallery(null);
       } else {
         toast.error("Erreur lors de la création du circuit");
         setIsSubmitting(false);
@@ -341,7 +339,12 @@ export function AddTourForm({
                     name="id"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>ID du circuit <span className="text-red-600 font-semibold italic">(ID non modifiable après la création du circuit.)</span></FormLabel>
+                        <FormLabel>
+                          ID du circuit <span className="text-red-600">*</span>{" "}
+                          <span className="text-red-600 font-semibold italic">
+                            (ID non modifiable après la création du circuit.)
+                          </span>
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="text"
@@ -362,13 +365,12 @@ export function AddTourForm({
                               }
                             }}
                           />
-                        </FormControl> 
+                        </FormControl>
                         <FormDescription>
                           L&apos;identifiant du circuit doit être unique. Veuillez choisir un ID qui n&apos;est pas déjà utilisé.
                         </FormDescription>
-                       <FormMessage />
-                      </FormItem>
-                    )}
+                        <FormMessage />
+                      </FormItem>  )}
                   />
 
 
@@ -377,7 +379,9 @@ export function AddTourForm({
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Titre</FormLabel>
+                        <FormLabel>
+                          Titre <span className="text-red-600">*</span>
+                        </FormLabel>
                         <FormControl>
                           <Input
                             placeholder="Entrez le titre du circuit"
@@ -417,7 +421,7 @@ export function AddTourForm({
                     name="description"
                     render={({ field }) => (
                       <FormItem className="flex flex-col items-start w-full">
-                        <FormLabel>Description</FormLabel>
+                        <FormLabel>Description<span className="text-red-600">*</span></FormLabel>
                         <FormControl>
                           <div className="w-full flex justify-start">
                             <div className="w-full">
@@ -441,7 +445,7 @@ export function AddTourForm({
                       name="type"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Type de circuit</FormLabel>
+                          <FormLabel>Type de circuit <span className="text-red-600">*</span></FormLabel>
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
@@ -480,6 +484,7 @@ export function AddTourForm({
                               {selectedType === "INTERNATIONAL"
                                 ? "Destinations internationales"
                                 : "Destinations nationales"}
+                                <span className="text-red-600">*</span>
                             </FormLabel>
                             <Popover>
                               <PopoverTrigger asChild>
@@ -586,7 +591,7 @@ export function AddTourForm({
                       name="natures"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Nature(s)</FormLabel>
+                          <FormLabel>Nature(s) <span className="text-red-600">*</span></FormLabel>
                           <FormControl>
                             <Popover>
                               <PopoverTrigger asChild>
@@ -692,7 +697,7 @@ export function AddTourForm({
                       name="categories"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Catégorie(s)</FormLabel>
+                          <FormLabel>Catégorie(s) <span className="text-red-600">*</span></FormLabel>
                           <FormControl>
                             <Popover>
                               <PopoverTrigger asChild>
@@ -784,7 +789,7 @@ export function AddTourForm({
                       name="services"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Service(s)</FormLabel>
+                          <FormLabel>Service(s) <span className="text-red-600">*</span></FormLabel>
                           <FormControl>
                             <Popover>
                               <PopoverTrigger asChild>
@@ -886,7 +891,7 @@ export function AddTourForm({
                     name="imageURL"
                     render={() => (
                       <FormItem>
-                        <FormLabel>Images du circuit</FormLabel>
+                        <FormLabel>Images du circuit <span className="text-red-600">*</span></FormLabel>
                         <FormDescription>
                           Ajoutez l&apos;URL de l&apos;image pour ce circuit
                         </FormDescription>
@@ -936,7 +941,7 @@ export function AddTourForm({
                       name="difficultyLevel"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Niveau de difficulté (1-5)</FormLabel>
+                          <FormLabel>Niveau de difficulté (1-5) <span className="text-red-600">*</span></FormLabel>
                           <Select
                             onValueChange={(value: any) =>
                               field.onChange(Number.parseInt(value))
@@ -970,7 +975,7 @@ export function AddTourForm({
                       name="accommodationType"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Type d&apos;hébergement</FormLabel>
+                          <FormLabel>Type d&apos;hébergement <span className="text-red-600">*</span></FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Entrez le type d'hébergement"
@@ -1036,7 +1041,7 @@ export function AddTourForm({
                       name="groupType"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Type de groupe</FormLabel>
+                          <FormLabel>Type de groupe <span className="text-red-600">*</span></FormLabel>
                           <FormControl>
                             <Select
                               onValueChange={field.onChange}
@@ -1066,7 +1071,7 @@ export function AddTourForm({
                       name="groupSizeMax"
                       render={({ field }) => (
                         <FormItem className="w-fit">
-                          <FormLabel>Taille du groupe</FormLabel>
+                          <FormLabel>Taille du groupe <span className="text-red-600">*</span></FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -1106,7 +1111,7 @@ export function AddTourForm({
                         name="hotels"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Hôtel(s)</FormLabel>
+                            <FormLabel>Hôtel(s) </FormLabel>
                             <FormControl>
                               <Popover>
                                 <PopoverTrigger asChild>
@@ -1257,7 +1262,7 @@ export function AddTourForm({
                       name="priceOriginal"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Prix original (DH)</FormLabel>
+                          <FormLabel>Prix original (DH) <span className="text-red-600">*</span></FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -1412,7 +1417,7 @@ export function AddTourForm({
                     name="dateCard"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Date du circuit (affichage carte)</FormLabel>
+                        <FormLabel>Date du circuit (affichage carte) <span className="text-red-600">*</span></FormLabel>
                         <FormControl>
                           <Input
                             type="text"
@@ -1435,7 +1440,7 @@ export function AddTourForm({
                       name="durationDays"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Nombre de jours</FormLabel>
+                          <FormLabel>Nombre de jours <span className="text-red-600">*</span></FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -1456,7 +1461,7 @@ export function AddTourForm({
                       name="durationNights"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Nombre de nuits</FormLabel>
+                          <FormLabel>Nombre de nuits <span className="text-red-600">*</span></FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -1479,7 +1484,7 @@ export function AddTourForm({
                     name="dates"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Dates du circuit</FormLabel>
+                        <FormLabel>Dates du circuit </FormLabel>
                         <DateForm
                           dates={(field.value || []).map(
                             (d: any, idx: number) => ({
@@ -1527,7 +1532,7 @@ export function AddTourForm({
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
                 <h3 className="text-lime-600 text-l font-medium">
                   <CheckSquare className="inline mr-2" />
-                  Inclus & Exclus
+                  Inclus & Exclus 
                 </h3>
                 <p className="text-lime-800 text-md  mb-4">
                   Définissez les inclus et les exlus du circuit.
@@ -1578,7 +1583,7 @@ export function AddTourForm({
                     name="images"
                     render={() => (
                       <FormItem>
-                        <FormLabel>Images du circuit</FormLabel>
+                        <FormLabel>Images du circuit<span className="text-red-600">*</span></FormLabel>
                         <FormDescription>
                           Ajoutez les URLs de 9 images pour ce circuit
                         </FormDescription>
@@ -1710,10 +1715,31 @@ export function AddTourForm({
             type="submit"
             size="lg"
             className="bg-lime-600 text-white hover:bg-lime-700 hover:cursor-pointer mr-8"
+            disabled={
+              !form.formState.isValid ||
+              form.formState.isSubmitting ||
+              !form.watch("title") ||
+              !form.watch("description") ||
+              !form.watch("type") ||
+              !form.watch("groupType") ||
+              !form.watch("groupSizeMax") ||
+              !form.watch("priceOriginal") ||
+              !form.watch("dateCard") ||
+              !form.watch("durationDays") ||
+              !form.watch("durationNights") ||
+              !form.watch("images") ||
+              !form.watch("arrayInclus") ||
+              !form.watch("arrayExlus") ||
+              !form.watch("showReviews") ||
+              !form.watch("showDifficulty") ||
+              !form.watch("showDiscount") ||
+              !gallery ||
+              (form.watch("type") === "INTERNATIONAL" && form.watch("hotels")?.length === 0)
+              
+            }
           >
             Créer le circuit
-          </Button>
-        </div>
+          </Button>  </div>
       </form>
     </Form>
   );

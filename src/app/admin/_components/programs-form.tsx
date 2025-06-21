@@ -12,7 +12,7 @@ interface Program {
   id: string;
   title: string;
   description: string;
-  image: File | string | null;
+  image?: File | string | null;
   imagePreview?: string;
 }
 
@@ -221,7 +221,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Titre du Programme
+                  Titre du Programme <span className="text-red-600">*</span>
                 </label>
                 <Input
                   placeholder="Enter program title..."
@@ -237,7 +237,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
 
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Description
+                  Description <span className="text-red-600">*</span>
                 </label>
                 <RichTextEditor
                   value={newProgram.description}
@@ -288,8 +288,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                   onClick={editingProgramId ? handleUpdateProgram : handleAddProgram}
                   disabled={
                     !newProgram.title.trim() ||
-                    !newProgram.description.trim() ||
-                    !newProgram.image
+                    !newProgram.description.trim()
                   }
                   className="bg-lime-600 hover:bg-lime-700 text-white"
                 >

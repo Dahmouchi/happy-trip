@@ -9,7 +9,7 @@ interface DateEntry {
   id: string;
   dateDebut: Date;
   dateFin: Date;
-  description: string;
+  description?: string;
   visible: boolean;
 }
 
@@ -29,7 +29,7 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
   });
 
   const handleAddDate = () => {
-    if (newDate.dateDebut && newDate.dateFin && newDate.description.trim()) {
+    if (newDate.dateDebut && newDate.dateFin && (newDate.description ?? '').trim()) {
       const dateEntry: DateEntry = {
         id: Date.now().toString(),
         ...newDate
@@ -56,7 +56,7 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
   };
 
   const handleUpdateDate = () => {
-    if (newDate.dateDebut && newDate.dateFin && newDate.description.trim() && editingDateId) {
+    if (newDate.dateDebut && newDate.dateFin && (newDate.description ?? '').trim() && editingDateId) {
       const updatedDates = dates.map(date =>
         date.id === editingDateId
           ? { ...date, dateDebut: newDate.dateDebut, dateFin: newDate.dateFin, description: newDate.description, visible: newDate.visible }
@@ -153,7 +153,7 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date Début
+                    Date Début <span className="text-red-600">*</span>
                   </label>
                   <Input
                     type="date"
@@ -173,7 +173,7 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date Fin
+                    Date Fin <span className="text-red-600">*</span>
                   </label>
                   <Input
                     type="date"
@@ -210,7 +210,7 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
               <div className="flex gap-3 pt-2">
                 <Button
                   onClick={editingDateId ? handleUpdateDate : handleAddDate}
-                  disabled={!newDate.dateDebut || !newDate.dateFin || !newDate.description.trim()}
+                  disabled={!newDate.dateDebut || !newDate.dateFin}
                   className="bg-lime-600 hover:bg-lime-700 text-white"
                 >
                   {editingDateId ? 'Modifier Date' : 'Ajouter Date'}

@@ -40,8 +40,9 @@ const [strings, setStrings] = useState<string[]>(value ?? []);
     <Card className="bg-gray-50 h-fit">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          {title}
+          {title} 
           <Badge variant={badgeVariant}>{type}</Badge>
+          <span className="text-red-600">*</span>
         </CardTitle>
         {description && (
           <p className="text-sm text-gray-600">{description}</p>
