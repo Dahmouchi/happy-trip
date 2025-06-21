@@ -130,7 +130,7 @@ const DiscountTimer = ({ endDate }: { endDate: string }) => {
   if (!hasTimeLeft) return null;
 
   return (
-    <div className="absolute top-0 w-full  space-y-2 z-10  bg-gradient-to-b from-red-500 via-red-500/70 to-red-500/0 rounded-md px-3 py-2 shadow-md">
+    <div className="absolute top-0 w-full  space-y-2 z-10  bg-gradient-to-b from-red-500 via-red-500/70 to-red-500/0 rounded-md px-3 py-2">
       <h1 className="text-xs text-white text-center">Réduction de temps limité</h1>
       <div className="flex items-center justify-between gap-1 text-white font-bold size-full">
         {Object.values(timeLeft).every((v) => v === "00") ? null : (

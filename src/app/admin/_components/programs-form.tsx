@@ -170,7 +170,13 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                 
                 <div className="flex gap-1">
                     <div
-                    onClick={() => handleEditProgram(program.id)}
+                    
+                    onClick={() =>{ handleEditProgram(program.id)
+                      const el = document.getElementById("editForm");
+                  if (el) {
+                    el.scrollIntoView({ behavior: "smooth" });
+                  }
+                    }}
                     className="opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-primary hover:text-primary/80 hover:bg-primary/10 cursor-pointer rounded p-1.5 border "
                     title="Modifier le programme"
                     role="button"
@@ -207,7 +213,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
 
       {/* Add/Edit Program Form */}
       {showAddForm && (
-        <Card className="border-2 border-dashed border-accent">
+        <Card className="border-2 border-dashed border-accent" id="editForm">
           <CardContent className="p-6">
             <h4 className="font-semibold text-foreground mb-4">
               {editingProgramId ? "Modifier le Programme" : "Ajouter Nouveau Programme"}

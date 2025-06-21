@@ -153,7 +153,7 @@ const form = useForm({
           <div
             className="mb-6 pb-4 border-b border-gray-200"
             style={{
-              backgroundColor: "#83CD20",
+              backgroundColor: "#8ebd21",
               color: "white",
               padding: "1rem",
               borderRadius: "8px 8px 0 0",
@@ -477,7 +477,7 @@ const form = useForm({
                   console.log("Submitting form with values:", form.getValues());
                 }}
                 className="w-full text-lg font-semibold rounded-md"
-                style={{ backgroundColor: "#83CD20", color: "white" }}
+                style={{ backgroundColor: "#8ebd21", color: "white" }}
               >
                 JE VALIDE
               </Button>

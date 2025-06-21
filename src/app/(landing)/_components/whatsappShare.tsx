@@ -37,19 +37,19 @@ const WhatsappShare: React.FC<WhatsappShareProps> = ({
       title={title}
       className={
       className ||
-      'whatsapp-share-fixed-btn'
+      'whatsapp-share-fixed-btn '
       }
       style={
       !className
         ? {
           position: 'fixed',
-          bottom: '60px',
-          right: '60px',
+          bottom: '20px',
+          right: '20px',
           backgroundColor: '#25D366',
           border: 'none',
           borderRadius: '50%',
-          width: '80px',
-          height: '80px',
+          width: '60px',
+          height: '60px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
           display: 'flex',
           alignItems: 'center',

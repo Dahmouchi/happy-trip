@@ -46,7 +46,7 @@ export default function ReservationsPage() {
     }, [fetchReservations]);
 
     return (
-        <div className="mx-auto my-10 p-8">
+        <div className="mx-auto  p-8">
             <h1 className="text-4xl font-bold mb-4 text-gray-800">Réservations</h1>
             <p className="text-lg text-gray-600 mb-6">Ci-dessous la liste de toutes les réservations.</p>
             <DataTable<ReservationData, unknown>

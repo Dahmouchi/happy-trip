@@ -11,7 +11,9 @@ import {
   SwatchBook,
   Tickets,
   PlaneTakeoff,
-  Newspaper
+  Newspaper,
+  ListStart,
+  Star
 } from "lucide-react";
 
 import { NavMain } from "./nav-main";
@@ -75,7 +77,7 @@ const datas = {
     {
       title: "Avis",
       url: "/admin/dashboard/reviews",
-      icon: Newspaper,
+      icon: Star,
     },
      {
       title: "Blogs",

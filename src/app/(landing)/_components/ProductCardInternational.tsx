@@ -34,7 +34,7 @@ export function InternationalCard({tour}:{tour:TourWithReviews}) {
         >
 
         </div>
-        {tour.showDiscount && tour.discountEndDate && (
+        {tour.showDiscount && tour.priceOriginal !== tour.priceDiscounted && tour.discountEndDate && (
           <DiscountBadge endDate={tour.discountEndDate.toString()} />
         )}
         <div className="w-full h-1/3 bg-gradient-to-t from-white to-white/0 absolute bottom-0 z-0"></div>
@@ -92,10 +92,11 @@ export function InternationalCard({tour}:{tour:TourWithReviews}) {
             <Eye className="w-6 h-6" />
             <span className="text-white w-full text-center">Programme</span>
           </div>
-          <div className="w-16 h-full flex items-center justify-center flex-col rounded-lg text-white p-1 bg-[#4FA8FF]">
-            <img src="/boot.png" alt="" className="w-4 h-4 -rotate-12" />
-            <h1>{tour?.difficultyLevel}/5</h1>
-          </div>
+          {tour.showDifficulty && 
+            <div className="w-16 h-full flex items-center justify-center flex-col rounded-lg text-white p-1 bg-[#4FA8FF]">
+              <img src="/boot.png" alt="" className="w-4 h-4 -rotate-12" />
+              <h1>{tour?.difficultyLevel}/5</h1>
+            </div>}
         </div>
         </div>
       </div>
