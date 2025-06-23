@@ -32,7 +32,36 @@ export async function getLanding(): Promise<Landing | null> {
     return null
   }
 }
+export async function GetAllNews() {
+  const reviews = await prisma.newsLetter.findMany({
+    orderBy: { createdAt: "desc" },
+  });
 
+  return { success: true, data: reviews };
+}
+export async function DeleteNews(reviewId: string) {
+  if (!reviewId) {
+    return { success: false, error: "Review ID is required" };
+  }
+
+  const review = await prisma.newsLetter.delete({
+    where: { id: reviewId },
+  });
+
+  return { success: true, data: review };
+}
+export async function UpdateNewsStatus(reviewId: string, statu: boolean) {
+  if (!reviewId) {
+    return { success: false, error: "Review ID is required" };
+  }
+
+  const review = await prisma.newsLetter.update({
+    where: { id: reviewId },
+    data: { statu },
+  });
+
+  return { success: true, data: review };
+}
 export async function createNewsLetter(nom:string,prenom:string,email:string,message:string) {
   // First get the current landing page config
   try{

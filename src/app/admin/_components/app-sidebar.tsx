@@ -13,7 +13,8 @@ import {
   PlaneTakeoff,
   Newspaper,
   ListStart,
-  Star
+  Star,
+  MessagesSquare
 } from "lucide-react";
 
 import { NavMain } from "./nav-main";
@@ -83,6 +84,11 @@ const datas = {
       title: "Blogs",
       url: "/admin/dashboard/blogs",
       icon: Newspaper,
+    },
+     {
+      title: "NewsLetter",
+      url: "/admin/dashboard/news",
+      icon: MessagesSquare,
     },
     {
       title: "Settings",

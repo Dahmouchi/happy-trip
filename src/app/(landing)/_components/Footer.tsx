@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+import { createNewsLetter } from "@/actions/saveLandingConfig";
 /* eslint-disable @next/next/no-img-element */
-import axios from "axios";
 import { Instagram, Youtube } from "lucide-react";
 import React from "react";
+import { toast } from "react-toastify";
 
 const Footer = () => {
   const handleSubmit = async (e:any) => {
@@ -18,12 +19,14 @@ const Footer = () => {
     };
 
     try {
-      await axios.post("/api/contact", data);
-      alert("Message envoyé avec succès !");
+      const res = await createNewsLetter(data.nom,data.prenom,data.email,data.message);
+      if(res){
+        toast.success("votre message a été envoyer")
+      }
       form.reset();
     } catch (err) {
       console.error(err);
-      alert("Erreur lors de l'envoi du message.");
+      toast.error("Erreur lors de l'envoi du message.");
     }
   };
   return (
@@ -87,7 +90,7 @@ const Footer = () => {
                   />
                   <button
                     type="submit"
-                    className="w-full bg-lime-950 text-white text-sm lg:text-lg p-2 rounded"
+                    className="w-full cursor-pointer bg-lime-950 text-white text-sm lg:text-lg p-2 rounded"
                   >
                     Envoyer
                   </button>
