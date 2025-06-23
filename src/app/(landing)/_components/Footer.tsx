@@ -1,8 +1,31 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
 /* eslint-disable @next/next/no-img-element */
+import axios from "axios";
 import { Instagram, Youtube } from "lucide-react";
 import React from "react";
 
 const Footer = () => {
+  const handleSubmit = async (e:any) => {
+    e.preventDefault();
+
+    const form = e.target;
+    const data = {
+      prenom: form.prenom.value,
+      nom: form.nom.value,
+      email: form.email.value,
+      message: form.message.value,
+    };
+
+    try {
+      await axios.post("/api/contact", data);
+      alert("Message envoyé avec succès !");
+      form.reset();
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de l'envoi du message.");
+    }
+  };
   return (
     <footer className="">
       <div>
@@ -14,48 +37,75 @@ const Footer = () => {
               className="lg:max-w-3xl  md:max-w-2xl max-w-[30vh]"
             />
           </div>
-          <div>
+          <div className="relative flex flex-col items-center">
             <img
               src="/footer/mountain.png"
               alt="mountain"
-              className="max-w-screen"
+              className="max-w-screen absolute bottom-0 z-0"
             />
-          </div>
-        </div>
-        <div className="absolute left-1/2 transform -translate-x-1/2 lg:-mt-34 md:-mt-34 -mt-16 w-[80%] self-center rounded-2xl grid  bg-[#D2E094] shadow-xl">
-          <div className="flex flex-col items-left rounded-l-2xl lg:py-16 md:py-16 py-4 lg:pl-12 md:p-16 p-4">
-            <div className="lg:text-5xl md:text-5xl text-2xl font-thin mb-2">
-              Newsletter
+            <div className="relative z-50 w-[80%] self-center rounded-2xl grid  bg-[#D2E094] shadow-xl">
+              <div className="flex flex-col items-left rounded-l-2xl lg:py-8 md:py-16 py-4 lg:pl-12 md:p-16 p-4">
+                <div className="lg:text-5xl md:text-5xl text-2xl font-thin mb-2">
+                  Newsletter
+                </div>
+                <p className="lg:text-[18px] md:text-[18px] text-[12px] font-medium my-1">
+                  Besoin de conseil ? un projet de voyage, une question ?
+                </p>
+                <form
+                  onSubmit={handleSubmit}
+                  className="flex flex-col space-y-3 lg:mt-3 lg:mr-60 w-full"
+                >
+                  <div className="flex items-center lg:flex-row flex-col w-full gap-4">
+                    <input
+                      type="text"
+                      name="prenom"
+                      placeholder="Prénom"
+                      required
+                      className="rounded w-full bg-white p-2 text-black placeholder:text-gray-400 focus:border-lime-900 focus:outline-none focus:ring-2 focus:ring-lime-900"
+                    />
+                    <input
+                      type="text"
+                      name="nom"
+                      placeholder="Nom"
+                      required
+                      className="rounded w-full bg-white p-2 text-black placeholder:text-gray-400 focus:border-lime-900 focus:outline-none focus:ring-2 focus:ring-lime-900"
+                    />
+                  </div>
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    required
+                    className="rounded bg-white p-2 text-black placeholder:text-gray-400 focus:border-lime-900 focus:outline-none focus:ring-2 focus:ring-lime-900"
+                  />
+                  <textarea
+                    name="message"
+                    placeholder="Votre message"
+                    required
+                    className="rounded bg-white p-2 text-black placeholder:text-gray-400 focus:border-lime-900 focus:outline-none focus:ring-2 focus:ring-lime-900"
+                    rows={4}
+                  />
+                  <button
+                    type="submit"
+                    className="w-full bg-lime-950 text-white text-sm lg:text-lg p-2 rounded"
+                  >
+                    Envoyer
+                  </button>
+                </form>
+              </div>
+              <div className="invisible lg:visible md:invisbile lg:flex hidden flex-col items-center absolute rounded-r-2xl -right-34 -mt-30">
+                <img
+                  src="/footer/flight.png"
+                  alt=""
+                  className="max-w-lg max-h-lg "
+                />
+              </div>
             </div>
-            <p className="lg:text-[18px] md:text-[18px] text-[12px] font-medium my-1">
-              Besoin de conseil ? un projet de voyage, une question ?
-            </p>
-            <form className="flex lg:flex-row md:flex-col lg:flex-center flex-col lg:mt-3 lg:mr-60">
-              <input
-              type="email"
-              placeholder="Votre email address"
-              className="lg:w-[75%] md:w-l lg:p-4 md:p-4 p-2 w-full rounded bg-white placeholder:text-white focus:border-lime-900 focus:outline-none focus:ring-2 focus:ring-lime-900 focus:ring-offset-0 text-black"
-              style={{ boxShadow: "none" }}
-              />
-              <button
-              type="submit"
-              className="lg:w-[25%] w-full bg-lime-950 text-white text-sm lg:text-l md:text-xl lg:p-4 md:p-4 p-2 lg:ml-4 rounded mt-3 lg:mt-0 self-start"
-              >
-              Subscribe
-              </button>
-            </form>
-          </div>
-          <div className="invisible lg:visible md:invisbile lg:flex hidden flex-col items-center absolute rounded-r-2xl -right-34 -mt-30">
-            <img
-              src="/footer/flight.png"
-              alt=""
-              className="max-w-lg max-h-lg "
-            />
           </div>
         </div>
       </div>
 
-      <div className="bg-[#8EBD22] w-full pt-50 md:pt-60 lg:pt-60 pb-16 md:pb-12 px-4 sm:px-6 md:px-8 lg:px-12 ">
+      <div className="bg-[#8EBD22] w-full pt-10 md:pt-10 lg:pt-10 pb-16 md:pb-12 px-4 sm:px-6 md:px-8 lg:px-12 ">
         <div className="container mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 lg:pr-20">
             <div className="flex justify-center md:justify-start lg:col-span-2">

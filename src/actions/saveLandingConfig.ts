@@ -32,3 +32,22 @@ export async function getLanding(): Promise<Landing | null> {
     return null
   }
 }
+
+export async function createNewsLetter(nom:string,prenom:string,email:string,message:string) {
+  // First get the current landing page config
+  try{
+
+    const res = await prisma.newsLetter.create({
+      data:{
+        nom,
+        prenom,
+        email,
+        message,
+      }
+    })
+    return res;
+  } catch (error) {
+    console.error("Error creating newsletter:", error);
+    return { success: false, error: "Failed to create destination" };
+  }
+}
