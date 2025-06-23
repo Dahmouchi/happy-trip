@@ -159,6 +159,7 @@ const tourSchema = z.object({
     .array(
       z.object({
         title: z.string().min(1, "Titre requis"),
+        orderIndex:z.number().optional(),
         description: z.string().optional(),
         image: z
           .union([z.instanceof(File), z.string()])
@@ -1206,6 +1207,7 @@ export function UpdateTourForm({
                         (p: any, idx: number) => ({
                           id: p.id ?? idx.toString(),
                           title: p.title,
+                          orderIndex:idx,
                           description: p.description,
                           image: p.image,
                         })

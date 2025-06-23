@@ -1,12 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @next/next/no-img-element */
 import React, { useState, useEffect } from "react";
-import { Plus, X, Upload, Image as ImageIcon, Edit, ClipboardPenLine } from "lucide-react";
+import {
+  Plus,
+  X,
+  Upload,
+  Image as ImageIcon,
+  Edit,
+  ClipboardPenLine,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import RichTextEditor from "@/components/ui/rich-text-editor";
 import SafeHTML from "@/components/SafeHTML";
+import { v4 as uuidv4 } from "uuid";
 
 interface Program {
   id: string;
@@ -14,6 +22,7 @@ interface Program {
   description: string;
   image?: File | string | null;
   imagePreview?: string;
+  orderIndex: number;
 }
 
 interface ProgramFormProps {
@@ -24,7 +33,9 @@ interface ProgramFormProps {
 const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingProgramId, setEditingProgramId] = useState<string | null>(null);
-  const [newProgram, setNewProgram] = useState<Omit<Program, "id">>({
+  const [newProgram, setNewProgram] = useState<
+    Omit<Program, "id" | "orderIndex" | "createdAt">
+  >({
     title: "",
     description: "",
     image: null,
@@ -33,7 +44,9 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
 
   // Generate image previews for programs loaded from parent
   useEffect(() => {
-    const hasPreview = programs.some(p => !p.imagePreview && typeof p.image === "string");
+    const hasPreview = programs.some(
+      (p) => !p.imagePreview && typeof p.image === "string"
+    );
     if (!hasPreview) return;
 
     const updated = programs.map((p) => {
@@ -44,15 +57,23 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
     });
 
     onChange(updated);
-}, [onChange, programs]);
+  }, [onChange, programs]);
 
+  const generateUniqueId = () => {
+    return uuidv4();
+  };
 
   const handleAddProgram = () => {
     if (newProgram.title.trim() && newProgram.description.trim()) {
       const program: Program = {
-        id: Date.now().toString(),
+        id: uuidv4(),
         ...newProgram,
+        orderIndex:
+          programs.length > 0
+            ? Math.max(...programs.map((p) => p.orderIndex)) + 1
+            : 0,
       };
+
       onChange([...programs, program]);
       setNewProgram({
         title: "",
@@ -64,8 +85,41 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
     }
   };
 
+  const handleRemoveProgram = (id: string) => {
+    const updatedPrograms = programs
+      .filter((program) => program.id !== id)
+      .map((program, index) => ({
+        ...program,
+        orderIndex: index,
+      }));
+
+    onChange(updatedPrograms);
+  };
+
+  const moveProgram = (id: string, direction: "up" | "down") => {
+    const currentIndex = programs.findIndex((p) => p.id === id);
+    if (currentIndex === -1) return;
+
+    const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    if (newIndex < 0 || newIndex >= programs.length) return;
+
+    const updatedPrograms = [...programs];
+    // Swap the programs
+    [updatedPrograms[currentIndex], updatedPrograms[newIndex]] = [
+      updatedPrograms[newIndex],
+      updatedPrograms[currentIndex],
+    ];
+
+    // Update orderIndex to match new positions
+    updatedPrograms.forEach((program, index) => {
+      program.orderIndex = index;
+    });
+
+    onChange(updatedPrograms);
+  };
+
   const handleEditProgram = (id: string) => {
-    const programToEdit = programs.find(p => p.id === id);
+    const programToEdit = programs.find((p) => p.id === id);
     if (programToEdit) {
       setNewProgram({
         title: programToEdit.title,
@@ -79,9 +133,13 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
   };
 
   const handleUpdateProgram = () => {
-    if (editingProgramId && newProgram.title.trim() && newProgram.description.trim()) {
-      const updatedPrograms = programs.map(program => 
-        program.id === editingProgramId 
+    if (
+      editingProgramId &&
+      newProgram.title.trim() &&
+      newProgram.description.trim()
+    ) {
+      const updatedPrograms = programs.map((program) =>
+        program.id === editingProgramId
           ? { ...program, ...newProgram }
           : program
       );
@@ -95,10 +153,6 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
       setEditingProgramId(null);
       setShowAddForm(false);
     }
-  };
-
-  const handleRemoveProgram = (id: string) => {
-    onChange(programs.filter((program) => program.id !== id));
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -127,6 +181,11 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
     });
   };
 
+  // Sort programs by orderIndex before rendering
+  const sortedPrograms = [...programs].sort(
+    (a, b) => a.orderIndex - b.orderIndex
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -137,7 +196,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
 
       {/* Programs List */}
       <div className="space-y-4">
-        {programs.map((program, index) => (
+        {sortedPrograms.map((program, index) => (
           <Card
             key={program.id}
             className="relative group hover:shadow-md transition-shadow duration-200"
@@ -156,7 +215,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                 <div className="flex-grow">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="inline-flex items-center justify-center w-6 h-6 bg-lime-100 text-lime-600 text-sm font-medium rounded-full">
-                      {index + 1}
+                      {program.orderIndex + 1}
                     </span>
                     <h4 className="font-semibold text-lime-700">
                       {program.title}
@@ -167,15 +226,42 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                     className="safe-html text-muted-foreground text-sm"
                   />
                 </div>
-                
+
                 <div className="flex gap-1">
-                    <div
-                    
-                    onClick={() =>{ handleEditProgram(program.id)
+                  <div className="flex flex-col gap-1">
+                    <button
+                      onClick={() => moveProgram(program.id, "up")}
+                      disabled={index === 0}
+                      className={`p-1 rounded border ${
+                        index === 0
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:bg-gray-100"
+                      }`}
+                      title="Move up"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      onClick={() => moveProgram(program.id, "down")}
+                      disabled={index === programs.length - 1}
+                      className={`p-1 rounded border ${
+                        index === programs.length - 1
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:bg-gray-100"
+                      }`}
+                      title="Move down"
+                    >
+                      ↓
+                    </button>
+                  </div>
+
+                  <div
+                    onClick={() => {
+                      handleEditProgram(program.id);
                       const el = document.getElementById("editForm");
-                  if (el) {
-                    el.scrollIntoView({ behavior: "smooth" });
-                  }
+                      if (el) {
+                        el.scrollIntoView({ behavior: "smooth" });
+                      }
                     }}
                     className="opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-primary hover:text-primary/80 hover:bg-primary/10 cursor-pointer rounded p-1.5 border "
                     title="Modifier le programme"
@@ -183,14 +269,14 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                     tabIndex={0}
                     onKeyPress={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
-                      handleEditProgram(program.id);
+                        handleEditProgram(program.id);
                       }
                     }}
-                    >
+                  >
                     <Edit className="w-4 h-4" />
-                    </div>
-                  
-                    <div
+                  </div>
+
+                  <div
                     onClick={() => handleRemoveProgram(program.id)}
                     className="opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-destructive hover:text-destructive/80 hover:bg-destructive/10 cursor-pointer rounded p-1.5 border border-destructive/20"
                     title="Supprimer le programme"
@@ -198,12 +284,12 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                     tabIndex={0}
                     onKeyPress={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
-                      handleRemoveProgram(program.id);
+                        handleRemoveProgram(program.id);
                       }
                     }}
-                    >
+                  >
                     <X className="w-4 h-4" />
-                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -216,7 +302,9 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
         <Card className="border-2 border-dashed border-accent" id="editForm">
           <CardContent className="p-6">
             <h4 className="font-semibold text-foreground mb-4">
-              {editingProgramId ? "Modifier le Programme" : "Ajouter Nouveau Programme"}
+              {editingProgramId
+                ? "Modifier le Programme"
+                : "Ajouter Nouveau Programme"}
             </h4>
             <div className="space-y-4">
               <div>
@@ -244,7 +332,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                   onChange={(value) =>
                     setNewProgram((prev) => ({ ...prev, description: value }))
                   }
-                  className="max-h-60 w-full overflow-auto"
+                  className="w-full "
                 />
               </div>
 
@@ -285,19 +373,19 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
 
               <div className="flex gap-3 pt-2">
                 <Button
-                  onClick={editingProgramId ? handleUpdateProgram : handleAddProgram}
+                  onClick={
+                    editingProgramId ? handleUpdateProgram : handleAddProgram
+                  }
                   disabled={
-                    !newProgram.title.trim() ||
-                    !newProgram.description.trim()
+                    !newProgram.title.trim() || !newProgram.description.trim()
                   }
                   className="bg-lime-600 hover:bg-lime-700 text-white"
                 >
-                  {editingProgramId ? "Mettre à jour le Programme" : "Ajouter une Programme"}
+                  {editingProgramId
+                    ? "Mettre à jour le Programme"
+                    : "Ajouter une Programme"}
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleCancelEdit}
-                >
+                <Button variant="outline" onClick={handleCancelEdit}>
                   Annuler
                 </Button>
               </div>

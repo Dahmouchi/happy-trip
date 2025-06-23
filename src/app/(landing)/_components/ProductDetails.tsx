@@ -774,7 +774,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
               </button>
             </div>
             {/* Reviews Section */}
-            <div className="bg-[#F6F3F2]  p-6 md:p-8 rounded-xl border border-slate-200 shadow-lg max-w-2xl mx-auto font-sans">
+            {tour.showReviews && <div className="bg-[#F6F3F2]  p-6 md:p-8 rounded-xl border border-slate-200 shadow-lg max-w-2xl mx-auto font-sans">
               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center justify-center">
                 <MessageCircle />
                 Les avis
@@ -832,7 +832,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
                 </div>
               )}
               <ReviewModal tourId={tour.id} />
-            </div>
+            </div>}
             <BookingSteps advance={tour?.advancedPrice} />
           </div>
         </div>

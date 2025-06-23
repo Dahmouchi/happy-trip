@@ -208,22 +208,21 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
               </div>
 
               <div className="flex gap-3 pt-2">
-                <Button
+                <div
                   onClick={editingDateId ? handleUpdateDate : handleAddDate}
-                  disabled={!newDate.dateDebut || !newDate.dateFin}
-                  className="bg-lime-600 hover:bg-lime-700 text-white"
+                  className="bg-lime-600 hover:bg-lime-700 text-white px-8 py-2 rounded-lg"
                 >
                   {editingDateId ? 'Modifier Date' : 'Ajouter Date'}
-                </Button>
-                <Button
-                  variant="outline"
+                </div>
+                <div
+                className='px-8 py-2 rounded-lg border'
                   onClick={editingDateId ? handleCancelEdit : () => {
                     setShowAddForm(false);
                     setNewDate({ dateDebut: undefined as unknown as Date, dateFin: undefined as unknown as Date, description: '', visible: true});
                   }}
                 >
                   Annuler
-                </Button>
+                </div>
                 <label className="flex items-center gap-2 cursor-pointer select-none">
                   <input
                   type="checkbox"

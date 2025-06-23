@@ -1,4 +1,3 @@
- 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
@@ -6,8 +5,22 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Banknote, BedDouble, Calendar, CalendarIcon, Check, CheckSquare, ChevronsUpDown, ClipboardPenLine, EyeIcon, Hotel, Images, ImagesIcon, Info } from "lucide-react";
-
+import {
+  Banknote,
+  BedDouble,
+  Calendar,
+  CalendarIcon,
+  Check,
+  CheckSquare,
+  ChevronsUpDown,
+  ClipboardPenLine,
+  EyeIcon,
+  Hotel,
+  Images,
+  ImagesIcon,
+  Info,
+} from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -88,7 +101,7 @@ const tourSchema = z.object({
   priceOriginal: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(0, "Le prix doit être positif"),
+    z.number().min(0, "Le prix doit être positif")
   ),
   priceDiscounted: z.preprocess(
     (val) =>
@@ -109,12 +122,12 @@ const tourSchema = z.object({
   durationDays: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(1, "Au moins 1 jour"),
+    z.number().min(1, "Au moins 1 jour")
   ),
   durationNights: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(0, "Nuits >= 0"),
+    z.number().min(0, "Nuits >= 0")
   ),
   videoUrl: z
     .string()
@@ -157,6 +170,7 @@ const tourSchema = z.object({
     .array(
       z.object({
         title: z.string().min(1, "Titre requis"),
+        orderIndex: z.number().optional(),
         description: z.string(),
         image: z
           .union([z.instanceof(File), z.string()])
@@ -179,14 +193,16 @@ const tourSchema = z.object({
       })
     )
     .optional(),
-  images: z.array(
-    z.object({
-      link: z
-        .instanceof(File)
-        .or(z.literal(""))
-        .transform((val) => (val === "" ? undefined : val)),
-    })
-  ),
+  images: z
+    .array(
+      z.object({
+        link: z
+          .instanceof(File)
+          .or(z.literal(""))
+          .transform((val) => (val === "" ? undefined : val)),
+      })
+    )
+    .optional(),
 
   destinations: z.array(z.string()),
   categories: z.array(z.string()),
@@ -213,7 +229,7 @@ export function AddTourForm({
 
   const form = useForm<z.infer<typeof tourSchema>>({
     defaultValues: {
-      active : true, // Prisma default: true
+      active: true, // Prisma default: true
       title: "",
       description: "",
       type: "NATIONAL",
@@ -333,102 +349,120 @@ export function AddTourForm({
 
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 align-middle">
-
-                  <FormField
-                    control={form.control}
-                    name="id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          ID du circuit <span className="text-red-600">*</span>{" "}
-                          <span className="text-red-600 font-semibold italic">
-                            (ID non modifiable après la création du circuit.)
-                          </span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="text"
-                            placeholder="ID du circuit (doit être unique)"
-                            {...field}
-                            onBlur={async () => {
-                              if (field.value) {
-                                try {
-                                  const res = await checkTourIdExists(field.value);
-                                  if (res.exists) {
-                                    form.setError("id", { type: "manual", message: "Cet ID est déjà utilisé." });
-                                  } else {
-                                    form.clearErrors("id");
+                    <FormField
+                      control={form.control}
+                      name="id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            ID du circuit{" "}
+                            <span className="text-red-600">*</span>{" "}
+                            <span className="text-red-600 font-semibold italic">
+                              (ID non modifiable après la création du circuit.)
+                            </span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="text"
+                              placeholder="ID du circuit (doit être unique)"
+                              {...field}
+                              onBlur={async () => {
+                                if (field.value) {
+                                  try {
+                                    const res = await checkTourIdExists(
+                                      field.value
+                                    );
+                                    if (res.exists) {
+                                      form.setError("id", {
+                                        type: "manual",
+                                        message: "Cet ID est déjà utilisé.",
+                                      });
+                                    } else {
+                                      form.clearErrors("id");
+                                    }
+                                  } catch (err) {
+                                    form.setError("id", {
+                                      type: "manual",
+                                      message:
+                                        "Erreur lors de la vérification de l'ID",
+                                    });
                                   }
-                                } catch (err) {
-                                  form.setError("id", { type: "manual", message: "Erreur lors de la vérification de l'ID" });
                                 }
-                              }
-                            }}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          L&apos;identifiant du circuit doit être unique. Veuillez choisir un ID qui n&apos;est pas déjà utilisé.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>  )}
-                  />
+                              }}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            L&apos;identifiant du circuit doit être unique.
+                            Veuillez choisir un ID qui n&apos;est pas déjà
+                            utilisé.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Titre <span className="text-red-600">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Entrez le titre du circuit"
-                            required
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Entrez le titre du circuit.
-                        </FormDescription>  <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="active"
-                    render={({ field }) => (
-                      <FormItem className="flex items-center space-x-2 mt-4">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            className="h-6 w-6 hover:cursor-pointer"
-                          />
-                        </FormControl>  <FormLabel>{field.value ? "Actif" : "Inactif"}</FormLabel>
-                        <FormDescription>
-                          {field.value
-                            ? "Décochez pour désactiver ce circuit."
-                            : "Cochez pour activer ce circuit."}
-                        </FormDescription>  <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Titre <span className="text-red-600">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Entrez le titre du circuit"
+                              required
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Entrez le titre du circuit.
+                          </FormDescription>{" "}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="active"
+                      render={({ field }) => (
+                        <FormItem className="flex items-center space-x-2 mt-4">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              className="h-6 w-6 hover:cursor-pointer"
+                            />
+                          </FormControl>{" "}
+                          <FormLabel>
+                            {field.value ? "Actif" : "Inactif"}
+                          </FormLabel>
+                          <FormDescription>
+                            {field.value
+                              ? "Décochez pour désactiver ce circuit."
+                              : "Cochez pour activer ce circuit."}
+                          </FormDescription>{" "}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                   <FormField
                     control={form.control}
                     name="description"
                     render={({ field }) => (
                       <FormItem className="flex flex-col items-start w-full">
-                        <FormLabel>Description<span className="text-red-600">*</span></FormLabel>
+                        <FormLabel>
+                          Description<span className="text-red-600">*</span>
+                        </FormLabel>
                         <FormControl>
                           <div className="w-full flex justify-start">
                             <div className="w-full">
                               <RichTextEditor
                                 value={field.value || ""}
                                 onChange={field.onChange}
-                                className="max-h-60 w-full overflow-auto"
+                                className="w-full" // Remove max-h and overflow
                               />
                             </div>
                           </div>
@@ -437,7 +471,6 @@ export function AddTourForm({
                       </FormItem>
                     )}
                   />
-
                   {/* Tour type (national or international) */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 my-8">
                     <FormField
@@ -445,7 +478,10 @@ export function AddTourForm({
                       name="type"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Type de circuit <span className="text-red-600">*</span></FormLabel>
+                          <FormLabel>
+                            Type de circuit{" "}
+                            <span className="text-red-600">*</span>
+                          </FormLabel>
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
@@ -484,7 +520,7 @@ export function AddTourForm({
                               {selectedType === "INTERNATIONAL"
                                 ? "Destinations internationales"
                                 : "Destinations nationales"}
-                                <span className="text-red-600">*</span>
+                              <span className="text-red-600">*</span>
                             </FormLabel>
                             <Popover>
                               <PopoverTrigger asChild>
@@ -492,16 +528,17 @@ export function AddTourForm({
                                   variant="outline"
                                   role="combobox"
                                   className="w-fit justify-between"
-                                  style={{ 
-                                    maxWidth: '100%', 
-                                    whiteSpace: 'normal', 
-                                    overflowWrap: 'break-word',
-                                    wordBreak: 'break-word'
+                                  style={{
+                                    maxWidth: "100%",
+                                    whiteSpace: "normal",
+                                    overflowWrap: "break-word",
+                                    wordBreak: "break-word",
                                   }}
                                 >
                                   {field.value && field.value.length > 0
                                     ? `${field.value.length} destination(s) sélectionnée(s)`
-                                    : "Sélectionnez la/les destination(s)"}  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    : "Sélectionnez la/les destination(s)"}{" "}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
                               </PopoverTrigger>
                               <PopoverContent className="p-0">
@@ -554,36 +591,41 @@ export function AddTourForm({
                               </PopoverContent>
                             </Popover>
                             <FormDescription
-                              style={{ 
-                                maxWidth: '100%', 
-                                whiteSpace: 'normal', 
-                                overflowWrap: 'break-word',
-                                wordBreak: 'break-word'
-                              }}>
+                              style={{
+                                maxWidth: "100%",
+                                whiteSpace: "normal",
+                                overflowWrap: "break-word",
+                                wordBreak: "break-word",
+                              }}
+                            >
                               Sélectionnez une ou plusieurs destinations
                               associées à ce circuit.
                             </FormDescription>
                             {/* Show selected destinations */}
-                            {Array.isArray(field.value) && field.value.length > 0 && (
-                              <div className="mt-2 flex flex-wrap gap-2">
-                                {destinations
-                                  .filter((dest: any) => field.value.includes(dest.id))
-                                  .map((dest: any) => (
-                                    <span
-                                      key={dest.id}
-                                      className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs"
-                                    >
-                                      {dest.name}
-                                    </span>
-                                  ))}
-                              </div>
-                            )}
+                            {Array.isArray(field.value) &&
+                              field.value.length > 0 && (
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                  {destinations
+                                    .filter((dest: any) =>
+                                      field.value.includes(dest.id)
+                                    )
+                                    .map((dest: any) => (
+                                      <span
+                                        key={dest.id}
+                                        className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs"
+                                      >
+                                        {dest.name}
+                                      </span>
+                                    ))}
+                                </div>
+                              )}
                             <FormMessage />
                           </FormItem>
                         );
                       }}
                     />
-                  </div>  {/* activities  (natures)*/}
+                  </div>{" "}
+                  {/* activities  (natures)*/}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 my-8">
                     {/* Natures */}
                     <FormField
@@ -591,7 +633,9 @@ export function AddTourForm({
                       name="natures"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Nature(s) <span className="text-red-600">*</span></FormLabel>
+                          <FormLabel>
+                            Nature(s) <span className="text-red-600">*</span>
+                          </FormLabel>
                           <FormControl>
                             <Popover>
                               <PopoverTrigger asChild>
@@ -600,15 +644,16 @@ export function AddTourForm({
                                   role="combobox"
                                   className="w-full justify-between whitespace-normal text-left"
                                   style={{
-                                    maxWidth: '100%',
-                                    whiteSpace: 'normal',
-                                    overflowWrap: 'break-word',
-                                    wordBreak: 'break-word'
+                                    maxWidth: "100%",
+                                    whiteSpace: "normal",
+                                    overflowWrap: "break-word",
+                                    wordBreak: "break-word",
                                   }}
                                 >
                                   {field.value && field.value.length > 0
                                     ? `${field.value.length} nature(s) sélectionnée(s)`
-                                    : "Sélectionnez la/les nature(s)"}  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    : "Sélectionnez la/les nature(s)"}{" "}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
                               </PopoverTrigger>
                               <PopoverContent className="p-0">
@@ -663,29 +708,33 @@ export function AddTourForm({
                           </FormControl>
                           <FormDescription
                             style={{
-                              maxWidth: '100%',
-                              whiteSpace: 'normal',
-                              overflowWrap: 'break-word',
-                              wordBreak: 'break-word'
-                            }}>
+                              maxWidth: "100%",
+                              whiteSpace: "normal",
+                              overflowWrap: "break-word",
+                              wordBreak: "break-word",
+                            }}
+                          >
                             Sélectionnez toutes les natures associées à ce
                             circuit
                           </FormDescription>
                           {/* Show selected natures */}
-                          {Array.isArray(field.value) && field.value.length > 0 && (
-                            <div className="mt-2 flex flex-wrap gap-2">
-                              {natures
-                                .filter((nature: any) => field.value.includes(nature.id))
-                                .map((nature: any) => (
-                                  <span
-                                    key={nature.id}
-                                    className="bg-lime-100 text-lime-800 px-2 py-1 rounded text-xs"
-                                  >
-                                    {nature.name}
-                                  </span>
-                                ))}
-                            </div>
-                          )}
+                          {Array.isArray(field.value) &&
+                            field.value.length > 0 && (
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                {natures
+                                  .filter((nature: any) =>
+                                    field.value.includes(nature.id)
+                                  )
+                                  .map((nature: any) => (
+                                    <span
+                                      key={nature.id}
+                                      className="bg-lime-100 text-lime-800 px-2 py-1 rounded text-xs"
+                                    >
+                                      {nature.name}
+                                    </span>
+                                  ))}
+                              </div>
+                            )}
                           <FormMessage />
                         </FormItem>
                       )}
@@ -697,7 +746,9 @@ export function AddTourForm({
                       name="categories"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Catégorie(s) <span className="text-red-600">*</span></FormLabel>
+                          <FormLabel>
+                            Catégorie(s) <span className="text-red-600">*</span>
+                          </FormLabel>
                           <FormControl>
                             <Popover>
                               <PopoverTrigger asChild>
@@ -706,10 +757,10 @@ export function AddTourForm({
                                   role="combobox"
                                   className="w-full justify-between whitespace-normal text-left"
                                   style={{
-                                    maxWidth: '100%',
-                                    whiteSpace: 'normal',
-                                    overflowWrap: 'break-word',
-                                    wordBreak: 'break-word'
+                                    maxWidth: "100%",
+                                    whiteSpace: "normal",
+                                    overflowWrap: "break-word",
+                                    wordBreak: "break-word",
                                   }}
                                 >
                                   {field.value && field.value.length > 0
@@ -731,12 +782,19 @@ export function AddTourForm({
                                           key={cat.id}
                                           value={cat.id}
                                           onSelect={() => {
-                                            const currentValue = Array.isArray(field.value)
+                                            const currentValue = Array.isArray(
+                                              field.value
+                                            )
                                               ? [...field.value]
                                               : [];
-                                            const index = currentValue.indexOf(cat.id);
+                                            const index = currentValue.indexOf(
+                                              cat.id
+                                            );
                                             if (index === -1) {
-                                              field.onChange([...currentValue, cat.id]);
+                                              field.onChange([
+                                                ...currentValue,
+                                                cat.id,
+                                              ]);
                                             } else {
                                               currentValue.splice(index, 1);
                                               field.onChange(currentValue);
@@ -746,7 +804,8 @@ export function AddTourForm({
                                           <Check
                                             className={cn(
                                               "mr-2 h-4 w-4",
-                                              field.value && field.value.includes(cat.id)
+                                              field.value &&
+                                                field.value.includes(cat.id)
                                                 ? "opacity-100"
                                                 : "opacity-0"
                                             )}
@@ -761,23 +820,27 @@ export function AddTourForm({
                             </Popover>
                           </FormControl>
                           <FormDescription>
-                            Sélectionnez une ou plusieurs catégories associées à ce circuit
+                            Sélectionnez une ou plusieurs catégories associées à
+                            ce circuit
                           </FormDescription>
                           {/* Show selected categories */}
-                          {Array.isArray(field.value) && field.value.length > 0 && (
-                            <div className="mt-2 flex flex-wrap gap-2">
-                              {categories
-                                .filter((cat: any) => field.value.includes(cat.id))
-                                .map((cat: any) => (
-                                  <span
-                                    key={cat.id}
-                                    className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs"
-                                  >
-                                    {cat.name}
-                                  </span>
-                                ))}
-                            </div>
-                          )}
+                          {Array.isArray(field.value) &&
+                            field.value.length > 0 && (
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                {categories
+                                  .filter((cat: any) =>
+                                    field.value.includes(cat.id)
+                                  )
+                                  .map((cat: any) => (
+                                    <span
+                                      key={cat.id}
+                                      className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs"
+                                    >
+                                      {cat.name}
+                                    </span>
+                                  ))}
+                              </div>
+                            )}
                           <FormMessage />
                         </FormItem>
                       )}
@@ -789,7 +852,9 @@ export function AddTourForm({
                       name="services"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Service(s) <span className="text-red-600">*</span></FormLabel>
+                          <FormLabel>
+                            Service(s) <span className="text-red-600">*</span>
+                          </FormLabel>
                           <FormControl>
                             <Popover>
                               <PopoverTrigger asChild>
@@ -797,17 +862,17 @@ export function AddTourForm({
                                   variant="outline"
                                   role="combobox"
                                   className="w-fit justify-between"
-                                   style={{
-                                    maxWidth: '100%',
-                                    whiteSpace: 'normal',
-                                    overflowWrap: 'break-word',
-                                    wordBreak: 'break-word'
+                                  style={{
+                                    maxWidth: "100%",
+                                    whiteSpace: "normal",
+                                    overflowWrap: "break-word",
+                                    wordBreak: "break-word",
                                   }}
-                                  >
-                                    {field.value && field.value.length > 0
-                                      ? `${field.value.length} service(s) sélectionné(s)`
-                                      : "Sélectionnez la/les service(s)"}  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-
+                                >
+                                  {field.value && field.value.length > 0
+                                    ? `${field.value.length} service(s) sélectionné(s)`
+                                    : "Sélectionnez la/les service(s)"}{" "}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
                               </PopoverTrigger>
                               <PopoverContent className="p-0">
@@ -865,33 +930,38 @@ export function AddTourForm({
                             circuit
                           </FormDescription>
                           {/* Show selected services */}
-                          {Array.isArray(field.value) && field.value.length > 0 && (
-                            <div className="mt-2 flex flex-wrap gap-2">
-                              {services
-                                .filter((service: any) => field.value.includes(service.id))
-                                .map((service: any) => (
-                                  <span
-                                    key={service.id}
-                                    className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs"
-                                  >
-                                    {service.name}
-                                  </span>
-                                ))}
-                            </div>
-                          )}
+                          {Array.isArray(field.value) &&
+                            field.value.length > 0 && (
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                {services
+                                  .filter((service: any) =>
+                                    field.value.includes(service.id)
+                                  )
+                                  .map((service: any) => (
+                                    <span
+                                      key={service.id}
+                                      className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs"
+                                    >
+                                      {service.name}
+                                    </span>
+                                  ))}
+                              </div>
+                            )}
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                   </div>
-
                   {/* Main image for the tour */}
                   <FormField
                     control={form.control}
                     name="imageURL"
                     render={() => (
                       <FormItem>
-                        <FormLabel>Images du circuit <span className="text-red-600">*</span></FormLabel>
+                        <FormLabel>
+                          Images du circuit{" "}
+                          <span className="text-red-600">*</span>
+                        </FormLabel>
                         <FormDescription>
                           Ajoutez l&apos;URL de l&apos;image pour ce circuit
                         </FormDescription>
@@ -933,7 +1003,6 @@ export function AddTourForm({
                       </FormItem>
                     )}
                   />
-
                   {/* difficulty level of the tour */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 my-8">
                     <FormField
@@ -941,7 +1010,10 @@ export function AddTourForm({
                       name="difficultyLevel"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Niveau de difficulté (1-5) <span className="text-red-600">*</span></FormLabel>
+                          <FormLabel>
+                            Niveau de difficulté (1-5){" "}
+                            <span className="text-red-600">*</span>
+                          </FormLabel>
                           <Select
                             onValueChange={(value: any) =>
                               field.onChange(Number.parseInt(value))
@@ -975,7 +1047,10 @@ export function AddTourForm({
                       name="accommodationType"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Type d&apos;hébergement <span className="text-red-600">*</span></FormLabel>
+                          <FormLabel>
+                            Type d&apos;hébergement{" "}
+                            <span className="text-red-600">*</span>
+                          </FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Entrez le type d'hébergement"
@@ -988,9 +1063,7 @@ export function AddTourForm({
                       )}
                     />
                   </div>
-
                   {/* google maps  link */}
-
                   <FormField
                     control={form.control}
                     name="googleMapsUrl"
@@ -1012,14 +1085,13 @@ export function AddTourForm({
                       </FormItem>
                     )}
                   />
-                    
                   {/* Video URL */}
                   <FormField
                     control={form.control}
                     name="videoUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel >Lien vidéo YouTube</FormLabel>
+                        <FormLabel>Lien vidéo YouTube</FormLabel>
                         <FormControl>
                           <Input
                             type="text"
@@ -1028,12 +1100,13 @@ export function AddTourForm({
                           />
                         </FormControl>
                         <FormDescription>
-                          Ajoutez un lien vers une vidéo YouTube présentant ce circuit.
+                          Ajoutez un lien vers une vidéo YouTube présentant ce
+                          circuit.
                         </FormDescription>
                         <FormMessage />
-                      </FormItem>  )}
+                      </FormItem>
+                    )}
                   />
-
                   {/* Groupe type  */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 my-8">
                     <FormField
@@ -1041,7 +1114,10 @@ export function AddTourForm({
                       name="groupType"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Type de groupe <span className="text-red-600">*</span></FormLabel>
+                          <FormLabel>
+                            Type de groupe{" "}
+                            <span className="text-red-600">*</span>
+                          </FormLabel>
                           <FormControl>
                             <Select
                               onValueChange={field.onChange}
@@ -1071,7 +1147,10 @@ export function AddTourForm({
                       name="groupSizeMax"
                       render={({ field }) => (
                         <FormItem className="w-fit">
-                          <FormLabel>Taille du groupe <span className="text-red-600">*</span></FormLabel>
+                          <FormLabel>
+                            Taille du groupe{" "}
+                            <span className="text-red-600">*</span>
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -1092,19 +1171,18 @@ export function AddTourForm({
                 </div>
               </div>
 
-
-                {/* Hotels Information */}
+              {/* Hotels Information */}
               {form.watch("type") === "INTERNATIONAL" && (
                 <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="text-lime-600 text-l font-medium">
-                  <BedDouble className="inline mr-2" />
-                  Informations sur les hotels
-                </h3>
-                <p className="text-lime-800 text-md  mb-4">
-                  Définissez les hôtels associés à ce circuit.
-                </p>  <Separator className="mb-6" />
-
-                <div className="space-y-4">
+                  <h3 className="text-lime-600 text-l font-medium">
+                    <BedDouble className="inline mr-2" />
+                    Informations sur les hotels
+                  </h3>
+                  <p className="text-lime-800 text-md  mb-4">
+                    Définissez les hôtels associés à ce circuit.
+                  </p>{" "}
+                  <Separator className="mb-6" />
+                  <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-4 my-8">
                       <FormField
                         control={form.control}
@@ -1139,12 +1217,17 @@ export function AddTourForm({
                                             key={hotel.id}
                                             value={hotel.id}
                                             onSelect={() => {
-                                              const currentValue = Array.isArray(field.value)
-                                                ? [...field.value]
-                                                : [];
-                                              const index = currentValue.indexOf(hotel.id);
+                                              const currentValue =
+                                                Array.isArray(field.value)
+                                                  ? [...field.value]
+                                                  : [];
+                                              const index =
+                                                currentValue.indexOf(hotel.id);
                                               if (index === -1) {
-                                                field.onChange([...currentValue, hotel.id]);
+                                                field.onChange([
+                                                  ...currentValue,
+                                                  hotel.id,
+                                                ]);
                                               } else {
                                                 currentValue.splice(index, 1);
                                                 field.onChange(currentValue);
@@ -1180,32 +1263,36 @@ export function AddTourForm({
                               Sélectionnez tous les hôtels associés à ce circuit
                             </FormDescription>
                             {/* Show selected hotels with their prices */}
-                            {Array.isArray(field.value) && field.value.length > 0 && (
-                              <div className="mt-2 flex flex-wrap gap-2">
-                                {hotels
-                                  .filter((hotel: any) => (field.value ?? []).includes(hotel.id))
-                                  .map((hotel: any) => (
-                                    <span
-                                      key={hotel.id}
-                                      className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs flex items-center gap-1"
-                                    >
-                                      {hotel.name}
-                                      {hotel.price && (
-                                        <span className="ml-1 text-gray-600">
-                                          ({hotel.price} DH)
-                                        </span>
-                                      )}
-                                    </span>
-                                  ))}
-                              </div>
-                            )}
+                            {Array.isArray(field.value) &&
+                              field.value.length > 0 && (
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                  {hotels
+                                    .filter((hotel: any) =>
+                                      (field.value ?? []).includes(hotel.id)
+                                    )
+                                    .map((hotel: any) => (
+                                      <span
+                                        key={hotel.id}
+                                        className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs flex items-center gap-1"
+                                      >
+                                        {hotel.name}
+                                        {hotel.price && (
+                                          <span className="ml-1 text-gray-600">
+                                            ({hotel.price} DH)
+                                          </span>
+                                        )}
+                                      </span>
+                                    ))}
+                                </div>
+                              )}
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-                    </div>  </div>
-              </div>
-              )} 
+                    </div>{" "}
+                  </div>
+                </div>
+              )}
 
               {/* programms information */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
@@ -1223,25 +1310,26 @@ export function AddTourForm({
                     <ProgramForm
                       programs={(form.watch("programs") || []).map(
                         (p: any, idx: number) => ({
-                          id: p.id ?? idx.toString(),
+                          id: p.id ?? uuidv4(),
                           title: p.title,
                           description: p.description,
                           image: p.image,
+                          orderIndex: p.orderIndex ?? idx,
+                          imagePreview: p.image, // assuming this is already a URL if it exists
                         })
                       )}
                       onChange={(programs: any[]) => {
                         form.setValue(
                           "programs",
-                          programs.map(({ id, ...rest }) => rest)
+                          programs
+                            .sort((a, b) => a.orderIndex - b.orderIndex)
+                            .map(({ id, imagePreview, ...rest }) => rest)
                         );
                       }}
                     />
                   </div>
                 </div>
               </div>
-
-
-
 
               {/* Pricing Information */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
@@ -1254,7 +1342,7 @@ export function AddTourForm({
                 </p>
                 <Separator className="mb-6" />
 
-               <div className="space-y-4">
+                <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Original Price */}
                     <FormField
@@ -1262,7 +1350,10 @@ export function AddTourForm({
                       name="priceOriginal"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Prix original (DH) <span className="text-red-600">*</span></FormLabel>
+                          <FormLabel>
+                            Prix original (DH){" "}
+                            <span className="text-red-600">*</span>
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -1272,12 +1363,20 @@ export function AddTourForm({
                                 const value = parseFloat(e.target.value);
                                 field.onChange(value);
 
-                                const discountedPrice = form.getValues("priceDiscounted") || 0;
-                                if (value > 0 && discountedPrice > 0 && discountedPrice < value) {
+                                const discountedPrice =
+                                  form.getValues("priceDiscounted") || 0;
+                                if (
+                                  value > 0 &&
+                                  discountedPrice > 0 &&
+                                  discountedPrice < value
+                                ) {
                                   const discountPercent = Math.round(
                                     ((value - discountedPrice) / value) * 100
                                   );
-                                  form.setValue("discountPercent", discountPercent);
+                                  form.setValue(
+                                    "discountPercent",
+                                    discountPercent
+                                  );
                                 } else {
                                   form.setValue("discountPercent", 0);
                                 }
@@ -1289,38 +1388,46 @@ export function AddTourForm({
                       )}
                     />
 
-                   {/* Discounted Price */}
-                  <FormField
-                    control={form.control}
-                    name="priceDiscounted"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Prix réduit (DH)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="Entrez le prix réduit"
-                            {...field}
-                            onChange={(e) => {
-                              const value = parseFloat(e.target.value);
-                              field.onChange(value);
+                    {/* Discounted Price */}
+                    <FormField
+                      control={form.control}
+                      name="priceDiscounted"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Prix réduit (DH)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="Entrez le prix réduit"
+                              {...field}
+                              onChange={(e) => {
+                                const value = parseFloat(e.target.value);
+                                field.onChange(value);
 
-                              const originalPrice = form.getValues("priceOriginal") || 0;
-                              if (originalPrice > 0 && value < originalPrice) {
-                                const discountPercent = Math.round(
-                                  ((originalPrice - value) / originalPrice) * 100
-                                );
-                                form.setValue("discountPercent", discountPercent);
-                              } else {
-                                form.setValue("discountPercent", 0);
-                              }
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                                const originalPrice =
+                                  form.getValues("priceOriginal") || 0;
+                                if (
+                                  originalPrice > 0 &&
+                                  value < originalPrice
+                                ) {
+                                  const discountPercent = Math.round(
+                                    ((originalPrice - value) / originalPrice) *
+                                      100
+                                  );
+                                  form.setValue(
+                                    "discountPercent",
+                                    discountPercent
+                                  );
+                                } else {
+                                  form.setValue("discountPercent", 0);
+                                }
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     {/* Discount Percentage (read-only, integer only) */}
                     <FormField
                       control={form.control}
@@ -1328,18 +1435,18 @@ export function AddTourForm({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Pourcentage de réduction (%)</FormLabel>
-                            <FormControl>
+                          <FormControl>
                             <Input
                               type="number"
                               readOnly
                               value={
-                              field.value !== 0
-                                ?  Math.round(field.value ?? 0)
-                                : Math.round(field.value ?? 0)
+                                field.value !== 0
+                                  ? Math.round(field.value ?? 0)
+                                  : Math.round(field.value ?? 0)
                               }
                               placeholder="Calculé automatiquement"
                             />
-                            </FormControl>
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -1399,7 +1506,6 @@ export function AddTourForm({
                 </div>
               </div>
 
-
               {/* Dates and Duration */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
                 <h3 className="text-lime-600 text-l font-medium">
@@ -1417,7 +1523,10 @@ export function AddTourForm({
                     name="dateCard"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Date du circuit (affichage carte) <span className="text-red-600">*</span></FormLabel>
+                        <FormLabel>
+                          Date du circuit (affichage carte){" "}
+                          <span className="text-red-600">*</span>
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="text"
@@ -1440,7 +1549,10 @@ export function AddTourForm({
                       name="durationDays"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Nombre de jours <span className="text-red-600">*</span></FormLabel>
+                          <FormLabel>
+                            Nombre de jours{" "}
+                            <span className="text-red-600">*</span>
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -1461,7 +1573,10 @@ export function AddTourForm({
                       name="durationNights"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Nombre de nuits <span className="text-red-600">*</span></FormLabel>
+                          <FormLabel>
+                            Nombre de nuits{" "}
+                            <span className="text-red-600">*</span>
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -1532,7 +1647,7 @@ export function AddTourForm({
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
                 <h3 className="text-lime-600 text-l font-medium">
                   <CheckSquare className="inline mr-2" />
-                  Inclus & Exclus 
+                  Inclus & Exclus
                 </h3>
                 <p className="text-lime-800 text-md  mb-4">
                   Définissez les inclus et les exlus du circuit.
@@ -1566,7 +1681,7 @@ export function AddTourForm({
               </div>
 
               {/* Additional Details */}
-              <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
+              {/*<div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
                 <h3 className="text-lime-600 text-l font-medium">
                   <ImagesIcon className="inline mr-2" />
                   Détails supplémentaires
@@ -1577,7 +1692,7 @@ export function AddTourForm({
                 <Separator className="mb-6" />
 
                 <div className="space-y-4">
-                  {/* Image URLs 9 max */}
+                   Image URLs 9 max
                   <FormField
                     control={form.control}
                     name="images"
@@ -1624,9 +1739,9 @@ export function AddTourForm({
                         <FormMessage />
                       </FormItem>
                     )}
-                  />
+                  /> 
                 </div>
-              </div>
+              </div>*/}
 
               {/* Display Options */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
@@ -1697,7 +1812,8 @@ export function AddTourForm({
                           <div className="space-y-1 leading-none">
                             <FormLabel>Afficher la réduction</FormLabel>
                             <FormDescription>
-                              Afficher les informations de réduction pour ce circuit
+                              Afficher les informations de réduction pour ce
+                              circuit
                             </FormDescription>
                           </div>
                         </FormItem>
@@ -1727,19 +1843,18 @@ export function AddTourForm({
               !form.watch("dateCard") ||
               !form.watch("durationDays") ||
               !form.watch("durationNights") ||
-              !form.watch("images") ||
               !form.watch("arrayInclus") ||
               !form.watch("arrayExlus") ||
               !form.watch("showReviews") ||
               !form.watch("showDifficulty") ||
               !form.watch("showDiscount") ||
-              !gallery ||
-              (form.watch("type") === "INTERNATIONAL" && form.watch("hotels")?.length === 0)
-              
+              (form.watch("type") === "INTERNATIONAL" &&
+                form.watch("hotels")?.length === 0)
             }
           >
             Créer le circuit
-          </Button>  </div>
+          </Button>{" "}
+        </div>
       </form>
     </Form>
   );

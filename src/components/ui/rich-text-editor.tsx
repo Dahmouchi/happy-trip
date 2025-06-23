@@ -45,42 +45,42 @@ export default function RichTextEditor({
   editorClassName?: string;
   editorStyle?: React.CSSProperties;
 }) {
-const editor = useEditor({
-  extensions: [
-    StarterKit.configure({
-      bulletList: {
-        HTMLAttributes: {
-          class: "list-disc pl-4",
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        bulletList: {
+          HTMLAttributes: {
+            class: "list-disc pl-4",
+          },
         },
-      },
-      orderedList: {
-        HTMLAttributes: {
-          class: "list-decimal pl-4",
+        orderedList: {
+          HTMLAttributes: {
+            class: "list-decimal pl-4",
+          },
         },
-      },
-      listItem: {
-        HTMLAttributes: {
-          class: "leading-normal",
+        listItem: {
+          HTMLAttributes: {
+            class: "leading-normal",
+          },
         },
-      },
-    }),
-    TextStyle,
-    FontFamily,
-    Color.configure({
-      types: ["textStyle"],
-    }),
-    Link.configure({
-      openOnClick: false,
-    }),
-    Underline,
-    HorizontalAlign,
-    TextAlign,
-  ],
-  content: value || "",
-  onUpdate({ editor }) {
-    onChange(editor.getHTML());
-  },
-});
+      }),
+      TextStyle,
+      FontFamily,
+      Color.configure({
+        types: ["textStyle"],
+      }),
+      Link.configure({
+        openOnClick: false,
+      }),
+      Underline,
+      HorizontalAlign,
+      TextAlign,
+    ],
+    content: value || "",
+    onUpdate({ editor }) {
+      onChange(editor.getHTML());
+    },
+  });
 
   useEffect(() => {
     if (editor && value !== editor.getHTML()) {
@@ -217,8 +217,8 @@ const editor = useEditor({
       {/* Editor Content */}
       <EditorContent
         editor={editor}
-        className={`min-h-[400px] p-4 focus:outline-none prose prose-sm max-w-none  ${editorClassName}`}
-        style={editorStyle}
+        className={`min-h-[100px] p-4 focus:outline-none prose prose-sm max-w-none ${editorClassName}`}
+        style={{ ...editorStyle, overflow: "hidden" }} // Important: hide scroll, let it grow
       />
     </div>
   );

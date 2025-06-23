@@ -60,6 +60,7 @@ model Blog {
 model Program {
   id          String   @id @default(cuid())
   title       String
+  orderIndex  Int   @default(0)
   description String?
   imageUrl    String?
   tourId      String

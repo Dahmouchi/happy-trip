@@ -98,6 +98,7 @@ const tourSchema = z.object({
     .array(
       z.object({
         title: z.string().min(1, "Titre requis"),
+        orderIndex:z.number().optional(),
         description: z.string(),
         image: z
           .union([z.instanceof(File), z.string()])
@@ -127,7 +128,7 @@ const tourSchema = z.object({
         .or(z.literal(""))
         .transform((val) => (val === "" ? undefined : val)),
     })
-  ),
+  ).optional(),
 
   destinations: z.array(z.string()),
   categories: z.array(z.string()),
@@ -249,6 +250,7 @@ export type TourFormData = z.infer<typeof tourSchema>
 
           return {
             title: program.title,
+            orderIndex: program.orderIndex,
             description: program.description,
             imageUrl,
           };

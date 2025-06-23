@@ -15,11 +15,22 @@ const TourDetailsMain = async (params:any) => {
       id:params.params.id,
     },
     include:{
-        dates:true,
+        dates:{
+          where:{
+            visible:true,
+          },
+          orderBy:{
+            startDate:"asc",
+          }
+        },
         images:true,
         natures:true,
         destinations:true,
-        programs:true,
+         programs:{
+          orderBy:{
+            orderIndex:"asc",
+          }
+        },
         categories:true,
         reviews:true,
         services:true,
