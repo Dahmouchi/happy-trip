@@ -22,8 +22,17 @@ import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "react-toastify";
 import { Trash2 } from "lucide-react";
 import { DeleteNews, UpdateNewsStatus } from "@/actions/saveLandingConfig";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
-export const reviewColumns = ({ refresh }: { refresh: () => void }): ColumnDef<any>[] => [
+export const reviewColumns = ({
+  refresh,
+}: {
+  refresh: () => void;
+}): ColumnDef<any>[] => [
   {
     accessorKey: "nom",
     header: "Nom",
@@ -34,7 +43,7 @@ export const reviewColumns = ({ refresh }: { refresh: () => void }): ColumnDef<a
     header: "Prenom",
     cell: ({ row }) => row.getValue("prenom"),
   },
-   {
+  {
     accessorKey: "email",
     header: "Email",
     cell: ({ row }) => row.getValue("email"),
@@ -44,11 +53,16 @@ export const reviewColumns = ({ refresh }: { refresh: () => void }): ColumnDef<a
     header: "Commentaire",
     cell: ({ row }) => {
       return (
-        <div>{row.getValue("message")}</div>
-      )
-    }
+        <HoverCard>
+          <HoverCardTrigger className="line-clamp-1">
+            {row.getValue("message")}
+          </HoverCardTrigger>
+          <HoverCardContent>{row.getValue("message")}</HoverCardContent>
+        </HoverCard>
+      );
+    },
   },
- 
+
   {
     accessorKey: "createdAt",
     header: "Créé le",
@@ -122,16 +136,18 @@ export const reviewColumns = ({ refresh }: { refresh: () => void }): ColumnDef<a
             <AlertDialogHeader>
               <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
               <AlertDialogDescription>
-                Cette action est irréversible. L’avis sera définitivement supprimé.
+                Cette action est irréversible. L’avis sera définitivement
+                supprimé.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-                <AlertDialogCancel>Annuler</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete}         
-                    className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
-                    >
-                    Supprimer
-                </AlertDialogAction>
+              <AlertDialogCancel>Annuler</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDelete}
+                className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+              >
+                Supprimer
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
