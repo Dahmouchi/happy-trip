@@ -1831,11 +1831,25 @@ export function UpdateTourForm({
             type="submit"
             size="lg"
             className="bg-lime-600 text-white hover:bg-lime-700 hover:cursor-pointer mr-8"
+            disabled={
+              !form.watch("title") ||
+              !form.watch("description") ||
+              !form.watch("type") ||
+              !form.watch("groupType") ||
+              !form.watch("groupSizeMax") ||
+              !form.watch("priceOriginal") ||
+              !form.watch("dateCard") ||
+              !form.watch("durationDays") ||
+              !form.watch("durationNights")||
+              !form.watch("arrayInclus") ||
+              !form.watch("arrayExlus") ||
+              (form.watch("type") === "INTERNATIONAL" &&
+                form.watch("hotels")?.length === 0)
+            }
           >
             Modifier le circuit
           </Button>
-        </div>
-      </form>
+        </div>  </form>
     </Form>
     </div>
   );

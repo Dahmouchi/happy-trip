@@ -1849,9 +1849,6 @@ export function AddTourForm({
               !form.watch("durationNights") ||
               !form.watch("arrayInclus") ||
               !form.watch("arrayExlus") ||
-              !form.watch("showReviews") ||
-              !form.watch("showDifficulty") ||
-              !form.watch("showDiscount") ||
               (form.watch("type") === "INTERNATIONAL" &&
                 form.watch("hotels")?.length === 0)
             }
