@@ -27,4 +27,41 @@ export async function RegisterClient(nom:string,prenom:string,email:string,phone
     return { success: false, error: "Failed to create category" }
   }
 }
+export async function createRDV(
+  title: string,
+  date: Date,
+  dure: number,
+  id: string,
+  description?: string
+) {
+  try {
+    const blog = await prisma.meeting.create({
+      data: {
+        title,
+        description,
+        date,
+        duration: dure,
+        clientId: id,
+      },
+    });
 
+    revalidatePath("/");
+    return { success: true, data: blog };
+  } catch (error) {
+    console.error("Error creating category:", error);
+    return { success: false, error: "Failed to create category" };
+  }
+}
+
+
+export async function getRDV() {
+  try {
+    const blogs = await prisma.meeting.findMany({
+      orderBy: { createdAt: "asc" },
+    })
+    return blogs
+  } catch (error) {
+    console.error("Error fetching categories:", error)
+    return []
+  }
+}
