@@ -481,7 +481,7 @@ export function UpdateTourForm({
                     name="id"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>ID du circuit</FormLabel>
+                        <FormLabel>ID du circuit<span className="text-red-600">*</span>{" "}</FormLabel>
                         <FormControl>
                           <Input
                             type="text"
@@ -504,7 +504,7 @@ export function UpdateTourForm({
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Titre</FormLabel>
+                        <FormLabel>Titre<span className="text-red-600">*</span>{" "}</FormLabel>
                         <FormControl>
                           <Input
                             placeholder="Entrez le titre du circuit"
@@ -543,7 +543,7 @@ export function UpdateTourForm({
                     name="description"
                     render={({ field }) => (
                       <FormItem className="flex flex-col items-start w-full">
-                        <FormLabel>Description</FormLabel>
+                        <FormLabel>Description<span className="text-red-600">*</span></FormLabel>
                         <FormControl>
                           <div className="w-full flex justify-start">
                             <div className="w-full">
@@ -567,7 +567,7 @@ export function UpdateTourForm({
                       name="type"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Type de circuit</FormLabel>
+                          <FormLabel>Type de circuit<span className="text-red-600">*</span></FormLabel>
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
@@ -611,6 +611,7 @@ export function UpdateTourForm({
                               {selectedType === "INTERNATIONAL"
                                 ? "Destinations internationales"
                                 : "Destinations nationales"}
+                                <span className="text-red-600">*</span>
                             </FormLabel>
                             <Popover>
                               <PopoverTrigger asChild>
@@ -709,7 +710,7 @@ export function UpdateTourForm({
                         );
                         return (
                           <FormItem>
-                            <FormLabel>Nature(s)</FormLabel>
+                            <FormLabel>Nature(s)<span className="text-red-600">*</span></FormLabel>
                             <FormControl>
                               <Popover>
                                 <PopoverTrigger asChild>
@@ -807,7 +808,7 @@ export function UpdateTourForm({
                         );
                         return (
                           <FormItem>
-                            <FormLabel>Catégorie(s)</FormLabel>
+                            <FormLabel>Catégorie(s)<span className="text-red-600">*</span></FormLabel>
                             <FormControl>
                               <Popover>
                                 <PopoverTrigger asChild>
@@ -897,7 +898,7 @@ export function UpdateTourForm({
                         );
                         return (
                           <FormItem>
-                            <FormLabel>Service(s)</FormLabel>
+                            <FormLabel>Service(s)<span className="text-red-600">*</span></FormLabel>
                             <FormControl>
                               <Popover>
                                 <PopoverTrigger asChild>
@@ -992,7 +993,7 @@ export function UpdateTourForm({
                     name="imageURL"
                     render={() => (
                       <FormItem>
-                        <FormLabel>Images du circuit</FormLabel>
+                        <FormLabel>Images du circuit<span className="text-red-600">*</span></FormLabel>
                         <FormDescription>
                           Ajoutez l&apos;URL de l&apos;image pour ce circuit
                         </FormDescription>
@@ -1045,7 +1046,7 @@ export function UpdateTourForm({
                       name="difficultyLevel"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Niveau de difficulté (1-5)</FormLabel>
+                          <FormLabel>Niveau de difficulté (1-5)<span className="text-red-600">*</span></FormLabel>
                           <Select
                             onValueChange={(value: any) =>
                               field.onChange(Number.parseInt(value))
@@ -1079,7 +1080,7 @@ export function UpdateTourForm({
                       name="accommodationType"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Type d&apos;hébergement</FormLabel>
+                          <FormLabel>Type d&apos;hébergement<span className="text-red-600">*</span></FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Entrez le type d'hébergement"
@@ -1148,7 +1149,7 @@ export function UpdateTourForm({
                       name="groupType"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Type de groupe</FormLabel>
+                          <FormLabel>Type de groupe<span className="text-red-600">*</span></FormLabel>
                           <FormControl>
                             <Select
                               onValueChange={field.onChange}
@@ -1178,7 +1179,7 @@ export function UpdateTourForm({
                       name="groupSizeMax"
                       render={({ field }) => (
                         <FormItem className="w-fit">
-                          <FormLabel>Taille du groupe</FormLabel>
+                          <FormLabel>Taille du groupe<span className="text-red-600">*</span></FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -1223,7 +1224,7 @@ export function UpdateTourForm({
                           );
                           return (
                             <FormItem>
-                              <FormLabel>Hôtel(s)</FormLabel>
+                              <FormLabel>Hôtel(s)<span className="text-red-600">*</span></FormLabel>
                               <FormControl>
                                 <Popover>
                                   <PopoverTrigger asChild>
@@ -1372,7 +1373,7 @@ export function UpdateTourForm({
                       name="priceOriginal"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Prix original (DH)</FormLabel>
+                          <FormLabel>Prix original (DH)<span className="text-red-600">*</span></FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -1532,7 +1533,7 @@ export function UpdateTourForm({
                     name="dateCard"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Date du circuit (affichage carte)</FormLabel>
+                        <FormLabel>Date du circuit (affichage carte)<span className="text-red-600">*</span></FormLabel>
                         <FormControl>
                           <Input
                             type="text"
@@ -1555,7 +1556,7 @@ export function UpdateTourForm({
                       name="durationDays"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Nombre de jours</FormLabel>
+                          <FormLabel>Nombre de jours<span className="text-red-600">*</span></FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -1576,7 +1577,7 @@ export function UpdateTourForm({
                       name="durationNights"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Nombre de nuits</FormLabel>
+                          <FormLabel>Nombre de nuits<span className="text-red-600">*</span></FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -1698,7 +1699,7 @@ export function UpdateTourForm({
                     name="images"
                     render={() => (
                       <FormItem>
-                        <FormLabel>Images du circuit</FormLabel>
+                        <FormLabel>Images du circuit<span className="text-red-600">*</span></FormLabel>
                         <FormDescription>
                           Ajoutez les URLs de 9 images pour ce circuit
                         </FormDescription>

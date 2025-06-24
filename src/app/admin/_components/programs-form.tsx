@@ -226,33 +226,49 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                     className="safe-html text-muted-foreground text-sm"
                   />
                 </div>
-
                 <div className="flex gap-1">
-                  <div className="flex flex-col gap-1">
-                    <button
-                      onClick={() => moveProgram(program.id, "up")}
-                      disabled={index === 0}
-                      className={`p-1 rounded border ${
-                        index === 0
-                          ? "opacity-50 cursor-not-allowed"
-                          : "hover:bg-gray-100"
-                      }`}
-                      title="Move up"
-                    >
-                      ↑
-                    </button>
-                    <button
-                      onClick={() => moveProgram(program.id, "down")}
-                      disabled={index === programs.length - 1}
-                      className={`p-1 rounded border ${
-                        index === programs.length - 1
-                          ? "opacity-50 cursor-not-allowed"
-                          : "hover:bg-gray-100"
-                      }`}
-                      title="Move down"
-                    >
-                      ↓
-                    </button>
+                  <div className="flex flex-col gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <div
+                    onClick={() => moveProgram(program.id, "up")}
+                    className={`p-1 rounded border select-none ${
+                    index === 0
+                      ? "opacity-50 cursor-not-allowed pointer-events-none"
+                      : "hover:bg-gray-100 cursor-pointer"
+                    }`}
+                    title="Move up"
+                    role="button"
+                    tabIndex={index === 0 ? -1 : 0}
+                    onKeyPress={(e) => {
+                    if ((e.key === "Enter" || e.key === " ") && index !== 0) {
+                      moveProgram(program.id, "up");
+                    }
+                    }}
+                    aria-disabled={index === 0}
+                  >
+                    ↑
+                  </div>
+                  <div
+                    onClick={() => moveProgram(program.id, "down")}
+                    className={`p-1 rounded border select-none ${
+                    index === programs.length - 1
+                      ? "opacity-50 cursor-not-allowed pointer-events-none"
+                      : "hover:bg-gray-100 cursor-pointer"
+                    }`}
+                    title="Move down"
+                    role="button"
+                    tabIndex={index === programs.length - 1 ? -1 : 0}
+                    onKeyPress={(e) => {
+                    if (
+                      (e.key === "Enter" || e.key === " ") &&
+                      index !== programs.length - 1
+                    ) {
+                      moveProgram(program.id, "down");
+                    }
+                    }}
+                    aria-disabled={index === programs.length - 1}
+                  >
+                    ↓
+                  </div>
                   </div>
 
                   <div
