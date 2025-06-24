@@ -37,7 +37,7 @@ export function NavUser() {
                 </Avatar>
                 <div className=" flex-1 text-left text-sm leading-tight hidden lg:grid">
                   <span className="truncate font-semibold">
-                    {session?.user.name || "Utilisateur"}
+                    {session?.user.username || "Utilisateur"}
                   </span>
                   <span className="truncate text-xs">
                     {session?.user.email || "vous êtes connecté"}

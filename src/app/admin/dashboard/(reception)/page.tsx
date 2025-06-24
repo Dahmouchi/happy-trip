@@ -38,7 +38,6 @@ export default function ReceptionPage() {
       <h1 className="text-2xl font-bold mb-4">Page de Réception</h1>
       <DataTable<TourData, unknown>
        columns={tourColumns({ refresh: fetchTours })}
-
         data={tours}
       />
 

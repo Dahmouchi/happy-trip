@@ -2,7 +2,6 @@
 
 import prisma  from '@/lib/prisma'
 
-
 export async function saveLandingConfig(sections: Record<string, boolean>) {
   // First get the current landing page config
   const current = await prisma.landing.findFirst()
@@ -54,12 +53,11 @@ export async function UpdateNewsStatus(reviewId: string, statu: boolean) {
   if (!reviewId) {
     return { success: false, error: "Review ID is required" };
   }
-
   const review = await prisma.newsLetter.update({
     where: { id: reviewId },
     data: { statu },
   });
-
+  
   return { success: true, data: review };
 }
 export async function createNewsLetter(nom:string,prenom:string,email:string,message:string) {

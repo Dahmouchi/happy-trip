@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
@@ -43,9 +44,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { Badge } from "@/components/ui/badge";
+import { GetAllNews } from "@/actions/saveLandingConfig";
 const navMain = [
   {
     title: "Accueil",
@@ -92,10 +96,35 @@ const Header = () => {
   const page = navMain.find((cat) => cat.url === lastSegment);
   const router = useRouter();
   const [message, setMessage] = useState("");
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [newsletters, setNewsletters] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  // Filter unread notifications or limit to 5
+
+  const [unreadNewslettersCount, setUnreadNewslettersCount] = useState(0);
+
+  // Then add this useEffect to fetch and count newsletters with status === false
+  useEffect(() => {
+    const fetchUnreadNewsletters = async () => {
+      setLoading(true);
+      try {
+        // Replace with your actual API call to get newsletters
+        const data = await GetAllNews();
+        setNewsletters(data.data)
+        const unreadCount = data.data.filter(
+          (newsletter: any) => newsletter.statu === false
+        ).length;
+        setUnreadNewslettersCount(unreadCount);
+        setLoading(false)
+      } catch (error) {
+        setLoading(false)
+        console.error("Error fetching newsletters:", error);
+      }
+    };
+
+    fetchUnreadNewsletters();
+  }, [session]);
 
   return (
     <header className="flex h-16 rounded-lg border shadow-[-4px_5px_10px_0px_rgba(0,_0,_0,_0.1)]  mb-1 shrink-0 bg-white dark:bg-slate-900 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
@@ -108,7 +137,7 @@ const Header = () => {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem className="">
-              <BreadcrumbLink href="/">Alert Application</BreadcrumbLink>
+              <BreadcrumbLink href="/">HappyTrip</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator className="hidden md:block" />
             <BreadcrumbItem>
@@ -120,6 +149,105 @@ const Header = () => {
         </Breadcrumb>
       </div>
       <div className="lg:pr-10 w-1/2 flex items-center justify-end gap-4">
+        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="h-5 w-5" />
+              {unreadNewslettersCount > 0 && (
+                <Badge
+                  variant="destructive"
+                  className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 flex items-center justify-center"
+                >
+                  {unreadNewslettersCount}
+                </Badge>
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-80 p-0" align="end" forceMount>
+            <div className="flex items-center justify-between px-4 py-2 border-b">
+              <h3 className="font-semibold">Newsletters</h3>
+             
+            </div>
+
+            {loading ? (
+              <div className="p-4 text-center text-muted-foreground">
+                Loading newsletters...
+              </div>
+            ) : newsletters.length > 0 ? (
+              <div className="">
+                <div
+                  className={`max-h-[400px] ${
+                    showAll ? "overflow-y-auto" : ""
+                  }`}
+                >
+                  {newsletters
+                    .filter((newsletter: any) => newsletter.statu === false)
+                    .slice(0, showAll ? undefined : 3)
+                    .map((newsletter: any) => (
+                      <div
+                        key={newsletter.id}
+                        className="flex flex-col items-start gap-1 p-3 cursor-pointer hover:bg-accent"
+                        onClick={()=>{
+                           setIsOpen(false)
+                           redirect("/admin/dashboard/news")
+                        }}
+                      >
+                        <div className="flex justify-between w-full">
+                          <h4 className="font-medium">{newsletter.nom}</h4>
+                          {!newsletter.status && (
+                            <span className="h-2 w-2 rounded-full bg-blue-500" />
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground line-clamp-1">
+                          {newsletter.message}
+                        </p>
+                        <div className="flex justify-between w-full items-center mt-1">
+                          <span className="text-xs text-muted-foreground">
+                            {formatDistanceToNow(
+                              new Date(newsletter.createdAt),
+                              {
+                                addSuffix: true,
+                                locale: fr,
+                              }
+                            )}
+                          </span>
+                          {!newsletter.status && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // markNewsletterAsRead(newsletter.id);
+                              }}
+                            >
+                              <Check className="h-3 w-3" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            ) : (
+              <div className="p-4 text-center text-muted-foreground">
+                No unread newsletters
+              </div>
+            )}
+
+            {newsletters.filter((n: any) => n.status === false).length > 3 && (
+              <div className="border-t p-2 text-center">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAll(!showAll)}
+                >
+                  {showAll ? "Show less" : "Show all newsletters"}
+                </Button>
+              </div>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
         <div>
           {session?.user ? (
             <NavUser />

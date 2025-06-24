@@ -2,7 +2,6 @@
 "use client";
 import { createNewsLetter } from "@/actions/saveLandingConfig";
 /* eslint-disable @next/next/no-img-element */
-import { Instagram, Youtube } from "lucide-react";
 import React from "react";
 import { toast } from "react-toastify";
 
@@ -40,13 +39,13 @@ const Footer = () => {
               className="lg:max-w-3xl  md:max-w-2xl max-w-[30vh]"
             />
           </div>
-          <div className="relative flex flex-col items-center">
+          <div className="relative flex flex-col items-center p-2 lg:p-4">
             <img
               src="/footer/mountain.png"
               alt="mountain"
               className="max-w-screen absolute bottom-0 z-0"
             />
-            <div className="relative z-50 w-[80%] self-center rounded-2xl grid  bg-[#D2E094] shadow-xl">
+            <div className="relative z-50 lg:w-[50%] w-full self-center rounded-2xl grid  bg-[#D2E094] shadow-xl">
               <div className="flex flex-col items-left rounded-l-2xl lg:py-8 md:py-16 py-4 lg:pl-12 md:p-16 p-4">
                 <div className="lg:text-5xl md:text-5xl text-2xl font-thin mb-2">
                   Newsletter
@@ -100,7 +99,7 @@ const Footer = () => {
                 <img
                   src="/footer/flight.png"
                   alt=""
-                  className="max-w-lg max-h-lg "
+                  className="max-w-sm max-h-sm "
                 />
               </div>
             </div>
@@ -120,36 +119,7 @@ const Footer = () => {
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <div className="flex gap-3 mt-2">
-                  <a
-                    href="https://facebook.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Instagram />
-                  </a>
-                  <a
-                    href="https://instagram.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Youtube />
-                  </a>
-                  <a
-                    href="https://instagram.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Instagram />
-                  </a>
-                  <a
-                    href="https://instagram.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Youtube />
-                  </a>
-                </div>
+                
               </div>
             </div>
 

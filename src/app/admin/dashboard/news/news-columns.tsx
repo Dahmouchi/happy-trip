@@ -27,6 +27,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { useRouter } from "next/navigation";
 
 export const reviewColumns = ({
   refresh,
@@ -74,6 +75,7 @@ export const reviewColumns = ({
     cell: ({ row }) => {
       const statu = row.getValue("statu") as boolean;
       const id = row.original.id;
+      const router = useRouter();
 
       return (
         <select
@@ -87,6 +89,7 @@ export const reviewColumns = ({
               const response = await UpdateNewsStatus(id, newStatus);
               if (response.success) {
                 toast.success("Statut mis à jour !");
+                router.refresh();
                 refresh();
               } else {
                 toast.error("Erreur lors de la mise à jour du statut");
@@ -136,7 +139,7 @@ export const reviewColumns = ({
             <AlertDialogHeader>
               <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
               <AlertDialogDescription>
-                Cette action est irréversible. L’avis sera définitivement
+                Cette action est irréversible. L&apos;avis sera définitivement
                 supprimé.
               </AlertDialogDescription>
             </AlertDialogHeader>
