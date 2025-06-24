@@ -173,15 +173,16 @@ const tourSchema = z.object({
         orderIndex: z.number().optional(),
         description: z.string(),
         image: z
-          .union([z.instanceof(File), z.string()])
+          .union([z.instanceof(File), z.string(), z.null()])
           .optional()
           .transform((val) => {
-            if (val === "" || val === undefined) return undefined;
+            if (val === "" || val === undefined || val === null) return undefined;
             return val;
           }),
       })
     )
     .optional(),
+
 
   dates: z
     .array(
@@ -193,16 +194,19 @@ const tourSchema = z.object({
       })
     )
     .optional(),
-  images: z
-    .array(
+  images: z.array(
       z.object({
-        link: z
-          .instanceof(File)
-          .or(z.literal(""))
-          .transform((val) => (val === "" ? undefined : val)),
+        link: z.union([
+          z.instanceof(File),
+          z.string(),
+          z.any()
+            ]).optional()
+            .transform((val) => {
+              if (!val || val === "") return undefined;
+              return val;
+          }),
       })
-    )
-    .optional(),
+    ).optional(),
 
   destinations: z.array(z.string()),
   categories: z.array(z.string()),

@@ -94,22 +94,23 @@ const tourSchema = z.object({
     .url("Lien Google Maps invalide")
     .optional()
     .or(z.literal("")),
-  programs: z
-    .array(
-      z.object({
-        title: z.string().min(1, "Titre requis"),
-        orderIndex:z.number().optional(),
-        description: z.string(),
-        image: z
-          .union([z.instanceof(File), z.string()])
-          .optional()
-          .transform((val) => {
-            if (val === "" || val === undefined) return undefined;
-            return val;
-          }),
-      })
-    )
-    .optional(),
+programs: z
+  .array(
+    z.object({
+      title: z.string().min(1, "Titre requis"),
+      orderIndex: z.number().optional(),
+      description: z.string(),
+      image: z
+        .union([z.instanceof(File), z.string(), z.null()])
+        .optional()
+        .transform((val) => {
+          if (val === "" || val === undefined || val === null) return undefined;
+          return val;
+        }),
+    })
+  )
+  .optional(),
+
 
   dates: z
     .array(
@@ -123,10 +124,15 @@ const tourSchema = z.object({
     .optional(),
   images: z.array(
     z.object({
-      link: z
-        .instanceof(File)
-        .or(z.literal(""))
-        .transform((val) => (val === "" ? undefined : val)),
+      link: z.union([
+        z.instanceof(File),
+        z.string(),
+        z.any()
+          ]).optional()
+          .transform((val) => {
+            if (!val || val === "") return undefined;
+            return val;
+        }),
     })
   ).optional(),
 
@@ -381,13 +387,19 @@ export async function updateTour(tourId: string, formData: TourFormData) {
 
     const validatedData = tourSchema.parse(formData);
 
-    const newImages = validatedData.images && validatedData.images.length > 0
-      ? await Promise.all(
-          validatedData.images.map(async (image) => ({
-            url: image.link ? await uploadImage(image.link) : "",
-          }))
-        )
-      : existingTour.images;
+    let newImages: { url: string }[] | undefined;
+
+    if (validatedData.images && validatedData.images.length > 0) {
+      newImages = await Promise.all(
+        validatedData.images.map(async (image) => ({
+          url: image.link ? await uploadImage(image.link) : "",
+        }))
+      );
+    } else if (validatedData.images) {
+      newImages = [];
+    } else {
+      newImages = undefined;
+    }
 
     const mainImageUrl = validatedData.imageURL
       ? await uploadImage(validatedData.imageURL)
@@ -413,7 +425,7 @@ export async function updateTour(tourId: string, formData: TourFormData) {
         description: validatedData.description,
         type: validatedData.type,
         priceOriginal: validatedData.priceOriginal,
-      priceDiscounted: validatedData.priceDiscounted === 0 ? validatedData.priceOriginal : validatedData.priceDiscounted,
+        priceDiscounted: validatedData.priceDiscounted === 0 ? validatedData.priceOriginal : validatedData.priceDiscounted,
         discountEndDate: validatedData.discountEndDate,
         advancedPrice: validatedData.advancedPrice === 0 ? validatedData.priceOriginal : validatedData.advancedPrice || validatedData.priceOriginal,
         dateCard: validatedData.dateCard,

@@ -174,7 +174,6 @@ export const ReservationDetails: React.FC<ReservationDetailsProps> = ({ reservat
       )}
 
       {/* Hotel & Pricing Section */}
-      {reservation.tour.type === "INTERNATIONAL" && (
 
         <div>
         <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
@@ -186,9 +185,11 @@ export const ReservationDetails: React.FC<ReservationDetailsProps> = ({ reservat
           icon={Building2} 
           label="Hôtel" 
           value={reservation.hotel?.name ?? "Aucun"} 
-        />
-        {reservation.hotel?.price && (
+          />
+          {reservation.tour.type === "INTERNATIONAL" && (
+        reservation.hotel?.price && (
           <DetailRow icon={DollarSign} label="Prix hôtel" value={`${reservation.hotel.price} MAD`} />
+        )
         )}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 border-t border-gray-100 mt-3 pt-3">
           <div className="flex items-center gap-3">
@@ -199,7 +200,6 @@ export const ReservationDetails: React.FC<ReservationDetailsProps> = ({ reservat
         </div>
         </div>
       </div>
-      )}
 
       
       </CardContent>
