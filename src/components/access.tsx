@@ -19,10 +19,10 @@ const [url,setUrl] = useState("");
 useEffect(()=>{
   switch (role.role) {
       case Role.USER:
-        setUrl("/user/dashboard");
+        setUrl("/client/dashboard");
         break;
       case Role.ADMIN:
-        setUrl("/admin/dashboard/overview");
+        setUrl("/admin/dashboard");
         break;
       default:
         setUrl("/access-denied");
@@ -40,7 +40,11 @@ const red = ()=>{
         <title>Accès Refusé | Votre Application</title>
       </Head>
       
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-cover bg-no-repeat bg-bottom p-4"
+       style={{
+        backgroundImage:
+          'url("https://images.pexels.com/photos/1323550/pexels-photo-1323550.jpeg")',
+      }}>
         <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
           {/* Header */}
           <div className="bg-red-50 dark:bg-red-900/20 p-6 flex flex-col items-center">

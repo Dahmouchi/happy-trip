@@ -7,6 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Meeting {
+  id          String   @id @default(cuid())
+  title       String   // Meeting subject/title
+  description String?  // Optional details
+  date        DateTime // Meeting date & time
+  duration    Int?
+  status      String   @default("pending") // pending/confirmed/cancelled
+  clientId    String   // Reference to client
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  // Relations
+  client User @relation(fields: [clientId], references: [id])
+}
 model Destination {
   id       String         @id @default(cuid())
   name     String         @unique
@@ -120,6 +133,7 @@ model Tour {
   accommodationType String?
   exclus            String?
   inclus            String?
+  extracts          String?
   advancedPrice     Int?
   googleMapsUrl     String?
   videoUrl          String?
@@ -202,6 +216,7 @@ model User {
   createdAt        DateTime        @default(now())
   emailVerified    DateTime?
   image            String?
+  phone            Int?
   password         String?
   prenom           String?
   qrSecret         String?
@@ -215,6 +230,7 @@ model User {
   accounts         Account[]
   Authenticator    Authenticator[]
   sessions         Session[]
+  meetings         Meeting[]
 }
 
 model Account {

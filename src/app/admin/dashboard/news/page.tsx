@@ -6,13 +6,14 @@ import { DataTable } from './news-data-table';
 
 import { toast } from 'react-toastify';
 import { reviewColumns } from './news-columns';
-import { GetAllNews } from '@/actions/saveLandingConfig';
+import { GetAllNews, markAllNewsTrue } from '@/actions/saveLandingConfig';
 
 export default function ReviewsPage() {
     const [news, setNews] = useState<any[]>([]);
 
     const fetchReviews = useCallback(async () => {
       const response = await GetAllNews();
+      await markAllNewsTrue();
       if (response.success && Array.isArray(response.data)) {
         setNews(response.data as unknown as any[]);
       } else {

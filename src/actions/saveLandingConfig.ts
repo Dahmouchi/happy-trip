@@ -38,6 +38,15 @@ export async function GetAllNews() {
 
   return { success: true, data: reviews };
 }
+export async function markAllNewsTrue() {
+  const reviews = await prisma.newsLetter.updateMany({
+   data:{
+    statu:true
+   }
+  });
+
+  return { success: true, data: reviews };
+}
 export async function DeleteNews(reviewId: string) {
   if (!reviewId) {
     return { success: false, error: "Review ID is required" };
