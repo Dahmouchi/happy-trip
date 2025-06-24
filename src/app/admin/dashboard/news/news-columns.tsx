@@ -75,33 +75,25 @@ export const reviewColumns = ({
     cell: ({ row }) => {
       const statu = row.getValue("statu") as boolean;
       const id = row.original.id;
+      const createdAt = new Date(row.original.createdAt); // Assuming you have createdAt in your data
       const router = useRouter();
 
+      // Check if the record is less than 24 hours old
+      const isNew = Date.now() - createdAt.getTime() < 24 * 60 * 60 * 1000;
+
       return (
-        <select
-          className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${
-            statu ? "bg-lime-100 text-green-800" : "bg-red-100 text-red-800"
-          }`}
-          value={statu ? "published" : "unpublished"}
-          onChange={async (e) => {
-            const newStatus = e.target.value === "published";
-            try {
-              const response = await UpdateNewsStatus(id, newStatus);
-              if (response.success) {
-                toast.success("Statut mis à jour !");
-                router.refresh();
-                refresh();
-              } else {
-                toast.error("Erreur lors de la mise à jour du statut");
-              }
-            } catch (error) {
-              toast.error("Erreur inattendue");
-            }
-          }}
-        >
-          <option value="published">validé</option>
-          <option value="unpublished">Non Validé</option>
-        </select>
+        <div className="flex items-center gap-2">
+        
+          {isNew && (
+            <span className="flex items-center gap-1">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+              </span>
+              <span className="text-xs text-blue-600">Nouveau</span>
+            </span>
+          )}
+        </div>
       );
     },
   },

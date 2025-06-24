@@ -65,7 +65,7 @@ const LoginForm = () => {
     return <Loading />;
   }
   return (
-    <div className="lg:min-w-xs">
+    <div className="min-w-xs">
       {/* Sign Up Form */}
       <div className="">
         <div className="pb-8">

@@ -201,7 +201,7 @@ export function Navbar({
           </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuLink
-              href="/"
+              href="/contact"
               className={navigationMenuTriggerStyle()}
             >
               Contact
@@ -213,7 +213,7 @@ export function Navbar({
       {/* Mobile Menu Button */}
       <div className="flex items-center gap-4">
         {/* CTA Button */}
-        <Link href="/login-client">
+        <Link href="/client">
           <Button className="bg-white text-black hover:bg-white hover:text-black hover:cursor-pointer shadow-none">
             Login
           </Button>
@@ -379,7 +379,7 @@ export function Navbar({
             </Link>
 
             <Link
-              href="#"
+              href="/contact"
               className="text-lg font-medium py-2 border-b border-gray-100"
               onClick={() => setMobileMenuOpen(false)}
             >
