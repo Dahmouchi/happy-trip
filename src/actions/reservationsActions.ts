@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // reservationActions.ts
 'use server';
@@ -69,13 +70,74 @@ export async function CreateReservation(data: Reservation) {
   }
 }
 
+type CreateReservationInput = {
+  tourId: string;
+  travelDateId: string;
+  nom: string;
+  prenom: string;
+  phone: string;
+  email?: string;
+  data: any; // your customFields
+  basePrice: number;
+};
+
+export async function CreateReservations(input: CreateReservationInput) {
+  try {
+    // Calculate extra price from dynamic custom fields
+    let extraPrice = 0;
+
+    for (const key in input.data) {
+      const value = input.data[key];
+
+      // Skip null/undefined values
+      if (!value) continue;
+
+      // Checkbox: boolean true → add price
+      if (typeof value === "object" && value.price && value.selected) {
+        extraPrice += value.price;
+      }
+
+      // Select: value might be like { value: "opt1", price: 50 }
+      if (typeof value === "object" && value.price && !value.selected) {
+        extraPrice += value.price;
+      }
+
+      // Number or direct price field
+      if (typeof value === "number") {
+        extraPrice += value;
+      }
+    }
+
+    const finalPrice = input.basePrice + extraPrice;
+
+    const reservation = await prisma.reservations.create({
+      data: {
+        tourId: input.tourId,
+        travelDateId: input.travelDateId,
+        nom: input.nom,
+        prenom: input.prenom,
+        phone: input.phone,
+        email: input.email,
+        data: input.data,
+        basePrice: input.basePrice,
+        finalPrice: finalPrice,
+        status: ReservationStatus.PENDING,
+      },
+    });
+
+    return reservation;
+  } catch (error) {
+    console.error(error);
+    throw new Error("❌ Failed to create reservation.");
+  }
+}
+
 
 export async function GetAllReservations() {
   try {
-    const reservations = await prisma.reservation.findMany({
+    const reservations = await prisma.reservations.findMany({
       include: {
         tour: true,
-        hotel: true,
         travelDate: true,
       },
       orderBy: {
@@ -91,7 +153,7 @@ export async function GetAllReservations() {
 
 export async function UpdateReservationStatus(id: string, status: ReservationStatus) {
   try {
-    const updatedReservation = await prisma.reservation.update({
+    const updatedReservation = await prisma.reservations.update({
       where: { id },
       data: { status },
     });

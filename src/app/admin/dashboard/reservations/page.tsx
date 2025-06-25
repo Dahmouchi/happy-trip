@@ -21,21 +21,13 @@ type ReservationData = Reservation & {
 };
 
 export default function ReservationsPage() {
-    const [reservations, setReservations] = useState<ReservationData[]>([]);
+    const [reservations, setReservations] = useState<any[]>([]);
 
     const fetchReservations = useCallback(async () => {
         try {
             const response = await GetAllReservations();
             console.log(response);
-
-            const enrichedReservations = response.map((reservation: any) => ({
-                ...reservation,
-                tourTitle: reservation.tour?.title || 'Circuit inconnu',
-                hotel: reservation.hotel || null,
-                TravelDate: reservation.travelDate || null,
-                createdAt: reservation.createdAt,
-            }));
-            setReservations(enrichedReservations);
+            setReservations(response);
         } catch (error) {
             toast.error('Erreur lors de la récupération des réservations');
         }

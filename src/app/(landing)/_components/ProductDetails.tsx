@@ -877,6 +877,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
         <ReservationsForm
         fields={tour.reservationForm[0]?.fields || []}
         tourId={tour.id}
+        basePrice={tour.priceDiscounted}
         travelDates={tour.dates || []}
       />
        {/* <ReservationSection

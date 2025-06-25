@@ -1,12 +1,19 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useState } from "react";
-import axios from "axios";
-
+import { useEffect, useState } from "react";
+import { CreateReservations } from "@/actions/reservationsActions";
+import { toast } from "react-toastify";
+import dynamic from "next/dynamic";
+const LottiePlayer = dynamic(() => import("react-lottie-player"), {
+  ssr: false,
+});
+import success from "../../../../public/success.json"
 export default function ReservationsForm({
   fields,
   tourId,
   travelDates = [],
+  basePrice,
 }: any) {
   const [formData, setFormData] = useState<any>({
     nom: "",
@@ -16,7 +23,15 @@ export default function ReservationsForm({
     travelDateId: travelDates[0]?.id || "",
     customFields: {},
   });
-  const [finalPrice, setFinalPrice] = useState(0);
+  const [finalPrice, setFinalPrice] = useState<any>(basePrice); // Initialize with basePrice
+  const [isSubmitted, setIsSubmitted] = useState(false); // Add this state
+
+  // Add this useEffect hook
+  useEffect(() => {
+    const newPrice = calculateFinalPrice();
+    setFinalPrice(newPrice);
+  }, [formData, basePrice, fields]); // Recalculate when these dependencies change
+
   const handleChange = (e: any) => {
     const { name, value } = e.target;
     if (["nom", "prenom", "phone", "email", "travelDateId"].includes(name)) {
@@ -27,10 +42,11 @@ export default function ReservationsForm({
         customFields: { ...prev.customFields, [name]: value },
       }));
     }
+    // Removed the manual finalPrice calculation from here
   };
 
   const calculateFinalPrice = () => {
-    let total = 0;
+    let total = basePrice;
     for (const field of fields) {
       if (field.type === "checkbox" && formData.customFields[field.name]) {
         total += Number(field.price || 0);
@@ -39,19 +55,19 @@ export default function ReservationsForm({
         const selectedOption = field.options.find(
           (opt: any) => opt.value === formData.customFields[field.name]
         );
-        total += Number(selectedOption?.price || 0);
+        if (selectedOption) {
+          total += Number(selectedOption?.price || 0);
+        }
       }
     }
     return total;
   };
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    const finalPrice = calculateFinalPrice();
-    setFinalPrice(finalPrice);
-
-    await axios.post("/api/reservations", {
+  try {
+    await CreateReservations({
       tourId,
       travelDateId: formData.travelDateId,
       nom: formData.nom,
@@ -59,11 +75,29 @@ export default function ReservationsForm({
       phone: formData.phone,
       email: formData.email,
       data: formData.customFields,
-      finalPrice,
+      basePrice: finalPrice, // assuming this is your base price
     });
 
-    alert("Reservation sent!");
-  };
+    toast.success("✅ Reservation sent!");
+    setFormData({
+        nom: "",
+        prenom: "",
+        phone: "",
+        email: "",
+        travelDateId: travelDates[0]?.id || "",
+        customFields: {},
+      });
+      setFinalPrice(basePrice);
+      setIsSubmitted(true);
+      
+      // Hide success message after 5 seconds
+      setTimeout(() => setIsSubmitted(false), 4000);
+  } catch (error) {
+    console.error("❌ Failed to submit reservation:", error);
+    toast.error("Erreur lors de l'envoi de la réservation.");
+  }
+};
+
   function formatDate(date: Date): string {
     return date.toLocaleDateString("fr-FR", {
       day: "2-digit",
@@ -95,6 +129,20 @@ export default function ReservationsForm({
               <span className="w-8 h-1 bg-yellow-500 rounded-full"></span>
             </div>
           </div>
+           {isSubmitted ? (
+            <div className="w-full justify-center lg:flex hidden">
+              <div className=" text-green-700 px-4 py-3 rounded relative" role="alert">
+                 <LottiePlayer
+                      loop={false}
+                      animationData={success}
+                      play
+                      className="w-full"
+                    />
+                <strong className="font-bold">Succès!</strong>
+                <span className="block sm:inline"> Votre réservation a été envoyée avec succès.</span>
+              </div>
+            </div>
+          ) :(
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Default fields */}
@@ -239,13 +287,6 @@ export default function ReservationsForm({
                 return null;
               })}
             </div>
-            <button
-              type="submit"
-              className="w-full text-lg font-semibold rounded-md py-2"
-              style={{ backgroundColor: "#8ebd21", color: "white" }}
-            >
-              Réserver
-            </button>
 
             {/* Résumé de la réservation */}
             {/* Résumé de la réservation */}
@@ -254,6 +295,10 @@ export default function ReservationsForm({
                 🧾 Résumé de la réservation
               </h3>
               <div className="space-y-2 text-sm text-gray-600">
+                <div className="flex justify-between">
+                  <span>Prix de base</span>
+                  <span>{basePrice} MAD</span>
+                </div>
                 {fields
                   .filter((field: any) => {
                     if (field.type === "checkbox") {
@@ -296,7 +341,14 @@ export default function ReservationsForm({
                 <span>{finalPrice} MAD</span>
               </div>
             </div>
-          </form>
+            <button
+              type="submit"
+              className="w-full text-lg font-semibold rounded-md py-2"
+              style={{ backgroundColor: "#8ebd21", color: "white" }}
+            >
+              Réserver
+            </button>
+          </form>)}
         </div>
       </div>
     </div>
