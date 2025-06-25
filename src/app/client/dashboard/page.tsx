@@ -341,6 +341,8 @@ export default function MeetingsPage() {
                       ? "bg-green-100 text-green-800"
                       : meeting.status === "pending"
                       ? "bg-yellow-100 text-yellow-800"
+                      : meeting.status === "finished"
+                      ? "bg-blue-100 text-blue-800"
                       : "bg-red-100 text-red-800"
                   }`}
                 >
@@ -348,9 +350,47 @@ export default function MeetingsPage() {
                     ? "Confirmé"
                     : meeting.status === "pending"
                     ? "En attente"
+                    :meeting.status === "finished"
+                    ? "Terminé"
                     : "Annulé"}
                 </span>
               </TableCell>
+                <TableCell>
+                {meeting.status === "confirmed" && (() => {
+                  const now = new Date();
+                  const meetingDate = new Date(meeting.date);
+                  const diffMs = meetingDate.getTime() - now.getTime();
+                  const diffMin = diffMs / 60000;
+                  const meetingEnd = new Date(meetingDate.getTime() + meeting.duration * 60000);
+
+                  if (now > meetingEnd) {
+                    return (
+                        <span className="text-red-400 italic text-sm">
+                        Le rendez-vous est passé
+                        </span>
+                    );
+                  }
+
+                  const canJoin = diffMin <= 15 && diffMin >= -meeting.duration;
+                  return canJoin ? (
+                    <Button
+                      className="bg-[#8EBD22] hover:bg-green-700 text-white font-semibold px-4 py-2 rounded shadow"
+                      onClick={() =>
+                        window.open(
+                          `https://meet.jit.si/${meeting.jitsiRoom || `meeting-${meeting.id}`}`,
+                          "_blank"
+                        )
+                      }
+                    >
+                      Rejoindre
+                    </Button>
+                  ) : (
+                    <span className="text-gray-500 italic text-sm">
+                      Disponible 15 min avant
+                    </span>
+                  );
+                })()}
+                </TableCell>
             </TableRow>
           ))}
         </TableBody>

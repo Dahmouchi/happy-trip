@@ -25,8 +25,6 @@ const MeetingsPage = () => {
         return;
       }
 
-      // Import getClientById dynamically to avoid SSR issues if needed
-
       const meetingsWithClient = await Promise.all(
         data.map(async (item: any) => {
           let clientName = "";
@@ -91,6 +89,27 @@ const MeetingsPage = () => {
     }
   };
 
+
+  const finishMeeting = async (meetingId: string) => {
+    try {
+      const { finishMeeting } = await import('@/actions/meetingsActions');
+      await finishMeeting(meetingId);
+      setMeetings(prev => prev.map(meeting => 
+        meeting.id === meetingId 
+          ? { ...meeting, status: 'finished' }
+          : meeting
+      ));
+      if (typeof window !== "undefined") {
+        toast.success("Réunion terminée avec succès.");
+      }
+    } catch (error) {
+      console.error("Failed to finish meeting:", error);
+      if (typeof window !== "undefined") {
+        toast.error("Échec de la termination de la réunion.");
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8">
@@ -112,6 +131,7 @@ const MeetingsPage = () => {
                   meetings={meetings}
                   onConfirmMeeting={confirmMeeting}
                   onDeleteMeeting={deleteMeeting}
+                  onFinishMeeting={finishMeeting}
                 />
               </CardContent>
             </Card>

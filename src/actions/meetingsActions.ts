@@ -72,3 +72,17 @@ export async function updateMeeting(
     throw new Error("Failed to update meeting");
   }
 }
+
+
+export async function finishMeeting(meetingId: string) {
+  try {
+    const updatedMeeting = await prisma.meeting.update({
+      where: { id: meetingId },
+      data: { status: 'finished' },
+    });
+    return updatedMeeting;
+  } catch (error) {
+    console.error("Error finishing meeting:", error);
+    throw new Error("Failed to finish meeting");
+  }
+}

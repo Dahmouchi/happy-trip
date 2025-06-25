@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { formatWithOptions } from "date-fns/fp";
 import { fr } from "date-fns/locale";
-import { Calendar, Clock, Plus, Check, Trash2 } from "lucide-react";
+import { Calendar, Clock, Plus, Check, Trash2, UserIcon, PhoneIcon, MailIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -33,12 +33,14 @@ interface AdminDashboardProps {
   meetings: Meeting[];
   onConfirmMeeting: (meetingId: string) => void;
   onDeleteMeeting: (meetingId: string) => void;
+  onFinishMeeting: (meetingId: string) => void;
 }
 
 const AdminDashboard = ({
   meetings,
   onConfirmMeeting,
   onDeleteMeeting,
+  onFinishMeeting,
 }: AdminDashboardProps) => {
   const { toast } = useToast();
 
@@ -46,18 +48,25 @@ const AdminDashboard = ({
   const handleConfirmMeeting = (
     meetingId: string,
     clientName: string,
-    clientPhone: string
+    clientPhone: string,
+    clientEmail: string
   ) => {
     onConfirmMeeting(meetingId);
 
-    const meetingId_short = meetingId.slice(-4);
-    const jitsiRoom = `meeting-${meetingId_short}`;
+    const jitsiRoom = `meeting-${meetingId}`;
     toast({
       title: "Rendez-vous Confirmé",
-      description: `WhatsApp envoyé à ${clientName} : "Votre rendez-vous est confirmé ! ID : ${meetingId_short}, Lien Jitsi: https://meet.jit.si/${jitsiRoom}"`,
+      description: `WhatsApp envoyé à ${clientName} : "Votre rendez-vous est confirmé ! ID : ${jitsiRoom}, Lien Jitsi: https://meet.jit.si/${jitsiRoom}"`,
     });
   };
 
+  const handleFinishMeeting = (meetingId: string) => {
+    onFinishMeeting(meetingId);
+    toast({
+      title: "Rendez-vous Terminé",
+      description: "Le rendez-vous a été marqué comme terminé.",
+    });
+  }
   const getStatusBadge = (status: Meeting["status"]) => {
     switch (status) {
       case "cancelled":
@@ -66,6 +75,8 @@ const AdminDashboard = ({
         return <Badge variant="secondary">En attente</Badge>;
       case "confirmed":
         return <Badge className="bg-green-600">Confirmé</Badge>;
+      case "finished":
+        return <Badge className="bg-blue-600">Terminé</Badge>;
       default:
         return null;
     }
@@ -126,12 +137,31 @@ const AdminDashboard = ({
                           </span>
                         </div>
                       </div>
-                      <div className="mt-2 text-sm text-muted-foreground">
-                        <strong>Client :</strong> {meeting.clientName} |{" "}
-                        <strong>Téléphone :</strong> {meeting.clientPhone} | {" "}
-                        <strong>Durée :</strong> {meeting.duration} minutes |{" "}
-                        <strong>email : </strong> {meeting.clientEmail}
-                        
+                      <div className="mt-2 text-sm text-muted-foreground flex flex-wrap gap-4 items-center">
+                        {meeting.clientName && (
+                          <span className="flex items-center gap-1">
+                            <UserIcon className="h-4 w-4 text-primary" />
+                            <strong>Client :</strong> {meeting.clientName}
+                          </span>
+                        )}
+                        {meeting.clientPhone && (
+                          <span className="flex items-center gap-1">
+                            <PhoneIcon className="h-4 w-4 text-primary" />
+                            <strong>Téléphone :</strong> {meeting.clientPhone}
+                          </span>
+                        )}
+                        {typeof meeting.duration === "number" && (
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-4 w-4 text-primary" />
+                            <strong>Durée :</strong> {meeting.duration} min
+                          </span>
+                        )}
+                        {meeting.clientEmail && (
+                          <span className="flex items-center gap-1">
+                            <MailIcon className="h-4 w-4 text-primary" />
+                            <strong>Email :</strong> {meeting.clientEmail}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="flex gap-2">
@@ -161,7 +191,8 @@ const AdminDashboard = ({
                                 handleConfirmMeeting(
                                   meeting.id,
                                   meeting.clientName!,
-                                  meeting.clientPhone!
+                                  meeting.clientPhone!,
+                                  meeting.clientEmail!
                                 )
                               }
                               className="bg-green-600 hover:bg-green-700"
@@ -225,72 +256,156 @@ const AdminDashboard = ({
                   key={meeting.id}
                   className="flex items-center justify-between p-4 border rounded-lg"
                 >
+                  <div className="flex flex-col gap-1 flex-1">
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      <span className="font-medium">
-                        {formatWithOptions({ locale: fr }, "dd MMM yyyy")(
-                          dateObj
-                        )}
-                      </span>
+                    <Calendar className="h-4 w-4" />
+                    <span className="font-medium">
+                      {formatWithOptions({ locale: fr }, "dd MMM yyyy")(
+                      dateObj
+                      )}
+                    </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
-                      <span>
-                        {dateObj.toLocaleTimeString("fr-FR", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
+                    <Clock className="h-4 w-4" />
+                    <span>
+                      {dateObj.toLocaleTimeString("fr-FR", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      })}
+                    </span>
                     </div>
                     {getStatusBadge(meeting.status)}
                     {meeting.clientName && (
-                      <span className="text-sm text-muted-foreground">
-                        ({meeting.clientName})
-                      </span>
+                    <span className="text-sm text-muted-foreground">
+                      ({meeting.clientName})
+                    </span>
                     )}
-                    {meeting.status === "confirmed" && (
-                        <Button
-                        size="sm"
-                        onClick={() => {
-                          const meetingId_short = meeting.id.slice(-4);
-                          const jitsiRoom = `meeting-${meetingId_short}`;
-                          window.open(
-                            `https://meet.jit.si/${jitsiRoom}`,
-                            "_blank"
-                          );
-                        }}
-                        className="bg-blue-600 hover:bg-blue-700 text-xs"
-                        >
-                        Rejoindre Jitsi
-                        </Button>
+                    {meeting.status === "confirmed" && (() => {
+                      const now = new Date();
+                      const meetingDate = parseMeetingDate(meeting);
+                      const diffMs = meetingDate.getTime() - now.getTime();
+                      const diffMin = diffMs / (1000 * 60);
+                      const isEnabled = diffMin <= 15 && diffMin >= -(meeting.duration ?? 0);
+
+                      if (now > meetingDate) {
+                        return (
+                          <span className="text-xs text-red-600 ml-2">
+                            Ce rendez-vous est passé.
+                          </span>
+                        );
+                      }
+
+                      return (
+                        <div className="flex flex-col items-start">
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              const jitsiRoom = `meeting-${meeting.id}`;
+                              window.open(
+                                `https://meet.jit.si/${jitsiRoom}`,
+                                "_blank"
+                              );
+                            }}
+                            className="bg-blue-600 hover:bg-blue-700 text-xs"
+                            disabled={!isEnabled}
+                            title={
+                              !isEnabled
+                                ? "Le bouton sera activé 15 minutes avant le début du rendez-vous"
+                                : undefined
+                            }
+                          >
+                            Rejoindre Jitsi
+                          </Button>
+                          {!isEnabled && (
+                            <span className="text-xs text-muted-foreground mt-1">
+                              Le bouton sera activé 15 minutes avant le début du rendez-vous
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1 flex flex-wrap gap-4">
+                    {meeting.clientEmail && (
+                    <span>
+                      <strong>Email :</strong> {meeting.clientEmail}
+                    </span>
+                    )}
+                    {meeting.clientPhone && (
+                    <span>
+                      <strong>Téléphone :</strong> {meeting.clientPhone}
+                    </span>
                     )}
                   </div>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
+                  </div>
+                    <div className="flex gap-2">
+                    {/* Supprimer le créneau */}
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
                       <Button variant="destructive" size="sm">
                         <Trash2 className="h-4 w-4" />
                       </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>Supprimer le créneau</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Êtes-vous sûr de vouloir supprimer ce créneau de
-                          rendez-vous ? Cette action ne peut pas être annulée.
+                        Êtes-vous sûr de vouloir supprimer ce créneau de
+                        rendez-vous ? Cette action ne peut pas être annulée.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Annuler</AlertDialogCancel>
                         <AlertDialogAction
-                          onClick={() => onDeleteMeeting(meeting.id)}
-                          className="bg-red-600 hover:bg-red-700"
+                        onClick={() => onDeleteMeeting(meeting.id)}
+                        className="bg-red-600 hover:bg-red-700"
                         >
-                          Supprimer
+                        Supprimer
                         </AlertDialogAction>
                       </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                      </AlertDialogContent>
+                    </AlertDialog>
+
+                    {/* Marquer comme terminé */}
+                    {meeting.status === "confirmed" ? (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            size="sm"
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
+                            Marquer comme terminé
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Marquer le rendez-vous comme terminé
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Êtes-vous sûr de vouloir marquer ce rendez-vous comme terminé&nbsp;?
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Annuler</AlertDialogCancel>
+                            <AlertDialogAction
+                              className="bg-blue-600 hover:bg-blue-700"
+                              onClick={() => {
+                                handleFinishMeeting(meeting.id);
+                              }}
+                            >
+                              Terminer
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    ) : meeting.status === "completed" ? (
+                      <Badge className="bg-blue-600 text-white" variant="default">
+                        Terminé
+                      </Badge>
+                    ) : null}
+                    </div>
                 </div>
               );
             })}
