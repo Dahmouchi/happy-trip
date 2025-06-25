@@ -65,3 +65,16 @@ export async function getRDV() {
     return []
   }
 }
+
+
+export async function getClientById(id: string) {
+  try {
+    const client = await prisma.user.findUnique({
+      where: { id },
+    })
+    return client
+  } catch (error) {
+    console.error("Error fetching client:", error)
+    return null
+  }
+}

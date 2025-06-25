@@ -1,64 +1,113 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft, Settings, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Meeting } from "./types";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import AdminDashboard from "./meeting-dashboard";
+import { Meeting } from "@prisma/client";
+import { getAllMeetings } from "@/actions/meetingsActions";
+import { getClientById } from "@/actions/client";
+import { toast } from "react-toastify";
+
+
+
 
 const MeetingsPage = () => {
-  const [meetings, setMeetings] = useState<Meeting[]>([
-    {
-      id: '1',
-      date: '2025-01-02',
-      time: '10:00',
-      isBooked: false,
-      status: 'available'
-    },
-    {
-      id: '2',
-      date: '2025-01-02',
-      time: '14:00',
-      isBooked: true,
-      clientName: 'Younes',
-      clientPhone: '+212622538418',
-      status: 'pending'
-    }
-  ]);
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
 
-  const addMeeting = (date: string, time: string) => {
-    const newMeeting: Meeting = {
-      id: Date.now().toString(),
-      date,
-      time,
-      isBooked: false,
-      status: 'available'
+  useEffect(() => {
+    const fetchMeetings = async () => {
+      const data = await getAllMeetings();
+      if (!data || !Array.isArray(data)) {
+        console.error("Failed to fetch meetings or data is not an array");
+        return;
+      }
+
+      const meetingsWithClient = await Promise.all(
+        data.map(async (item: any) => {
+          let clientName = "";
+          let clientPhone = "";
+          let clientEmail = "";
+          if (item.clientId) {
+            try {
+              const client = await getClientById(item.clientId);
+              clientName = client?.name ?? "";
+              clientPhone = client?.phone !== undefined && client?.phone !== null ? String(client.phone) : "";
+              clientEmail = client?.email ?? "";
+            } catch (e) {
+              console.error("Failed to fetch client", e);
+            }
+          }
+          return {
+            ...item,
+            clientName,
+            clientPhone,
+            clientEmail,
+          };
+        })
+      );
+      setMeetings(meetingsWithClient);
     };
-    setMeetings(prev => [...prev, newMeeting]);
+    fetchMeetings();
+  }, []);
+
+  const confirmMeeting = async (meetingId: string) => {
+    try {
+      const { confirmMeeting } = await import('@/actions/meetingsActions');
+      await confirmMeeting(meetingId);
+      setMeetings(prev => prev.map(meeting => 
+        meeting.id === meetingId 
+          ? { ...meeting, status: 'confirmed' }
+          : meeting
+      ));
+      if (typeof window !== "undefined") {
+        toast.success("Réunion confirmée avec succès.");
+      }
+    } catch (error) {
+      console.error("Failed to confirm meeting:", error);
+      if (typeof window !== "undefined") {
+        toast.error("Échec de la confirmation de la réunion.");
+      }
+    }
   };
 
-  const bookMeeting = (meetingId: string, clientName: string, clientPhone: string) => {
-    setMeetings(prev => prev.map(meeting => 
-      meeting.id === meetingId 
-        ? { ...meeting, isBooked: true, clientName, clientPhone, status: 'pending' as const }
-        : meeting
-    ));
+  const deleteMeeting = async (meetingId: string) => {
+    try {
+      await import('@/actions/meetingsActions').then(({ deleteMeeting }) => deleteMeeting(meetingId));
+      setMeetings(prev => prev.filter(meeting => meeting.id !== meetingId));
+      // Show toast alert
+      if (typeof window !== "undefined") {
+        toast.success("Réunion supprimée avec succès.");
+      }
+    } catch (error) {
+      console.error("Failed to delete meeting:", error);
+      if (typeof window !== "undefined") {
+        toast.error("Échec de la suppression de la réunion.");
+      }
+    }
   };
 
-  const confirmMeeting = (meetingId: string) => {
-    setMeetings(prev => prev.map(meeting => 
-      meeting.id === meetingId 
-        ? { ...meeting, status: 'confirmed' as const }
-        : meeting
-    ));
-  };
 
-  const deleteMeeting = (meetingId: string) => {
-    setMeetings(prev => prev.filter(meeting => meeting.id !== meetingId));
+  const finishMeeting = async (meetingId: string) => {
+    try {
+      const { finishMeeting } = await import('@/actions/meetingsActions');
+      await finishMeeting(meetingId);
+      setMeetings(prev => prev.map(meeting => 
+        meeting.id === meetingId 
+          ? { ...meeting, status: 'finished' }
+          : meeting
+      ));
+      if (typeof window !== "undefined") {
+        toast.success("Réunion terminée avec succès.");
+      }
+    } catch (error) {
+      console.error("Failed to finish meeting:", error);
+      if (typeof window !== "undefined") {
+        toast.error("Échec de la termination de la réunion.");
+      }
+    }
   };
 
   return (
@@ -80,9 +129,9 @@ const MeetingsPage = () => {
               <CardContent>
                 <AdminDashboard 
                   meetings={meetings}
-                  onAddMeeting={addMeeting}
                   onConfirmMeeting={confirmMeeting}
                   onDeleteMeeting={deleteMeeting}
+                  onFinishMeeting={finishMeeting}
                 />
               </CardContent>
             </Card>
