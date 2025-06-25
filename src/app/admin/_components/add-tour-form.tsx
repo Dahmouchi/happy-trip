@@ -91,6 +91,7 @@ import sharp from "sharp";
 import { useEffect } from "react";
 import { setgid } from "process";
 import { Switch } from "@radix-ui/react-switch";
+import ReservationFormBuilder from "./ReservationFormBuilder";
 
 const tourSchema = z.object({
   id: z.string(),
@@ -176,13 +177,13 @@ const tourSchema = z.object({
           .union([z.instanceof(File), z.string(), z.null()])
           .optional()
           .transform((val) => {
-            if (val === "" || val === undefined || val === null) return undefined;
+            if (val === "" || val === undefined || val === null)
+              return undefined;
             return val;
           }),
       })
     )
     .optional(),
-
 
   dates: z
     .array(
@@ -194,19 +195,19 @@ const tourSchema = z.object({
       })
     )
     .optional(),
-  images: z.array(
+  images: z
+    .array(
       z.object({
-        link: z.union([
-          z.instanceof(File),
-          z.string(),
-          z.any()
-            ]).optional()
-            .transform((val) => {
-              if (!val || val === "") return undefined;
-              return val;
+        link: z
+          .union([z.instanceof(File), z.string(), z.any()])
+          .optional()
+          .transform((val) => {
+            if (!val || val === "") return undefined;
+            return val;
           }),
       })
-    ).optional(),
+    )
+    .optional(),
 
   destinations: z.array(z.string()),
   categories: z.array(z.string()),
@@ -220,7 +221,21 @@ const tourSchema = z.object({
   arrayExlus: z.array(z.string()),
   arrayExtras: z.array(z.string()).optional(),
 });
+type FieldType = "text" | "checkbox" | "select";
 
+interface FieldOption {
+  label: string;
+  value: string;
+  price?: number;
+}
+interface Field {
+  label: string;
+  type: FieldType;
+  name: string;
+  required?: boolean;
+  price?: number;
+  options?: FieldOption[];
+}
 export function AddTourForm({
   nationalDestinations,
   internationalDestinations,
@@ -232,6 +247,7 @@ export function AddTourForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cardImage, setCardImage] = useState<File[] | null>(null);
   const [gallery, setGallery] = useState<File[] | null>(null);
+  const [reservationFields, setReservationFields] = useState<Field[]>([]);
 
   const form = useForm<z.infer<typeof tourSchema>>({
     defaultValues: {
@@ -1689,7 +1705,7 @@ export function AddTourForm({
                     }}
                   />
                 </div>
-                </div>
+              </div>
               {/* Extras */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
                 <h3 className="text-lime-600 text-l font-medium">
@@ -1700,17 +1716,17 @@ export function AddTourForm({
                   Définissez les éléments supplémentaires du circuit.
                 </p>
                 <div className="text-sm text-gray-500 mt-4">
-                    <StringLoop
-                      title="Extras"
-                      type="extracts"
-                      description="Liste des éléments supplémentaires (facultatif)"
-                      onChange={(value) => {
-                        form.setValue(
-                          "arrayExtras",
-                          Array.isArray(value) ? value : [value]
-                        );
-                      }}
-                    />
+                  <StringLoop
+                    title="Extras"
+                    type="extracts"
+                    description="Liste des éléments supplémentaires (facultatif)"
+                    onChange={(value) => {
+                      form.setValue(
+                        "arrayExtras",
+                        Array.isArray(value) ? value : [value]
+                      );
+                    }}
+                  />
                 </div>
               </div>
 
@@ -1796,7 +1812,24 @@ export function AddTourForm({
             </div>
           </CardContent>
         </Card>
-
+        <Card className="border border-none">
+          <CardContent className=" ">
+            <div className="space-y-8 ">
+              {/* Basic Information */}
+              <div className="space-y-4 p-6 shadow-lg rounded-lg border border-gray-200">
+                <h3 className="text-lime-600 text-l font-medium">
+                  <Info className="inline mr-2" />
+                  Personnaliser le formulaire de réservation
+                </h3>
+                <p className="text-lime-800 text-md  mb-4">
+                  Entrez les détails de base du circuit.
+                </p>
+                <Separator className="mb-6" />
+                <ReservationFormBuilder onChange={setReservationFields} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
         <div className="flex justify-end">
           <Button
             type="submit"

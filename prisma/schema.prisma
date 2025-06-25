@@ -9,17 +9,18 @@ datasource db {
 
 model Meeting {
   id          String   @id @default(cuid())
-  title       String   // Meeting subject/title
-  description String?  // Optional details
+  title       String // Meeting subject/title
+  description String? // Optional details
   date        DateTime // Meeting date & time
   duration    Int?
   status      String   @default("pending") // pending/confirmed/cancelled
-  clientId    String   // Reference to client
+  clientId    String // Reference to client
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   // Relations
-  client User @relation(fields: [clientId], references: [id])
+  client      User     @relation(fields: [clientId], references: [id])
 }
+
 model Destination {
   id       String         @id @default(cuid())
   name     String         @unique
@@ -73,7 +74,7 @@ model Blog {
 model Program {
   id          String   @id @default(cuid())
   title       String
-  orderIndex  Int   @default(0)
+  orderIndex  Int      @default(0)
   description String?
   imageUrl    String?
   tourId      String
@@ -97,22 +98,49 @@ model Hotel {
   reservation Reservation[]
   tours       Tour[]        @relation("HotelTours")
 }
+
 model NewsLetter {
-  id          String        @id @default(cuid())
-  nom         String?
-  prenom      String?
-  email       String?
-  message     String?
-  statu       Boolean      @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime? @updatedAt
+  id        String    @id @default(cuid())
+  nom       String?
+  prenom    String?
+  email     String?
+  message   String?
+  statu     Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+model ReservationForm {
+  id        String   @id @default(uuid())
+  tour      Tour     @relation(fields: [tourId], references: [id])
+  tourId    String
+  fields    Json // stores array of field definitions (see below)
+  createdAt DateTime @default(now())
+}
+
+model Reservations {
+  id         String            @id @default(uuid())
+  tour       Tour              @relation(fields: [tourId], references: [id])
+  tourId     String
+  nom        String
+  prenom     String
+  phone      String
+  email      String?
+  status     ReservationStatus @default(PENDING)
+  data       Json
+  finalPrice Float // ← add this field
+  basePrice  Float
+
+  travelDateId String
+  travelDate   TourDate @relation(fields: [travelDateId], references: [id])
+  createdAt    DateTime @default(now())
 }
 
 model Tour {
-  id                String        @id 
+  id                String            @id
   title             String
   description       String?
-  type              TravelType    @default(NATIONAL)
+  type              TravelType        @default(NATIONAL)
   priceOriginal     Int?
   priceDiscounted   Int?
   durationDays      Int?
@@ -120,15 +148,15 @@ model Tour {
   imageUrl          String?
   groupType         String?
   groupSizeMax      Int?
-  showReviews       Boolean       @default(true)
-  showDifficulty    Boolean       @default(true)
-  showDiscount      Boolean       @default(true)
+  showReviews       Boolean           @default(true)
+  showDifficulty    Boolean           @default(true)
+  showDiscount      Boolean           @default(true)
   difficultyLevel   Int?
-  totalReviews      Int           @default(0)
-  averageRating     Float         @default(0.0)
+  totalReviews      Int               @default(0)
+  averageRating     Float             @default(0.0)
   discountPercent   Int?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
   dateCard          String?
   accommodationType String?
   exclus            String?
@@ -137,18 +165,20 @@ model Tour {
   advancedPrice     Int?
   googleMapsUrl     String?
   videoUrl          String?
-  active            Boolean       @default(true)
+  active            Boolean           @default(true)
   discountEndDate   DateTime?
   images            File[]
-  programs          Program[]     @relation("TourPrograms")
+  programs          Program[]         @relation("TourPrograms")
   reviews           Review[]
   dates             TourDate[]
   reservation       Reservation[]
-  categories        Category[]    @relation("CategoryTours")
-  hotels            Hotel[]       @relation("HotelTours")
-  natures           Nature[]      @relation("NatureTours")
-  destinations      Destination[] @relation("TourDestinations")
-  services          Service[]     @relation("TourServices")
+  reservations      Reservations[]
+  reservationForm   ReservationForm[]
+  categories        Category[]        @relation("CategoryTours")
+  hotels            Hotel[]           @relation("HotelTours")
+  natures           Nature[]          @relation("NatureTours")
+  destinations      Destination[]     @relation("TourDestinations")
+  services          Service[]         @relation("TourServices")
 }
 
 model File {
@@ -160,30 +190,29 @@ model File {
 }
 
 model Reservation {
-  id              String   @id @default(cuid())
+  id              String            @id @default(cuid())
   tourId          String
   hotelId         String?
-  travelDateId    String  
+  travelDateId    String
   fullName        String
   email           String
   phone           String
   adultCount      Int
   childCount      Int
   infantCount     Int
-  singleRoom      Boolean  @default(false)
+  singleRoom      Boolean           @default(false)
   specialRequests String?
   totalPrice      Float
-  termsAccepted   Boolean  @default(false)
+  termsAccepted   Boolean           @default(false)
   status          ReservationStatus @default(PENDING)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
 
   // Relations
-  travelDate      TourDate @relation(fields: [travelDateId], references: [id])
-  hotel           Hotel?    @relation(fields: [hotelId], references: [id])
-  tour            Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  travelDate TourDate @relation(fields: [travelDateId], references: [id])
+  hotel      Hotel?   @relation(fields: [hotelId], references: [id])
+  tour       Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
 }
-
 
 model Review {
   id        String   @id @default(cuid())
@@ -197,15 +226,15 @@ model Review {
 }
 
 model TourDate {
-  id          String    @id @default(cuid())
-  tourId      String
-  startDate   DateTime?
-  endDate     DateTime?
-  description String?
-  visible      Boolean   @default(true)
-  tour        Tour      @relation(fields: [tourId], references: [id])
-
-  Reservation Reservation[]
+  id              String         @id @default(cuid())
+  tourId          String
+  startDate       DateTime?
+  endDate         DateTime?
+  description     String?
+  visible         Boolean        @default(true)
+  tour            Tour           @relation(fields: [tourId], references: [id])
+  reservationForm Reservations[]
+  Reservation     Reservation[]
 }
 
 model User {
