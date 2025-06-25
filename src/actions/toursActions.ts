@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-"use server"
+"use server";
 
-import { PrismaClient, type TravelType } from "@prisma/client"
-import { z } from "zod"
+import { PrismaClient, type TravelType } from "@prisma/client";
+import { z } from "zod";
 import { getFileUrl, uploadFile } from "@/lib/cloudeFlare";
 import sharp from "sharp";
 import { Video } from "lucide-react";
@@ -10,13 +11,12 @@ import { act } from "react";
 import axios from "axios";
 import { getEmbedGoogleMapsUrl } from "@/utils/getEmbedGoogleMapsUrl";
 import { getYouTubeEmbedUrl } from "@/utils/getYouTubeEmbedUrl";
-import { uploadImage} from "@/utils/uploadImage";
+import { uploadImage } from "@/utils/uploadImage";
 import { getHotels } from "./hotelsActions";
 import { updateProgram } from "./programsActions";
 import { id } from "zod/v4/locales";
 
-
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 // Schema for validating tour data
 
@@ -29,7 +29,7 @@ const tourSchema = z.object({
   priceOriginal: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(0, "Le prix doit être positif"),
+    z.number().min(0, "Le prix doit être positif")
   ),
   priceDiscounted: z.preprocess(
     (val) =>
@@ -50,12 +50,12 @@ const tourSchema = z.object({
   durationDays: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(1, "Au moins 1 jour"),
+    z.number().min(1, "Au moins 1 jour")
   ),
   durationNights: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(0, "Nuits >= 0"),
+    z.number().min(0, "Nuits >= 0")
   ),
   videoUrl: z
     .string()
@@ -94,23 +94,23 @@ const tourSchema = z.object({
     .url("Lien Google Maps invalide")
     .optional()
     .or(z.literal("")),
-programs: z
-  .array(
-    z.object({
-      title: z.string().min(1, "Titre requis"),
-      orderIndex: z.number().optional(),
-      description: z.string(),
-      image: z
-        .union([z.instanceof(File), z.string(), z.null()])
-        .optional()
-        .transform((val) => {
-          if (val === "" || val === undefined || val === null) return undefined;
-          return val;
-        }),
-    })
-  )
-  .optional(),
-
+  programs: z
+    .array(
+      z.object({
+        title: z.string().min(1, "Titre requis"),
+        orderIndex: z.number().optional(),
+        description: z.string(),
+        image: z
+          .union([z.instanceof(File), z.string(), z.null()])
+          .optional()
+          .transform((val) => {
+            if (val === "" || val === undefined || val === null)
+              return undefined;
+            return val;
+          }),
+      })
+    )
+    .optional(),
 
   dates: z
     .array(
@@ -122,19 +122,19 @@ programs: z
       })
     )
     .optional(),
-  images: z.array(
-    z.object({
-      link: z.union([
-        z.instanceof(File),
-        z.string(),
-        z.any()
-          ]).optional()
+  images: z
+    .array(
+      z.object({
+        link: z
+          .union([z.instanceof(File), z.string(), z.any()])
+          .optional()
           .transform((val) => {
             if (!val || val === "") return undefined;
             return val;
-        }),
-    })
-  ).optional(),
+          }),
+      })
+    )
+    .optional(),
 
   destinations: z.array(z.string()),
   categories: z.array(z.string()),
@@ -149,144 +149,161 @@ programs: z
   arrayExtracts: z.array(z.string()).optional(),
 });
 
-export type TourFormData = z.infer<typeof tourSchema>
- 
-  function getCorrectId(id:string)
-  {
-    return id.replace(/\s+/g, "-");
-  }
- 
+export type TourFormData = z.infer<typeof tourSchema>;
 
-  export async function addTour(formData: TourFormData) {
+function getCorrectId(id: string) {
+  return id.replace(/\s+/g, "-");
+}
+
+export async function addTour(
+  formData: TourFormData,
+  reservationFormFields: any[],
+) {
   try {
     // Validate the form data
-    const validatedData = tourSchema.parse(formData)
-    
-    console.log(validatedData)
+    const validatedData = tourSchema.parse(formData);
+
+    console.log(validatedData);
     // Create the tour in the database
-  
+
     const tour = await prisma.tour.create({
       data: {
-      id: getCorrectId(validatedData.id), // Use the provided ID
-      active: validatedData.active, // Default to true if not provided
-      title: validatedData.title,
-      description: validatedData.description,
-      type: validatedData.type as TravelType,
-      priceOriginal: validatedData.priceOriginal,
-      priceDiscounted: validatedData.priceDiscounted === 0 ? validatedData.priceOriginal : validatedData.priceDiscounted,
-      discountEndDate: validatedData.discountEndDate ? new Date(validatedData.discountEndDate) : null,
-      advancedPrice: validatedData.advancedPrice === 0 ? validatedData.priceOriginal : validatedData.advancedPrice || validatedData.priceOriginal,
-      dateCard: validatedData.dateCard,
-      durationDays: validatedData.durationDays,
-      durationNights: validatedData.durationNights,
-      googleMapsUrl: validatedData.googleMapsUrl
-        ? (await getEmbedGoogleMapsUrl(validatedData.googleMapsUrl)) ?? ""
-        : "",
-      videoUrl: validatedData.videoUrl ? (await getYouTubeEmbedUrl(validatedData.videoUrl)) || "" : "", // Convert YouTube URL to embed format
-      imageUrl: validatedData.imageURL ? await uploadImage(validatedData.imageURL) : "", // Upload image and get URL
-      inclus: validatedData.inclus,
-      exclus: validatedData.exclus,
-      extracts: validatedData.extracts,
-      groupType: validatedData.groupType,
-      groupSizeMax: validatedData.groupSizeMax,
-      showReviews: validatedData.showReviews,
-      showDifficulty: validatedData.showDifficulty,
-      showDiscount: validatedData.showDiscount,
-      difficultyLevel: validatedData.difficultyLevel,
-      discountPercent: validatedData.discountPercent,
-      accommodationType: validatedData.accommodationType,
+        id: getCorrectId(validatedData.id), // Use the provided ID
+        active: validatedData.active, // Default to true if not provided
+        title: validatedData.title,
+        reservationForm: {
+          create: {
+            fields: reservationFormFields,
+          },
+        },
+        description: validatedData.description,
+        type: validatedData.type as TravelType,
+        priceOriginal: validatedData.priceOriginal,
+        priceDiscounted:
+          validatedData.priceDiscounted === 0
+            ? validatedData.priceOriginal
+            : validatedData.priceDiscounted,
+        discountEndDate: validatedData.discountEndDate
+          ? new Date(validatedData.discountEndDate)
+          : null,
+        advancedPrice:
+          validatedData.advancedPrice === 0
+            ? validatedData.priceOriginal
+            : validatedData.advancedPrice || validatedData.priceOriginal,
+        dateCard: validatedData.dateCard,
+        durationDays: validatedData.durationDays,
+        durationNights: validatedData.durationNights,
+        googleMapsUrl: validatedData.googleMapsUrl
+          ? (await getEmbedGoogleMapsUrl(validatedData.googleMapsUrl)) ?? ""
+          : "",
+        videoUrl: validatedData.videoUrl
+          ? (await getYouTubeEmbedUrl(validatedData.videoUrl)) || ""
+          : "", // Convert YouTube URL to embed format
+        imageUrl: validatedData.imageURL
+          ? await uploadImage(validatedData.imageURL)
+          : "", // Upload image and get URL
+        inclus: validatedData.inclus,
+        exclus: validatedData.exclus,
+        extracts: validatedData.extracts,
+        groupType: validatedData.groupType,
+        groupSizeMax: validatedData.groupSizeMax,
+        showReviews: validatedData.showReviews,
+        showDifficulty: validatedData.showDifficulty,
+        showDiscount: validatedData.showDiscount,
+        difficultyLevel: validatedData.difficultyLevel,
+        discountPercent: validatedData.discountPercent,
+        accommodationType: validatedData.accommodationType,
 
-      // Relations
-      dates: validatedData.dates
-        ? {
-          create: validatedData.dates.map((dateObj) => ({
-          startDate: dateObj.startDate,
-          endDate: dateObj.endDate,
-          description: dateObj.description,
-          visible: dateObj.visible ?? true, // Default to true if not provided
-          })),
-        }
-        : undefined,
-      
-      hotels: validatedData.hotels
-        ? {
-          connect: validatedData.hotels.map((id) => ({ id })),
-        }
-        : undefined,
+        // Relations
+        dates: validatedData.dates
+          ? {
+              create: validatedData.dates.map((dateObj) => ({
+                startDate: dateObj.startDate,
+                endDate: dateObj.endDate,
+                description: dateObj.description,
+                visible: dateObj.visible ?? true, // Default to true if not provided
+              })),
+            }
+          : undefined,
 
-      services: validatedData.services
-        ? {
-          connect: validatedData.services.map((id) => ({ id })),
-        }
-        : undefined,
-      destinations: validatedData.destinations
-        ? {
-          connect: validatedData.destinations.map((id) => ({ id })),
-        }
-        : undefined,
-      categories: validatedData.categories
-        ? {
-          connect: validatedData.categories.map((id) => ({ id })),
-        }
-        : undefined,
-      natures: validatedData.natures
-        ? {
-          connect: validatedData.natures.map((id) => ({ id })),
-        }
-        : undefined,
-      
-      images: validatedData.images
-      ? {
-        create: await Promise.all(
-          validatedData.images.map(async (image) => ({
-            url: image.link ? await uploadImage(image.link) : "",
-          }))
-        )
-      }
-      : undefined,
+        hotels: validatedData.hotels
+          ? {
+              connect: validatedData.hotels.map((id) => ({ id })),
+            }
+          : undefined,
 
-      programs: validatedData.programs
-  ? {
-      create: await Promise.all(
-        validatedData.programs.map(async (program) => {
-          let imageUrl = "";
+        services: validatedData.services
+          ? {
+              connect: validatedData.services.map((id) => ({ id })),
+            }
+          : undefined,
+        destinations: validatedData.destinations
+          ? {
+              connect: validatedData.destinations.map((id) => ({ id })),
+            }
+          : undefined,
+        categories: validatedData.categories
+          ? {
+              connect: validatedData.categories.map((id) => ({ id })),
+            }
+          : undefined,
+        natures: validatedData.natures
+          ? {
+              connect: validatedData.natures.map((id) => ({ id })),
+            }
+          : undefined,
 
-          if (program.image instanceof File) {
-            imageUrl = await uploadImage(program.image);
-          } else if (typeof program.image === "string") {
-            imageUrl = program.image;
-          }
+        images: validatedData.images
+          ? {
+              create: await Promise.all(
+                validatedData.images.map(async (image) => ({
+                  url: image.link ? await uploadImage(image.link) : "",
+                }))
+              ),
+            }
+          : undefined,
 
-          return {
-            title: program.title,
-            orderIndex: program.orderIndex,
-            description: program.description,
-            imageUrl,
-          };
-        })
-      ),
-    }
-  : undefined,
+        programs: validatedData.programs
+          ? {
+              create: await Promise.all(
+                validatedData.programs.map(async (program) => {
+                  let imageUrl = "";
+
+                  if (program.image instanceof File) {
+                    imageUrl = await uploadImage(program.image);
+                  } else if (typeof program.image === "string") {
+                    imageUrl = program.image;
+                  }
+
+                  return {
+                    title: program.title,
+                    orderIndex: program.orderIndex,
+                    description: program.description,
+                    imageUrl,
+                  };
+                })
+              ),
+            }
+          : undefined,
       },
-    })
-    return { success: true, data: tour }
+    });
+    return { success: true, data: tour };
   } catch (error) {
-    
-    console.error("Error adding tour:", error)
+    console.error("Error adding tour:", error);
     if (error instanceof z.ZodError) {
       return {
         success: false,
         error: "Validation error",
         details: error.errors,
-      }
+      };
     }
 
     return {
       success: false,
       error: "Failed to add tour",
-    }
+    };
   } finally {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   }
 }
 
@@ -300,16 +317,15 @@ export async function getAllTours() {
         programs: true,
         images: true,
       },
-    })
-    return { success: true, data: tours }
+    });
+    return { success: true, data: tours };
   } catch (error) {
-    console.error("Error fetching tours:", error)
-    return { success: false, error: "Failed to fetch tours" }
+    console.error("Error fetching tours:", error);
+    return { success: false, error: "Failed to fetch tours" };
   } finally {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   }
 }
-
 
 export async function deleteTour(tourId: string) {
   try {
@@ -340,7 +356,6 @@ export async function deleteTour(tourId: string) {
   }
 }
 
-
 export async function getTourById(tourId: string) {
   try {
     const tour = await prisma.tour.findUnique({
@@ -354,7 +369,6 @@ export async function getTourById(tourId: string) {
         programs: true,
         images: true,
         dates: true,
-
       },
     });
 
@@ -368,10 +382,6 @@ export async function getTourById(tourId: string) {
     return { success: false, error: "Failed to fetch tour" };
   }
 }
-
-
-
-
 
 export async function updateTour(tourId: string, formData: TourFormData) {
   if (!tourId) {
@@ -428,9 +438,15 @@ export async function updateTour(tourId: string, formData: TourFormData) {
         description: validatedData.description,
         type: validatedData.type,
         priceOriginal: validatedData.priceOriginal,
-        priceDiscounted: validatedData.priceDiscounted === 0 ? validatedData.priceOriginal : validatedData.priceDiscounted,
+        priceDiscounted:
+          validatedData.priceDiscounted === 0
+            ? validatedData.priceOriginal
+            : validatedData.priceDiscounted,
         discountEndDate: validatedData.discountEndDate,
-        advancedPrice: validatedData.advancedPrice === 0 ? validatedData.priceOriginal : validatedData.advancedPrice || validatedData.priceOriginal,
+        advancedPrice:
+          validatedData.advancedPrice === 0
+            ? validatedData.priceOriginal
+            : validatedData.advancedPrice || validatedData.priceOriginal,
         dateCard: validatedData.dateCard,
         durationDays: validatedData.durationDays,
         durationNights: validatedData.durationNights,
@@ -523,7 +539,11 @@ export async function updateTour(tourId: string, formData: TourFormData) {
   } catch (error) {
     console.error("Error updating tour:", error);
     if (error instanceof z.ZodError) {
-      return { success: false, error: "Validation error", details: error.errors };
+      return {
+        success: false,
+        error: "Validation error",
+        details: error.errors,
+      };
     }
     return { success: false, error: "Failed to update tour" };
   }
@@ -561,7 +581,9 @@ async function updateProgramsForTour(
     } else if (typeof program.image === "string" && program.image !== "") {
       imageUrl = program.image;
     } else if (program.id) {
-      const old = await prisma.program.findUnique({ where: { id: program.id } });
+      const old = await prisma.program.findUnique({
+        where: { id: program.id },
+      });
       imageUrl = old?.imageUrl || "";
     }
 
@@ -586,8 +608,6 @@ async function updateProgramsForTour(
     }
   }
 }
-
-
 
 export async function checkTourIdExists(tourId: string) {
   try {

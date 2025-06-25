@@ -334,7 +334,7 @@ export function AddTourForm({
           : values.extracts,
       };
 
-      const result = await addTour(formData);
+      const result = await addTour(formData,reservationFields);
 
       if (result.success) {
         toast.success("Circuit créé avec succès");
@@ -1812,7 +1812,7 @@ export function AddTourForm({
             </div>
           </CardContent>
         </Card>
-        <Card className="border border-none">
+        <Card className="border-none">
           <CardContent className=" ">
             <div className="space-y-8 ">
               {/* Basic Information */}
@@ -1821,9 +1821,20 @@ export function AddTourForm({
                   <Info className="inline mr-2" />
                   Personnaliser le formulaire de réservation
                 </h3>
-                <p className="text-lime-800 text-md  mb-4">
-                  Entrez les détails de base du circuit.
-                </p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">
+                    nom (included)
+                  </span>
+                  <span className="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">
+                    prenom (included)
+                  </span>
+                  <span className="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">
+                    phone (included)
+                  </span>
+                  <span className="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">
+                    email (included)
+                  </span>
+                </div>
                 <Separator className="mb-6" />
                 <ReservationFormBuilder onChange={setReservationFields} />
               </div>

@@ -15,6 +15,7 @@ const TourDetailsMain = async (params:any) => {
       id:params.params.id,
     },
     include:{
+      reservationForm: true,
        dates:{
           where:{
             visible:true,

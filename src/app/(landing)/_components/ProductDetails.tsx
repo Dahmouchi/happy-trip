@@ -17,6 +17,7 @@ import { Program, Review, Tour, TourDate } from "@prisma/client";
 import {
   ArrowRightIcon,
   BadgeCheck,
+  BadgePlus,
   BadgeX,
   BanknoteIcon,
   Boxes,
@@ -163,6 +164,8 @@ const TourDetails = ({ tour }: { tour: any }) => {
     tour.inclus?.split(";").map((item: any) => item.trim()) || [];
   const excludes =
     tour.exclus?.split(";").map((item: any) => item.trim()) || [];
+  const extract =
+    tour.extracts?.split(";").map((item: any) => item.trim()) || [];
 
   function formatDate(date: Date): string {
     return date.toLocaleDateString("fr-FR", {
@@ -351,7 +354,8 @@ const TourDetails = ({ tour }: { tour: any }) => {
                           value={date.id}
                           className="text-gray-900"
                         >
-                          {formatDate(date.startDate)} - {tour.priceDiscounted} MAD
+                          {formatDate(date.startDate)} - {tour.priceDiscounted}{" "}
+                          MAD
                         </option>
                       ))}
                   </select>
@@ -532,6 +536,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
           {/* Left Column (Video & Itinerary) */}
           <div className="lg:col-span-2 space-y-4">
             {/* Video Section */}
+           {tour.videoUrl && 
             <div className="bg-black rounded-lg overflow-hidden aspect-video relative">
               {/* Placeholder for video player - replace with actual video embed */}
               <img
@@ -550,7 +555,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
                 ></iframe>
               </div>
               {/* Add controls overlay if needed */}
-            </div>
+            </div>}
 
             {/* Itinerary Section */}
             <div className="mt-8">
@@ -573,6 +578,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
                         <SafeHTML html={prog.description || ""} />
                       </div>
                       <div className="col-span-1">
+                        {prog.imageUrl && 
                         <img
                           src={prog.imageUrl || ""} // Remplacez par le chemin réel ou l'URL de votre image
                           alt="Randonnée Atlas Central"
@@ -580,7 +586,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
                           // Pour Next.js, utilisez <Image />
                           // import Image from 'next/image';
                           // <Image src="/path/to/your/image.jpg" alt="..." width={600} height={400} className="rounded-lg shadow-md" />
-                        />
+                        />}
                       </div>
                     </div>
                   </AccordionContent>
@@ -590,6 +596,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
             <div className="bg-white p-6 lg:px-12 md:p-8 font-sans">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                 {/* Included Section */}
+               {includes.length > 0 && 
                 <div>
                   <h2 className="text-xl font-bold text-gray-800 mb-1">
                     Qu&apos;est-ce qui est inclus dans cet circuit?
@@ -611,9 +618,10 @@ const TourDetails = ({ tour }: { tour: any }) => {
                       </div>
                     ))}
                   </ul>
-                </div>
+                </div>}
 
                 {/* Excluded Section */}
+               {excludes.length > 0 &&
                 <div>
                   <h2 className="text-xl font-bold text-gray-800 mb-1">
                     Qu&apos;est-ce qui n&apos;est pas inclus dans cet circuit?
@@ -635,8 +643,33 @@ const TourDetails = ({ tour }: { tour: any }) => {
                       </div>
                     ))}
                   </ul>
-                </div>
+                </div>}
               </div>
+              {
+                extract.length > 0 &&
+                <div>
+                <h2 className="text-xl font-bold mt-3 text-gray-800 mb-1">
+                  Quels sont les suppléments ou extras pour cette tournée ?
+                </h2>
+                <p className="text-sm text-gray-500 mb-4 pb-2 border-b border-gray-200">
+                  Les éléments optionnels ou les frais supplémentaires qui
+                  peuvent s&apos;ajouter au prix de la tournée.
+                </p>
+                <ul className="list-none p-0 m-0">
+                  {extract.map((item: any, index: any) => (
+                    <div
+                      key={`exc-${index}`}
+                      className="flex items-start gap-2 mt-2"
+                    >
+                      <span className="pt-1 text-blue-600">
+                          <BadgePlus className="w-6.5 h-6.5 min-w-[20px] min-h-[20px] bg-red-100 rounded-full p-1" />
+                        </span>
+                      <p className="break-words">{item}</p>
+                    </div>
+                  ))}
+                </ul>
+              </div>
+              }
             </div>
           </div>
 
@@ -774,77 +807,84 @@ const TourDetails = ({ tour }: { tour: any }) => {
               </button>
             </div>
             {/* Reviews Section */}
-            {tour.showReviews && <div className="bg-[#F6F3F2]  p-6 md:p-8 rounded-xl border border-slate-200 shadow-lg max-w-2xl mx-auto font-sans">
-              <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center justify-center">
-                <MessageCircle />
-                Les avis
-              </h2>
-              {approvedReviews.length === 0 ? (
-                <div className="text-center text-gray-500 py-8">
-                  Aucun avis pour ce tour pour le moment.
-                </div>
-              ) : approvedReviews.length > 1 ? (
-                <Carousel
-                  plugins={[plugin.current]} // Add plugin ref here for autoplay
-                  className="w-full"
-                  opts={{
-                    align: "start",
-                    loop: true,
-                  }}
-                  onMouseEnter={plugin.current.stop} // Optional: pause on hover
-                  onMouseLeave={plugin.current.reset}
-                >
-                  <CarouselContent>
-                    {approvedReviews.map((review: Review, index: number) => (
-                      <CarouselItem
-                        key={index}
-                        className="md:basis-1/1 lg:basis-1/1"
-                      >
-                        {/* Show 1 item at a time */}
-                        <div className="p-1">
-                          <ReviewsCard
-                            review={{
-                              name: review.fullName,
-                              message: review.message,
-                              rating: review.rating,
-                              role: "Client",
-                              avatarUrl: "/home/ubuntu/upload/image.png",
-                            }}
-                          />
-                        </div>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <CarouselPrevious className="absolute left-[-20px] top-1/2 -translate-y-1/2 bg-lime-400 hover:bg-lime-500 text-white border-none rounded-full w-8 h-8" />
-                  <CarouselNext className="absolute right-[-20px] top-1/2 -translate-y-1/2 bg-lime-400 hover:bg-lime-500 text-white border-none rounded-full w-8 h-8" />
-                </Carousel>
-              ) : (
-                <div className="w-full">
-                  <ReviewsCard
-                    review={{
-                      name: approvedReviews[0].fullName,
-                      message: approvedReviews[0].message,
-                      rating: approvedReviews[0].rating,
-                      role: "Client",
-                      avatarUrl: "/home/ubuntu/upload/image.png",
+            {tour.showReviews && (
+              <div className="bg-[#F6F3F2]  p-6 md:p-8 rounded-xl border border-slate-200 shadow-lg max-w-2xl mx-auto font-sans">
+                <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center justify-center">
+                  <MessageCircle />
+                  Les avis
+                </h2>
+                {approvedReviews.length === 0 ? (
+                  <div className="text-center text-gray-500 py-8">
+                    Aucun avis pour ce tour pour le moment.
+                  </div>
+                ) : approvedReviews.length > 1 ? (
+                  <Carousel
+                    plugins={[plugin.current]} // Add plugin ref here for autoplay
+                    className="w-full"
+                    opts={{
+                      align: "start",
+                      loop: true,
                     }}
-                  />
-                </div>
-              )}
-              <ReviewModal tourId={tour.id} />
-            </div>}
+                    onMouseEnter={plugin.current.stop} // Optional: pause on hover
+                    onMouseLeave={plugin.current.reset}
+                  >
+                    <CarouselContent>
+                      {approvedReviews.map((review: Review, index: number) => (
+                        <CarouselItem
+                          key={index}
+                          className="md:basis-1/1 lg:basis-1/1"
+                        >
+                          {/* Show 1 item at a time */}
+                          <div className="p-1">
+                            <ReviewsCard
+                              review={{
+                                name: review.fullName,
+                                message: review.message,
+                                rating: review.rating,
+                                role: "Client",
+                                avatarUrl: "/home/ubuntu/upload/image.png",
+                              }}
+                            />
+                          </div>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="absolute left-[-20px] top-1/2 -translate-y-1/2 bg-lime-400 hover:bg-lime-500 text-white border-none rounded-full w-8 h-8" />
+                    <CarouselNext className="absolute right-[-20px] top-1/2 -translate-y-1/2 bg-lime-400 hover:bg-lime-500 text-white border-none rounded-full w-8 h-8" />
+                  </Carousel>
+                ) : (
+                  <div className="w-full">
+                    <ReviewsCard
+                      review={{
+                        name: approvedReviews[0].fullName,
+                        message: approvedReviews[0].message,
+                        rating: approvedReviews[0].rating,
+                        role: "Client",
+                        avatarUrl: "/home/ubuntu/upload/image.png",
+                      }}
+                    />
+                  </div>
+                )}
+                <ReviewModal tourId={tour.id} />
+              </div>
+            )}
             <BookingSteps advance={tour?.advancedPrice} />
           </div>
         </div>
       </div>
 
       <div id="reservation-form">
-        <ReservationSection
+        <ReservationsForm
+        fields={tour.reservationForm[0]?.fields || []}
+        tourId={tour.id}
+        travelDates={tour.dates || []}
+      />
+       {/* <ReservationSection
           availableDates={sampleAvailableDates}
           hotels={sampleHotels}
           tour={tour}
           imageSrc="/path/to/your/image.jpg" // Provide image path
-        />
+        /> */}
       </div>
       <div className="bg-[#F6F3F2] p-6 rounded-lg shadow-sm mb-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-8 flex items-center justify-center">
@@ -895,6 +935,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
           ))}
         </div>
       </div>
+      {tour.googleMapsUrl && 
       <div className="bg-white p-6 lg:px-12 rounded-lg shadow-sm">
         <h2 className="text-2xl font-bold text-gray-800 mb-8 flex items-center gap-3 justify-center">
           <MapPinHouse />
@@ -913,7 +954,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
             referrerPolicy="no-referrer-when-downgrade"
           />
         </div>
-      </div>
+      </div>}
       <FaqSection faqData={sampleFaqData} />
     </div>
   );
@@ -922,6 +963,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
 export default TourDetails;
 import { Rating } from "react-simple-star-rating";
 import WhatsappShare from "./whatsappShare";
+import ReservationsForm from "./reservationsForm";
 
 const StarRatingDisplay = ({ averageRating }: { averageRating: number }) => {
   return (

@@ -56,7 +56,7 @@ export default function ReservationFormBuilder({ onChange }: { onChange: (fields
           onChange={(e) => setNewField({ ...newField, label: e.target.value })}
         />
         <input
-          placeholder="Name (e.g. fullName)"
+          placeholder="Placeholder (e.g. fullName)"
           className="border p-2 rounded"
           value={newField.name || ''}
           onChange={(e) => setNewField({ ...newField, name: e.target.value })}
@@ -81,12 +81,12 @@ export default function ReservationFormBuilder({ onChange }: { onChange: (fields
           />
         )}
 
-        <button
+        <div
           onClick={addField}
-          className="col-span-2 bg-lime-600 text-white px-4 py-2 rounded-lg hover:bg-lime-700"
+          className="col-span-2 cursor-pointer text-center bg-lime-600 text-white px-4 py-2 rounded-lg hover:bg-lime-700"
         >
           Add Field
-        </button>
+        </div>
       </div>
 
       {fields.map((field, index) => (
@@ -95,7 +95,7 @@ export default function ReservationFormBuilder({ onChange }: { onChange: (fields
             <span>
               <strong>{field.label}</strong> ({field.type})
             </span>
-            <button onClick={() => removeField(index)} className="text-red-600">Remove</button>
+            <div onClick={() => removeField(index)} className="text-red-600 cursor-pointer">Remove</div>
           </div>
 
           {field.type === 'select' && (
@@ -124,8 +124,8 @@ export default function ReservationFormBuilder({ onChange }: { onChange: (fields
                   />
                 </div>
               ))}
-              <button
-                className="text-lime-600"
+              <div
+                className="text-lime-600 cursor-pointer"
                 onClick={() => {
                   const updated = [...fields];
                   if (!updated[index].options) updated[index].options = [];
@@ -135,7 +135,7 @@ export default function ReservationFormBuilder({ onChange }: { onChange: (fields
                 }}
               >
                 + Add Option
-              </button>
+              </div>
             </div>
           )}
         </div>
