@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 
 interface StringLoopProps {
   title: string;
-  type: 'inclus' | 'exclus';
+  type: 'inclus' | 'exclus' | 'extracts';
   description?: string;
   value?: string[];
   onChange: (value: string[]) => void;
@@ -35,14 +35,21 @@ const [strings, setStrings] = useState<string[]>(value ?? []);
   };
 
   const badgeVariant = type === 'inclus' ? 'default' : 'destructive';
+  const badgeClassName =
+    type === 'inclus'
+      ? 'bg-lime-600 text-white'
+      : type === 'extracts'
+      ? 'bg-blue-600 text-white'
+      : '';
+
 
   return (
     <Card className="bg-gray-50 h-fit">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           {title} 
-          <Badge variant={badgeVariant}>{type}</Badge>
-          <span className="text-red-600">*</span>
+          <Badge variant={badgeVariant} className={badgeClassName}>{type}</Badge>
+            {type !== 'extracts' && <span className="text-red-600">*</span>}
         </CardTitle>
         {description && (
           <p className="text-sm text-gray-600">{description}</p>

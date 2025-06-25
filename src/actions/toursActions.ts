@@ -143,8 +143,10 @@ programs: z
   hotels: z.array(z.string()).optional(),
   inclus: z.string(),
   exclus: z.string(),
+  extracts: z.string().optional(),
   arrayInclus: z.array(z.string()),
   arrayExlus: z.array(z.string()),
+  arrayExtracts: z.array(z.string()).optional(),
 });
 
 export type TourFormData = z.infer<typeof tourSchema>
@@ -184,6 +186,7 @@ export type TourFormData = z.infer<typeof tourSchema>
       imageUrl: validatedData.imageURL ? await uploadImage(validatedData.imageURL) : "", // Upload image and get URL
       inclus: validatedData.inclus,
       exclus: validatedData.exclus,
+      extracts: validatedData.extracts,
       groupType: validatedData.groupType,
       groupSizeMax: validatedData.groupSizeMax,
       showReviews: validatedData.showReviews,
@@ -440,6 +443,7 @@ export async function updateTour(tourId: string, formData: TourFormData) {
         imageUrl: mainImageUrl,
         inclus: validatedData.inclus,
         exclus: validatedData.exclus,
+        extracts: validatedData.extracts,
         groupType: validatedData.groupType,
         groupSizeMax: validatedData.groupSizeMax,
         showReviews: validatedData.showReviews,

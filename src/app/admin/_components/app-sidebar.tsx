@@ -14,7 +14,8 @@ import {
   Newspaper,
   ListStart,
   Star,
-  MessagesSquare
+  MessagesSquare,
+  Route
 } from "lucide-react";
 
 import { NavMain } from "./nav-main";
@@ -58,7 +59,7 @@ const datas = {
     {
       title: "Ajouter Tour",
       url: "/admin/dashboard/tours/add",
-      icon: Tickets,
+      icon: Route,
     },
     {
       title: "Voyages",

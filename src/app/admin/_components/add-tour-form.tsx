@@ -215,8 +215,10 @@ const tourSchema = z.object({
   hotels: z.array(z.string()).optional(),
   inclus: z.string(),
   exclus: z.string(),
+  extracts: z.string().optional(),
   arrayInclus: z.array(z.string()),
   arrayExlus: z.array(z.string()),
+  arrayExtras: z.array(z.string()).optional(),
 });
 
 export function AddTourForm({
@@ -257,6 +259,7 @@ export function AddTourForm({
       googleMapsUrl: "",
       inclus: "",
       exclus: "",
+      extracts: "",
       hotels: [],
       services: [],
       programs: [],
@@ -267,6 +270,7 @@ export function AddTourForm({
       images: [],
       arrayInclus: [],
       arrayExlus: [],
+      arrayExtras: [],
     },
   });
 
@@ -309,6 +313,9 @@ export function AddTourForm({
         exclus: Array.isArray(values.arrayExlus)
           ? values.arrayExlus.join(";")
           : values.exclus,
+        extracts: Array.isArray(values.arrayExtras)
+          ? values.arrayExtras.join(";")
+          : values.extracts,
       };
 
       const result = await addTour(formData);
@@ -1682,70 +1689,30 @@ export function AddTourForm({
                     }}
                   />
                 </div>
-              </div>
-
-              {/* Additional Details */}
-              {/*<div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
+                </div>
+              {/* Extras */}
+              <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
                 <h3 className="text-lime-600 text-l font-medium">
-                  <ImagesIcon className="inline mr-2" />
-                  Détails supplémentaires
+                  <CheckSquare className="inline mr-2" />
+                  Extras
                 </h3>
                 <p className="text-lime-800 text-md  mb-4">
-                  Définissez des détails supplémentaires pour le circuit.
+                  Définissez les éléments supplémentaires du circuit.
                 </p>
-                <Separator className="mb-6" />
-
-                <div className="space-y-4">
-                   Image URLs 9 max
-                  <FormField
-                    control={form.control}
-                    name="images"
-                    render={() => (
-                      <FormItem>
-                        <FormLabel>Images du circuit<span className="text-red-600">*</span></FormLabel>
-                        <FormDescription>
-                          Ajoutez les URLs de 9 images pour ce circuit
-                        </FormDescription>
-
-                        <FileUploader
-                          value={gallery}
-                          onValueChange={setGallery}
-                          dropzoneOptions={{
-                            maxFiles: 9,
-                            maxSize: 9 * 1024 * 1024,
-                            accept: {
-                              "image/*": [".jpg", ".jpeg", ".png", ".gif"],
-                              "application/pdf": [".pdf"],
-                            },
-                            multiple: true,
-                          }}
-                          className="border border-gray-300 rounded-lg p-4 bg-white shadow-sm"
-                          orientation="vertical"
-                        >
-                          <FileInput className="border-2 border-dashed p-6 text-center hover:bg-gray-50">
-                            <p className="text-gray-500">
-                              Glissez-déposez vos fichiers ici ou cliquez pour
-                              parcourir.
-                            </p>
-                          </FileInput>
-
-                          <FileUploaderContent className="mt-4">
-                            {gallery?.map((file, index) => (
-                              <FileUploaderItem key={index} index={index}>
-                                <span className="truncate max-w-[200px]">
-                                  {file.name}
-                                </span>
-                              </FileUploaderItem>
-                            ))}
-                          </FileUploaderContent>
-                        </FileUploader>
-
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  /> 
+                <div className="text-sm text-gray-500 mt-4">
+                    <StringLoop
+                      title="Extras"
+                      type="extracts"
+                      description="Liste des éléments supplémentaires (facultatif)"
+                      onChange={(value) => {
+                        form.setValue(
+                          "arrayExtras",
+                          Array.isArray(value) ? value : [value]
+                        );
+                      }}
+                    />
                 </div>
-              </div>*/}
+              </div>
 
               {/* Display Options */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">

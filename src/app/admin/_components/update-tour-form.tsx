@@ -1,12 +1,11 @@
- 
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Banknote, BedDouble, Calendar, CalendarIcon, Check, CheckCircle, ChevronsUpDown, ClipboardPenLine, Eye, Images, ImagesIcon, Info, Tag } from "lucide-react";
+import { Banknote, BedDouble, Calendar, CalendarIcon, Check, CheckCircle, CheckSquare, ChevronsUpDown, ClipboardPenLine, Eye, Images, ImagesIcon, Info, Tag } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -203,8 +202,10 @@ images: z.array(
   hotels: z.array(z.string()).optional(),
   inclus: z.string(),
   exclus: z.string(),
+  extracts: z.string().optional(),
   arrayInclus: z.array(z.string()),
   arrayExlus: z.array(z.string()),
+  arrayExtras: z.array(z.string()).optional(),
 });
 
 
@@ -253,6 +254,7 @@ export function UpdateTourForm({
       videoUrl: initialData.videoUrl ?? "",
       inclus: initialData.inclus ?? "",
       exclus: initialData.exclus ?? "",
+      extracts: initialData.extracts ?? "",
       programs: initialData.programs || [],
       dates: initialData.dates || [],
       destinations: initialData.destinations
@@ -275,6 +277,7 @@ export function UpdateTourForm({
         : [],
       arrayInclus: initialData.inclus?.split(";") || [],
       arrayExlus: initialData.exclus?.split(";") || [],
+      arrayExtras: initialData.extracts?.split(";") || [],
     },
   });
 
@@ -311,6 +314,7 @@ export function UpdateTourForm({
         images,
         inclus: values.arrayInclus.join(";"),
         exclus: values.arrayExlus.join(";"),
+        extracts: values.arrayExtras ? values.arrayExtras.join(";") : "",
       };
 
       const result = await updateTour(tourId, formData);
@@ -1558,6 +1562,30 @@ export function UpdateTourForm({
                   />
                 </div>
               </div>
+
+                {/* Extras */}
+                <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
+                  <h3 className="text-lime-600 text-l font-medium">
+                    <CheckSquare className="inline mr-2" />
+                    Extras
+                  </h3>
+                  <p className="text-lime-800 text-md  mb-4">
+                    Définissez les éléments supplémentaires du circuit.
+                  </p>
+                  <div className="text-sm text-gray-500 mt-4">
+                      <StringLoop
+                        title="Extras"
+                        type="extracts"
+                        description="Liste des éléments supplémentaires (facultatif)"
+                        onChange={(value) => {
+                          form.setValue(
+                            "arrayExtras",
+                            Array.isArray(value) ? value : [value]
+                          );
+                        }}
+                      />
+                  </div>
+                </div>
 
               
 
