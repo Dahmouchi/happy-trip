@@ -15,7 +15,8 @@ import {
   ListStart,
   Star,
   MessagesSquare,
-  Route
+  Route,
+  Headset
 } from "lucide-react";
 
 import { NavMain } from "./nav-main";
@@ -70,6 +71,11 @@ const datas = {
       title: "Réservations",
       url: "/admin/dashboard/reservations",
       icon: Tickets,
+    },
+    {
+      title: "Réunions",
+      url: "/admin/dashboard/meetings",
+      icon: Headset,
     },
     {
       title: "Utilisateurs",
