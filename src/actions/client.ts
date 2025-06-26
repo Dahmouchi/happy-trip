@@ -30,7 +30,6 @@ export async function RegisterClient(nom:string,prenom:string,email:string,phone
 export async function createRDV(
   title: string,
   date: Date,
-  dure: number,
   id: string,
   description?: string
 ) {
@@ -40,7 +39,6 @@ export async function createRDV(
         title,
         description,
         date,
-        duration: dure,
         clientId: id,
       },
     });

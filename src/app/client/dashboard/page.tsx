@@ -68,10 +68,6 @@ const meetingFormSchema = z.object({
   startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, {
     message: "Format horaire invalide (HH:MM)",
   }),
-  duration: z
-    .number()
-    .min(15, "La durée minimale est de 15 minutes")
-    .max(120, "La durée maximale est de 120 minutes"),
 });
 export default function MeetingsPage() {
   const { data: session } = useSession();
@@ -101,7 +97,6 @@ export default function MeetingsPage() {
       description: "",
       date: new Date(),
       startTime: "09:00",
-      duration: 15,
     },
   });
 
@@ -116,7 +111,6 @@ export default function MeetingsPage() {
         const res = await createRDV(
           data.title,
           meetingDate,
-          data.duration,
           session.user.id,
            data?.description,
         );
@@ -262,37 +256,7 @@ export default function MeetingsPage() {
                     />
                   </div>
 
-                  {/* Duration Field */}
-                  <FormField
-                    control={form.control}
-                    name="duration"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Durée (minutes)</FormLabel>
-                        <Select
-                          onValueChange={(value) =>
-                            field.onChange(Number(value))
-                          }
-                          defaultValue={field.value.toString()}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Sélectionnez une durée" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="15">15 minutes</SelectItem>
-                            <SelectItem value="30">30 minutes</SelectItem>
-                            <SelectItem value="45">45 minutes</SelectItem>
-                            <SelectItem value="60">1 heure</SelectItem>
-                            <SelectItem value="90">1 heure 30</SelectItem>
-                            <SelectItem value="120">2 heures</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                
 
                   <Button
                     type="submit"
@@ -314,7 +278,6 @@ export default function MeetingsPage() {
             <TableHead>Sujet</TableHead>
             <TableHead>Description</TableHead>
             <TableHead>Date</TableHead>
-            <TableHead>Durée</TableHead>
             <TableHead>Statut</TableHead>
           </TableRow>
         </TableHeader>
@@ -333,7 +296,6 @@ export default function MeetingsPage() {
               <TableCell>
                 {format(meeting.date, "PPPp", { locale: fr })}
               </TableCell>
-              <TableCell>{meeting.duration} minutes</TableCell>
               <TableCell>
                 <span
                   className={`px-2 py-1 rounded-full text-xs ${

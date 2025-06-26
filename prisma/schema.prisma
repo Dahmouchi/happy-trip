@@ -12,7 +12,6 @@ model Meeting {
   title       String // Meeting subject/title
   description String? // Optional details
   date        DateTime // Meeting date & time
-  duration    Int?
   status      String   @default("pending") // pending/confirmed/cancelled
   clientId    String // Reference to client
   createdAt   DateTime @default(now())

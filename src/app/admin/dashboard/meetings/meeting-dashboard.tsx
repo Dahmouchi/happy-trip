@@ -53,11 +53,33 @@ const AdminDashboard = ({
   ) => {
     onConfirmMeeting(meetingId);
 
-    const jitsiRoom = `meeting-${meetingId}`;
-    toast({
-      title: "Rendez-vous Confirmé",
-      description: `WhatsApp envoyé à ${clientName} : "Votre rendez-vous est confirmé ! ID : ${jitsiRoom}, Lien Jitsi: https://meet.jit.si/${jitsiRoom}"`,
-    });
+    // toast({
+    //   title: "Rendez-vous confirmé",
+    //   description: `Un email de confirmation a été envoyé à ${clientEmail}.`,
+    // });
+
+    // Appel à l'API pour envoyer l'email de confirmation
+    fetch("/api/send-confirmation-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+      to: clientEmail,
+      name: clientName,
+      meetingId: meetingId,
+      }),
+    })
+      .then((res) => {
+      if (!res.ok) {
+        throw new Error("Erreur lors de l'envoi de l'email");
+      }
+      })
+      .catch(() => {
+      toast({
+        title: "Erreur lors de l'envoi de l'email",
+        description: "Impossible d'envoyer l'email de confirmation.",
+        variant: "destructive",
+      });
+      });
   };
 
   const handleFinishMeeting = (meetingId: string) => {
@@ -148,12 +170,6 @@ const AdminDashboard = ({
                           <span className="flex items-center gap-1">
                             <PhoneIcon className="h-4 w-4 text-primary" />
                             <strong>Téléphone :</strong> {meeting.clientPhone}
-                          </span>
-                        )}
-                        {typeof meeting.duration === "number" && (
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-4 w-4 text-primary" />
-                            <strong>Durée :</strong> {meeting.duration} min
                           </span>
                         )}
                         {meeting.clientEmail && (
@@ -286,7 +302,7 @@ const AdminDashboard = ({
                       const meetingDate = parseMeetingDate(meeting);
                       const diffMs = meetingDate.getTime() - now.getTime();
                       const diffMin = diffMs / (1000 * 60);
-                      const isEnabled = diffMin <= 15 && diffMin >= -(meeting.duration ?? 0);
+                      const isEnabled = diffMin <= 15 ;
 
                       if (now > meetingDate) {
                         return (
