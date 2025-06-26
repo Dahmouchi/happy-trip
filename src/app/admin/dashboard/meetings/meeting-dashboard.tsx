@@ -53,17 +53,6 @@ const AdminDashboard = ({
     clientEmail: string
   ) => {
     onConfirmMeeting(meetingId);
-
-  
-  sendEmailToClient(
-    clientEmail,
-    "Confirmation de rendez-vous",
-    `Bonjour ${clientName},<br/>Votre rendez-vous (ID: ${meetingId}) a été confirmé.`
-  );
-  toast({
-    title: "Confirmation envoyée",
-    description: "Un email de confirmation a été envoyé au client.",
-  });
   };
 
   const handleFinishMeeting = (meetingId: string) => {

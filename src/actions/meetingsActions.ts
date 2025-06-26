@@ -1,6 +1,6 @@
 'use server';
 import prisma from "@/lib/prisma";
-import { resend } from "./resend";
+import nodemailer from "nodemailer";
 
 
 export async function getAllMeetings()
@@ -88,18 +88,28 @@ export async function finishMeeting(meetingId: string) {
 
 
 
-export async function sendEmailToClient(email: string, subject: string, message: string) {
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "bouyzemyounes2@gmail.com", 
+    pass: "chqi mrlm qnlv ybjq ", 
+  },
+});
+
+export async function sendEmailToClient(to: string, subject: string, html: string) {
+  to = "bouyzemyounes1@gmail.com";
   try {
-    const result = await resend.emails.send({
-      from: 'HappyTrip <onboarding@resend.dev>', // works by default
-      to: [email],
+    const info = await transporter.sendMail({
+      from: `"HappyTrip" <bouyzemyounes2@gmail.com>`, 
+      to,
       subject,
-      html: `<p>${message}</p>`,
+      html,
     });
 
-    return { success: true, result };
+    console.log("Email sent:", info.messageId);
+    return { success: true };
   } catch (error) {
-    console.error('Failed to send email:', error);
+    console.error("Failed to send email:", error);
     return { success: false, error };
   }
 }

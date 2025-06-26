@@ -53,25 +53,92 @@ const MeetingsPage = () => {
     fetchMeetings();
   }, []);
 
+  // const confirmMeeting = async (meetingId: string) => {
+  //   try {
+  //     const { confirmMeeting } = await import('@/actions/meetingsActions');
+  //     await confirmMeeting(meetingId);
+  //     setMeetings(prev => prev.map(meeting => 
+  //       meeting.id === meetingId 
+  //         ? { ...meeting, status: 'confirmed' }
+  //         : meeting
+  //     ));
+  //     if (typeof window !== "undefined") {
+  //       toast.success("Réunion confirmée avec succès.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to confirm meeting:", error);
+  //     if (typeof window !== "undefined") {
+  //       toast.error("Échec de la confirmation de la réunion.");
+  //     }
+  //   }
+  // };
+
+
+
   const confirmMeeting = async (meetingId: string) => {
-    try {
-      const { confirmMeeting } = await import('@/actions/meetingsActions');
-      await confirmMeeting(meetingId);
-      setMeetings(prev => prev.map(meeting => 
-        meeting.id === meetingId 
+  try {
+    const { confirmMeeting } = await import('@/actions/meetingsActions');
+    const { getClientById } = await import('@/actions/client'); // Adjust path if needed
+    const { sendEmailToClient } = await import('@/actions/meetingsActions'); // Adjust path if needed
+
+    await confirmMeeting(meetingId);
+
+    // Update local state
+    setMeetings(prev =>
+      prev.map(meeting =>
+        meeting.id === meetingId
           ? { ...meeting, status: 'confirmed' }
           : meeting
-      ));
-      if (typeof window !== "undefined") {
-        toast.success("Réunion confirmée avec succès.");
-      }
-    } catch (error) {
-      console.error("Failed to confirm meeting:", error);
-      if (typeof window !== "undefined") {
-        toast.error("Échec de la confirmation de la réunion.");
+      )
+    );
+
+    // Find the clientId of the confirmed meeting
+    const confirmedMeeting = meetings.find(m => m.id === meetingId);
+    const clientId = confirmedMeeting?.clientId;
+
+    if (clientId) {
+      const client = await getClientById(clientId);
+      const email = client?.email;
+
+      if (client) {
+        await sendEmailToClient(
+          email ?? "",
+          "Réunion Confirmée",
+          `
+            <div style="font-family: Arial, sans-serif; color: #222;">
+              <h2 style="color: #2563eb;">Bonjour ${client.name},</h2>
+              <p>
+          Nous avons le plaisir de vous informer que votre réunion a été <strong>confirmée</strong>.
+              </p>
+              <div style="margin: 16px 0; padding: 12px; background: #f1f5f9; border-radius: 8px;">
+          <p><strong>Date :</strong> ${confirmedMeeting?.date ? new Date(confirmedMeeting.date).toLocaleString('fr-FR') : 'Non spécifiée'}</p>
+          <p><strong>Titre :</strong> ${confirmedMeeting?.title ?? 'Non spécifié'}</p>
+          <p><strong>Objet :</strong> ${confirmedMeeting?.description ?? 'Non spécifié'}</p>
+              </div>
+              <p>
+          Si vous avez des questions ou souhaitez modifier les détails de la réunion, n'hésitez pas à nous contacter.
+              </p>
+              <p style="margin-top: 24px;">
+          Cordialement,<br/>
+          L'équipe Happy Trip
+              </p>
+            </div>
+          `
+        );
       }
     }
-  };
+
+    if (typeof window !== "undefined") {
+      toast.success("Réunion confirmée avec succès.");
+    }
+  } catch (error) {
+    console.error("Failed to confirm meeting:", error);
+    if (typeof window !== "undefined") {
+      toast.error("Échec de la confirmation de la réunion.");
+    }
+  }
+};
+
 
   const deleteMeeting = async (meetingId: string) => {
     try {
