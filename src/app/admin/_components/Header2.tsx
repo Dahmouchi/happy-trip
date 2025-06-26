@@ -44,7 +44,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -125,7 +124,13 @@ const Header = () => {
 
     fetchUnreadNewsletters();
   }, [session]);
-
+  function formatDate(date: Date): string {
+    return date.toLocaleDateString("fr-FR", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  }
   return (
     <header className="flex h-16 rounded-lg border shadow-[-4px_5px_10px_0px_rgba(0,_0,_0,_0.1)]  mb-1 shrink-0 bg-white dark:bg-slate-900 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
       <div className="flex items-center gap-2 px-4">
@@ -203,13 +208,7 @@ const Header = () => {
                         </p>
                         <div className="flex justify-between w-full items-center mt-1">
                           <span className="text-xs text-muted-foreground">
-                            {formatDistanceToNow(
-                              new Date(newsletter.createdAt),
-                              {
-                                addSuffix: true,
-                                locale: fr,
-                              }
-                            )}
+                            {formatDate(newsletter.createdAt)}
                           </span>
                           {!newsletter.status && (
                             <Button

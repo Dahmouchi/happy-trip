@@ -294,7 +294,7 @@ export default function MeetingsPage() {
                 </HoverCard>
               </TableCell>
               <TableCell>
-                {format(meeting.date, "PPPp", { locale: fr })}
+                {format(meeting.date, "PPPp")}
               </TableCell>
               <TableCell>
                 <span
