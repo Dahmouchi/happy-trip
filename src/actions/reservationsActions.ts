@@ -79,36 +79,13 @@ type CreateReservationInput = {
   email?: string;
   data: any; // your customFields
   basePrice: number;
+  finalPrice:number;
+
 };
 
 export async function CreateReservations(input: CreateReservationInput) {
   try {
-    // Calculate extra price from dynamic custom fields
-    let extraPrice = 0;
-
-    for (const key in input.data) {
-      const value = input.data[key];
-
-      // Skip null/undefined values
-      if (!value) continue;
-
-      // Checkbox: boolean true → add price
-      if (typeof value === "object" && value.price && value.selected) {
-        extraPrice += value.price;
-      }
-
-      // Select: value might be like { value: "opt1", price: 50 }
-      if (typeof value === "object" && value.price && !value.selected) {
-        extraPrice += value.price;
-      }
-
-      // Number or direct price field
-      if (typeof value === "number") {
-        extraPrice += value;
-      }
-    }
-
-    const finalPrice = input.basePrice + extraPrice;
+   
 
     const reservation = await prisma.reservations.create({
       data: {
@@ -120,7 +97,7 @@ export async function CreateReservations(input: CreateReservationInput) {
         email: input.email,
         data: input.data,
         basePrice: input.basePrice,
-        finalPrice: finalPrice,
+        finalPrice: input.finalPrice,
         status: ReservationStatus.PENDING,
       },
     });

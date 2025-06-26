@@ -373,6 +373,7 @@ export async function getTourById(tourId: string) {
         hotels: true,
         programs: true,
         images: true,
+        reservationForm:true,
         dates: true,
       },
     });
@@ -620,6 +621,29 @@ export async function checkTourIdExists(tourId: string) {
       where: { id: tourId },
     });
     return { exists: !!tour };
+  } catch (error) {
+    console.error("Error checking tour ID:", error);
+    return { exists: false, error: "Failed to check tour ID" };
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+export async function updateReservationTour(reservationId: string,updatedFields:any) {
+  try {
+    const tour = await prisma.reservationForm.findUnique({
+      where: { id: reservationId },
+    });
+    if(tour){
+       const res = await prisma.reservationForm.update({
+        where: { id: reservationId },
+        data: {
+          fields:updatedFields
+        },
+      });
+       return { success: true ,  data: res };
+    }
+   
   } catch (error) {
     console.error("Error checking tour ID:", error);
     return { exists: false, error: "Failed to check tour ID" };

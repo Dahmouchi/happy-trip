@@ -75,7 +75,8 @@ export default function ReservationsForm({
         phone: formData.phone,
         email: formData.email,
         data: formData.customFields,
-        basePrice: finalPrice, // assuming this is your base price
+        basePrice: basePrice, // assuming this is your base price
+        finalPrice:finalPrice,
       });
 
       toast.success("✅ Reservation sent!");
@@ -227,7 +228,10 @@ export default function ReservationsForm({
                     return (
                       <div className="flex flex-col gap-2" key={index}>
                         <label htmlFor="" className="text-black">
-                          {field.label} {field.required &&  <span className="text-red-600">*</span>}
+                          {field.label}{" "}
+                          {field.required && (
+                            <span className="text-red-600">*</span>
+                          )}
                         </label>
                         <input
                           name={field.name}
@@ -264,7 +268,10 @@ export default function ReservationsForm({
                           className="w-full py-4 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                         >
                           {" "}
-                          {field.label} (+{field.price || 0} MAD) {field.required &&  <span className="text-red-600">*</span>}
+                          {field.label} (+{field.price || 0} MAD){" "}
+                          {field.required && (
+                            <span className="text-red-600">*</span>
+                          )}
                         </label>
                       </div>
                     );
@@ -273,7 +280,10 @@ export default function ReservationsForm({
                     return (
                       <div className="flex flex-col gap-2" key={index}>
                         <label htmlFor="" className="text-black">
-                          {field.label} {field.required &&  <span className="text-red-600">*</span>}
+                          {field.label}{" "}
+                          {field.required && (
+                            <span className="text-red-600">*</span>
+                          )}
                         </label>
                         <select
                           name={field.name}
@@ -284,7 +294,7 @@ export default function ReservationsForm({
                           {field.options.map((opt: any, i: number) => (
                             <option key={i} value={opt.value}>
                               {opt.label}{" "}
-                              {opt.price > 0 && <span>+{opt.price} MAD</span>}
+                              {opt.price > 0 ? `+${opt.price} MAD` : ""}
                             </option>
                           ))}
                         </select>
@@ -360,7 +370,7 @@ export default function ReservationsForm({
               </div>
               <button
                 type="submit"
-                className="w-full text-lg font-semibold rounded-md py-2"
+                className="w-full cursor-pointer text-lg font-semibold rounded-md py-2"
                 style={{ backgroundColor: "#8ebd21", color: "white" }}
               >
                 Réserver
