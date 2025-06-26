@@ -137,8 +137,13 @@ export async function GetAllReservations() {
   try {
     const reservations = await prisma.reservations.findMany({
       include: {
-        tour: true,
+        tour: {
+          include:{
+            reservationForm:true,
+          }
+        },
         travelDate: true,
+      
       },
       orderBy: {
         createdAt: 'desc',

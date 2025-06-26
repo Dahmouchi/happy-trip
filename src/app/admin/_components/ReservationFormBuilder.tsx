@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 
-type FieldType = 'text' | 'checkbox' | 'select';
+type FieldType = "text" | "checkbox" | "select";
 
 interface FieldOption {
   label: string;
@@ -20,16 +20,20 @@ interface Field {
   options?: FieldOption[];
 }
 
-export default function ReservationFormBuilder({ onChange }: { onChange: (fields: Field[]) => void }) {
+export default function ReservationFormBuilder({
+  onChange,
+}: {
+  onChange: (fields: Field[]) => void;
+}) {
   const [fields, setFields] = useState<Field[]>([]);
-  const [newField, setNewField] = useState<Partial<Field>>({ type: 'text' });
+  const [newField, setNewField] = useState<Partial<Field>>({ type: "text" });
 
   const addField = () => {
     if (!newField.label || !newField.name || !newField.type) return;
     const updated = [...fields, newField as Field];
     setFields(updated);
     onChange(updated);
-    setNewField({ type: 'text' });
+    setNewField({ type: "text" });
   };
 
   const removeField = (index: number) => {
@@ -38,10 +42,15 @@ export default function ReservationFormBuilder({ onChange }: { onChange: (fields
     onChange(updated);
   };
 
-  const updateOption = (index: number, optionIndex: number, field: keyof FieldOption, value: string | number) => {
+  const updateOption = (
+    index: number,
+    optionIndex: number,
+    field: keyof FieldOption,
+    value: string | number
+  ) => {
     const updated = [...fields];
     if (!updated[index].options) return;
-    updated[index].options![optionIndex][field] = value as any;
+    updated[index].options![optionIndex][field] = value as never;
     setFields(updated);
     onChange(updated);
   };
@@ -52,32 +61,45 @@ export default function ReservationFormBuilder({ onChange }: { onChange: (fields
         <input
           placeholder="Label (e.g. Full Name)"
           className="border p-2 rounded"
-          value={newField.label || ''}
+          value={newField.label || ""}
           onChange={(e) => setNewField({ ...newField, label: e.target.value })}
         />
         <input
           placeholder="Placeholder (e.g. fullName)"
           className="border p-2 rounded"
-          value={newField.name || ''}
+          value={newField.name || ""}
           onChange={(e) => setNewField({ ...newField, name: e.target.value })}
         />
 
         <select
           className="border p-2 rounded"
           value={newField.type}
-          onChange={(e) => setNewField({ ...newField, type: e.target.value as FieldType })}
+          onChange={(e) =>
+            setNewField({ ...newField, type: e.target.value as FieldType })
+          }
         >
           <option value="text">Text</option>
           <option value="checkbox">Checkbox (with price)</option>
           <option value="select">Select (with options)</option>
         </select>
-
-        {newField.type === 'checkbox' && (
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={newField.required || false}
+            onChange={(e) =>
+              setNewField({ ...newField, required: e.target.checked })
+            }
+          />
+          Required
+        </label>
+        {newField.type === "checkbox" && (
           <input
             type="number"
             placeholder="Price (optional)"
             className="border p-2 rounded"
-            onChange={(e) => setNewField({ ...newField, price: Number(e.target.value) })}
+            onChange={(e) =>
+              setNewField({ ...newField, price: Number(e.target.value) })
+            }
           />
         )}
 
@@ -95,10 +117,15 @@ export default function ReservationFormBuilder({ onChange }: { onChange: (fields
             <span>
               <strong>{field.label}</strong> ({field.type})
             </span>
-            <div onClick={() => removeField(index)} className="text-red-600 cursor-pointer">Remove</div>
+            <div
+              onClick={() => removeField(index)}
+              className="text-red-600 cursor-pointer"
+            >
+              Remove
+            </div>
           </div>
 
-          {field.type === 'select' && (
+          {field.type === "select" && (
             <div className="space-y-2">
               <strong>Options:</strong>
               {(field.options || []).map((opt, optIndex) => (
@@ -106,20 +133,31 @@ export default function ReservationFormBuilder({ onChange }: { onChange: (fields
                   <input
                     className="border p-1"
                     value={opt.label}
-                    onChange={(e) => updateOption(index, optIndex, 'label', e.target.value)}
+                    onChange={(e) =>
+                      updateOption(index, optIndex, "label", e.target.value)
+                    }
                     placeholder="Label"
                   />
                   <input
                     className="border p-1"
                     value={opt.value}
-                    onChange={(e) => updateOption(index, optIndex, 'value', e.target.value)}
+                    onChange={(e) =>
+                      updateOption(index, optIndex, "value", e.target.value)
+                    }
                     placeholder="Value"
                   />
                   <input
                     type="number"
                     className="border p-1"
                     value={opt.price || 0}
-                    onChange={(e) => updateOption(index, optIndex, 'price', Number(e.target.value))}
+                    onChange={(e) =>
+                      updateOption(
+                        index,
+                        optIndex,
+                        "price",
+                        Number(e.target.value)
+                      )
+                    }
                     placeholder="Price"
                   />
                 </div>
@@ -129,7 +167,11 @@ export default function ReservationFormBuilder({ onChange }: { onChange: (fields
                 onClick={() => {
                   const updated = [...fields];
                   if (!updated[index].options) updated[index].options = [];
-                  updated[index].options!.push({ label: '', value: '', price: 0 });
+                  updated[index].options!.push({
+                    label: "",
+                    value: "",
+                    price: 0,
+                  });
                   setFields(updated);
                   onChange(updated);
                 }}

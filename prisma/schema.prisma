@@ -112,7 +112,7 @@ model NewsLetter {
 
 model ReservationForm {
   id        String   @id @default(uuid())
-  tour      Tour     @relation(fields: [tourId], references: [id])
+  tour      Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
   tourId    String
   fields    Json // stores array of field definitions (see below)
   createdAt DateTime @default(now())
@@ -120,7 +120,7 @@ model ReservationForm {
 
 model Reservations {
   id         String            @id @default(uuid())
-  tour       Tour              @relation(fields: [tourId], references: [id])
+  tour       Tour              @relation(fields: [tourId], references: [id], onDelete: Cascade)
   tourId     String
   nom        String
   prenom     String
