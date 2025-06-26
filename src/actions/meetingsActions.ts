@@ -53,7 +53,6 @@ export async function updateMeeting(
   meetingId: string,
   title: string,
   date: Date,
-  duration: number,
   description?: string
 ) {
   try {
