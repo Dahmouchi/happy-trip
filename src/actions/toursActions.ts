@@ -152,8 +152,13 @@ const tourSchema = z.object({
 export type TourFormData = z.infer<typeof tourSchema>;
 
 function getCorrectId(id: string) {
-  return id.replace(/\s+/g, "-");
+  return id
+    .normalize("NFD")                    // Decompose accented letters into base + diacritic
+    .replace(/[\u0300-\u036f]/g, "")     // Remove diacritic marks
+    .replace(/\s+/g, "-")                // Replace spaces with dashes
+    .toLowerCase();                      // (optional) convert to lowercase
 }
+
 
 export async function addTour(
   formData: TourFormData,
