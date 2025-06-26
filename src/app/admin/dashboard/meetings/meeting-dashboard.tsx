@@ -291,15 +291,7 @@ const AdminDashboard = ({
             const meetingDate = parseMeetingDate(meeting);
             const diffMs = meetingDate.getTime() - now.getTime();
             const diffMin = diffMs / (1000 * 60);
-            const isEnabled = diffMin <= 15;
-
-            if (now > meetingDate) {
-              return (
-                <span className="text-xs text-red-600 ml-2">
-              Ce rendez-vous est passé.
-                </span>
-              );
-            }
+            const isEnabled = diffMin <= 15 && diffMin >= -1440;
 
             return (
               <div className="flex flex-col items-start">
@@ -324,8 +316,18 @@ const AdminDashboard = ({
                 </Button>
                 {!isEnabled && (
               <span className="text-xs text-muted-foreground mt-1">
-                Le bouton sera activé 15 minutes avant le début du rendez-vous
+                {diffMin > 15
+                  ? "Le bouton sera activé 15 minutes avant le début du rendez-vous"
+                  : "Le bouton n'est plus disponible 24h après le rendez-vous"}
               </span>
+                )}
+
+                {now > meetingDate &&(
+              <Badge className="bg-red-600 text-white mt-1" variant="default">
+                  <span className="text-xs">
+                    Ce créneau est déjà passé
+                  </span>
+                </Badge>
                 )}
               </div>
             );

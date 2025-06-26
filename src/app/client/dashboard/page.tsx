@@ -45,7 +45,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Clock } from "lucide-react";
+import { Badge, Clock } from "lucide-react";
 import { createRDV, getRDV } from "@/actions/client";
 import {
   HoverCard,
@@ -318,38 +318,52 @@ export default function MeetingsPage() {
                 </span>
               </TableCell>
                 <TableCell>
-                {meeting.status === "confirmed" && (() => {
-                  const now = new Date();
-                  const meetingDate = new Date(meeting.date);
-                  const diffMs = meetingDate.getTime() - now.getTime();
-                  const diffMin = diffMs / 60000;
-                  const meetingEnd = new Date(meetingDate.getTime() + meeting.duration * 60000);
+            {(meeting.status === "confirmed" )&& (() => {
+            const now = new Date();
+            const meetingDateObj = new Date(meeting.date);
+            const diffMs = meetingDateObj.getTime() - now.getTime();
+            const diffMin = diffMs / (1000 * 60);
+            const isEnabled = diffMin <= 15 && diffMin >= -1440;
 
-                  if (now > meetingEnd) {
-                    return (
-                        <span className="text-red-400 italic text-sm">
-                        Le rendez-vous est passé
-                        </span>
-                    );
-                  }
+            return (
+              <div className="flex flex-col items-start">
+                <Button
+              size="sm"
+              onClick={() => {
+                const jitsiRoom = `meeting-${meeting.id}`;
+                window.open(
+                  `https://meet.jit.si/${jitsiRoom}`,
+                  "_blank"
+                );
+              }}
+              className="bg-blue-600 hover:bg-blue-700 text-xs"
+              disabled={!isEnabled}
+              title={
+                !isEnabled
+                  ? "Le bouton sera activé 15 minutes avant le début du rendez-vous"
+                  : undefined
+              }
+                >
+              Rejoindre Jitsi
+                </Button>
+                {!isEnabled && (
+             <span className="text-xs text-muted-foreground mt-1">
+                {diffMin > 15
+                  ? "Le bouton sera activé 15 minutes avant le début du rendez-vous"
+                  : "Le bouton n'est plus disponible 24h après le rendez-vous"}
+              </span>
+                )}
 
-                    // Enable the button only if we are within 15 minutes before start and before meeting ends
-                    const canJoin = diffMin <= 15 && diffMin >= 0;
-                    return (
-                    <Button
-                      className="bg-[#8EBD22] hover:bg-green-700 text-white font-semibold px-4 py-2 rounded shadow"
-                      disabled={!canJoin}
-                      onClick={() =>
-                      window.open(
-                        `https://meet.jit.si/${meeting.jitsiRoom || `meeting-${meeting.id}`}`,
-                        "_blank"
-                      )
-                      }
-                    >
-                      {canJoin ? "Rejoindre" : "Disponible 15 min avant"}
-                    </Button>
-                    );
-                })()}
+                {now > meetingDateObj &&(
+              <Badge className="bg-red-600 text-white mt-1">
+                  <span className="text-xs">
+                    Ce créneau est déjà passé
+                  </span>
+                </Badge>
+                )}
+              </div>
+            );
+              })()}
                 </TableCell>
             </TableRow>
           ))}
