@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Meeting as PrismaMeeting } from "@prisma/client";
+import { sendEmailToClient } from "@/actions/meetingsActions";
 
 // Extend the Meeting type to include clientName and clientPhone
 interface Meeting extends PrismaMeeting {
@@ -53,33 +54,16 @@ const AdminDashboard = ({
   ) => {
     onConfirmMeeting(meetingId);
 
-    // toast({
-    //   title: "Rendez-vous confirmé",
-    //   description: `Un email de confirmation a été envoyé à ${clientEmail}.`,
-    // });
-
-    // Appel à l'API pour envoyer l'email de confirmation
-    fetch("/api/send-confirmation-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-      to: clientEmail,
-      name: clientName,
-      meetingId: meetingId,
-      }),
-    })
-      .then((res) => {
-      if (!res.ok) {
-        throw new Error("Erreur lors de l'envoi de l'email");
-      }
-      })
-      .catch(() => {
-      toast({
-        title: "Erreur lors de l'envoi de l'email",
-        description: "Impossible d'envoyer l'email de confirmation.",
-        variant: "destructive",
-      });
-      });
+  
+  sendEmailToClient(
+    clientEmail,
+    "Confirmation de rendez-vous",
+    `Bonjour ${clientName},<br/>Votre rendez-vous (ID: ${meetingId}) a été confirmé.`
+  );
+  toast({
+    title: "Confirmation envoyée",
+    description: "Un email de confirmation a été envoyé au client.",
+  });
   };
 
   const handleFinishMeeting = (meetingId: string) => {

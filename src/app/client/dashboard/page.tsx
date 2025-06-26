@@ -333,24 +333,22 @@ export default function MeetingsPage() {
                     );
                   }
 
-                  const canJoin = diffMin <= 15 && diffMin >= -meeting.duration;
-                  return canJoin ? (
+                    // Enable the button only if we are within 15 minutes before start and before meeting ends
+                    const canJoin = diffMin <= 15 && diffMin >= 0;
+                    return (
                     <Button
                       className="bg-[#8EBD22] hover:bg-green-700 text-white font-semibold px-4 py-2 rounded shadow"
+                      disabled={!canJoin}
                       onClick={() =>
-                        window.open(
-                          `https://meet.jit.si/${meeting.jitsiRoom || `meeting-${meeting.id}`}`,
-                          "_blank"
-                        )
+                      window.open(
+                        `https://meet.jit.si/${meeting.jitsiRoom || `meeting-${meeting.id}`}`,
+                        "_blank"
+                      )
                       }
                     >
-                      Rejoindre
+                      {canJoin ? "Rejoindre" : "Disponible 15 min avant"}
                     </Button>
-                  ) : (
-                    <span className="text-gray-500 italic text-sm">
-                      Disponible 15 min avant
-                    </span>
-                  );
+                    );
                 })()}
                 </TableCell>
             </TableRow>
