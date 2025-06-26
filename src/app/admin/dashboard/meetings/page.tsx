@@ -112,31 +112,33 @@ const MeetingsPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto py-8">
-        <div className="mb-8 flex items-center gap-4">
-          <h3 className="text-2xl font-semibold text-primary flex items-center gap-2">
-            <Users className="w-7 h-7 text-muted-foreground" />
-            Tableau de bord des réunions
-          </h3>
-        </div>
-        
-        <Tabs defaultValue="admin" className="w-full">
-          <TabsContent value="admin" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl font-semibold text-primary">Gestion des Réunions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <AdminDashboard 
-                  meetings={meetings}
-                  onConfirmMeeting={confirmMeeting}
-                  onDeleteMeeting={deleteMeeting}
-                  onFinishMeeting={finishMeeting}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+      <div className="container mx-auto py-4 px-2 sm:px-4 md:py-8">
+      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+        <h3 className="text-xl sm:text-2xl font-semibold text-primary flex items-center gap-2">
+        <Users className="w-6 h-6 sm:w-7 sm:h-7 text-muted-foreground" />
+        <span>Tableau de bord des réunions</span>
+        </h3>
+      </div>
+      
+      <Tabs defaultValue="admin" className="w-full">
+        <TabsContent value="admin" className="mt-4 sm:mt-6">
+        <Card className="w-full">
+          <CardHeader>
+          <CardTitle className="text-lg sm:text-xl font-semibold text-primary">
+            Gestion des Réunions
+          </CardTitle>
+          </CardHeader>
+          <CardContent className="p-2 sm:p-4">
+          <AdminDashboard 
+            meetings={meetings}
+            onConfirmMeeting={confirmMeeting}
+            onDeleteMeeting={deleteMeeting}
+            onFinishMeeting={finishMeeting}
+          />
+          </CardContent>
+        </Card>
+        </TabsContent>
+      </Tabs>
       </div>
     </div>
   );

@@ -53,7 +53,6 @@ export async function updateMeeting(
   meetingId: string,
   title: string,
   date: Date,
-  duration: number,
   description?: string
 ) {
   try {
@@ -62,7 +61,6 @@ export async function updateMeeting(
       data: {
         title,
         date,
-        duration,
         description,
       },
     });
@@ -86,3 +84,21 @@ export async function finishMeeting(meetingId: string) {
     throw new Error("Failed to finish meeting");
   }
 }
+
+
+
+// export async function sendEmailToClient(email: string, subject: string, body: string) {
+//   try {
+//     const result = await resend.emails.send({
+//       from: 'Hadat <noreply@yourdomain.com>',
+//       to: [email],
+//       subject: subject,
+//       html: `<p>${body}</p>`,
+//     });
+
+//     return { success: true, result };
+//   } catch (error) {
+//     console.error('Email sending failed:', error);
+//     return { success: false, error };
+//   }
+// }
