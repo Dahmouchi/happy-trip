@@ -1,5 +1,6 @@
 'use server';
 import prisma from "@/lib/prisma";
+import { resend } from "./resend";
 
 
 export async function getAllMeetings()
@@ -87,18 +88,18 @@ export async function finishMeeting(meetingId: string) {
 
 
 
-// export async function sendEmailToClient(email: string, subject: string, body: string) {
-//   try {
-//     const result = await resend.emails.send({
-//       from: 'Hadat <noreply@yourdomain.com>',
-//       to: [email],
-//       subject: subject,
-//       html: `<p>${body}</p>`,
-//     });
+export async function sendEmailToClient(email: string, subject: string, message: string) {
+  try {
+    const result = await resend.emails.send({
+      from: 'HappyTrip <onboarding@resend.dev>', // works by default
+      to: [email],
+      subject,
+      html: `<p>${message}</p>`,
+    });
 
-//     return { success: true, result };
-//   } catch (error) {
-//     console.error('Email sending failed:', error);
-//     return { success: false, error };
-//   }
-// }
+    return { success: true, result };
+  } catch (error) {
+    console.error('Failed to send email:', error);
+    return { success: false, error };
+  }
+}
