@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -33,7 +34,7 @@ export default function ReservationFormBuilder({
 
   useEffect(() => {
     setFields(initialFields);
-  }, [initialFields]);
+  }, []);
 
   const addField = () => {
     if (!newField.label || !newField.name || !newField.type) return;

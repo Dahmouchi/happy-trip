@@ -254,7 +254,7 @@ export function UpdateTourForm({
   const [cardImage, setCardImage] = useState<File[]>([]);
   const [gallery, setGallery] = useState<File[] | null>(null);
   const [initialFields, setInitialFields] = useState<Field[]>(
-    initialData.reservationForm[0].fields
+    initialData.reservationForm[0]?.fields
   );
   const router = useRouter();
   const handleUpdate = async (updatedFields: Field[]) => {
