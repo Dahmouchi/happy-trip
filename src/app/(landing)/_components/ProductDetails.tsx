@@ -305,24 +305,29 @@ const TourDetails = ({ tour }: { tour: any }) => {
       </div>
       <div className="bg-white">
         {/* Top Info Bar */}
-        <div className="bg-[#8ebd21] text-white  grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 lg:gap-8 mb-4">
-          <div className="flex items-center lg:px-0 px-8 justify-start lg:text-nowrap text-xl lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4 ">
-            <img src={"/icons/night-mode.png"} className="w-7 h-7" />{" "}
+        <div className="bg-[#8ebd21] text-white grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 lg:gap-8 mb-4">
+            <div className="flex items-center lg:px-0 px-8 justify-start lg:text-nowrap text-xl md:text-lg lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4 ">
+            <img src={"/icons/night-mode.png"} className="w-7 h-7 md:w-6 md:h-6" />{" "}
             {/* Replace with moon/duration icon */}
-            <span>
+            <span className="md:text-lg text-xl">
               {tour.durationDays} Jours / {tour.durationNights} Nuités
             </span>
-          </div>
-          <div className="flex items-center lg:px-0 px-8 justify-start lg:text-nowrap text-xl lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4">
-            <img src={"/icons/map-pin.png"} className="w-7 h-7" />{" "}
+            </div>
+            <div className="flex items-center lg:px-0 px-8 justify-start lg:text-nowrap text-xl md:text-lg lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4">
+            <img src={"/icons/map-pin.png"} className="w-7 h-7 md:w-6 md:h-6" />{" "}
             {/* Replace with location/pin icon */}
-            <span>{tour.accommodationType}</span>
+            <span className="md:text-lg text-xl">{tour.accommodationType}</span>
+            </div>
+          <div className="flex flex-col items-start lg:items-center lg:px-0 px-8 gap-1 justify-start lg:text-nowrap text-xl md:text-lg lg:justify-center py-4">
+            <div className="flex items-center gap-2">
+              <img src={"/icons/calendar.png"} className="w-7 h-7 md:w-6 md:h-6" />
+              <span className="md:text-lg text-xl">Prochaine date</span>
+            </div>
+            <span className="md:text-base text-xl ml-9 lg:ml-0 font-semibold bg-white/20 px-4 py-1 rounded-full shadow text-white border border-white/30">
+              {getNextTourDate(tour.dates)}
+            </span>
           </div>
-          <div className="flex items-center lg:px-0 px-8 gap-2 justify-start lg:text-nowrap text-xl lg:justify-center py-4">
-            <img src={"/icons/calendar.png"} className="w-7 h-7" />{" "}
-            {/* Replace with calendar icon */}
-            <span>Prochaine date {getNextTourDate(tour.dates)}</span>
-          </div>
+          
           <div className="flex flex-col  items-center  px-2 lg:col-span-2 gap-4 bg-[#47663B] text-white py-4  font-semibold">
             {/* Price Section - Now shows price for selected date */}
             <div className="flex items-center gap-2">
@@ -344,7 +349,17 @@ const TourDetails = ({ tour }: { tour: any }) => {
                   <select
                     value={selectedDate || ""}
                     onChange={(e) => setSelectedDate(e.target.value)}
-                    className="appearance-none text-center bg-white/10 border border-white/20 rounded-full pl-4 pr-8 py-2 text-white focus:outline-none focus:ring-2 focus:ring-white/30 w-full"
+                    className={`
+                      appearance-none text-center 
+                      bg-white/10 border border-white/20 rounded-full
+                      pl-4 pr-8
+                      py-2
+                      text-white
+                      focus:outline-none focus:ring-2 focus:ring-white/30
+                      w-full
+                      text-base
+                      md:pl-3 md:pr-7 md:py-1.5 md:text-sm
+                    `}
                   >
                     {availableDates
                       .filter((date) => date.visible)
@@ -354,15 +369,14 @@ const TourDetails = ({ tour }: { tour: any }) => {
                           value={date.id}
                           className="text-gray-900"
                         >
-                          {formatDate(date.startDate)} - {tour.priceDiscounted}{" "}
-                          MAD
+                          {formatDate(date.startDate)} - {tour.priceDiscounted} MAD
                         </option>
                       ))}
                   </select>
                   {/* Custom dropdown arrow */}
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white">
                     <svg
-                      className="h-4 w-4"
+                      className="h-4 w-4 md:h-3 md:w-3"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -375,7 +389,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
                   </div>
                 </div>
               ) : (
-                <div className="text-white/80 italic">
+                <div className="text-white/80 italic text-base md:text-sm">
                   Aucune date disponible actuellement
                 </div>
               )}

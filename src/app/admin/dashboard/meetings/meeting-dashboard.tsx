@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
 import { formatWithOptions } from "date-fns/fp";
 import { fr } from "date-fns/locale";
-import { Calendar, Clock, Plus, Check, Trash2, UserIcon, PhoneIcon, MailIcon } from "lucide-react";
+import { Calendar, Clock, Plus, Check, Trash2, UserIcon, PhoneIcon, MailIcon, AlarmClockCheck, CheckIcon, VideoIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -92,7 +93,71 @@ const AdminDashboard = ({
   );
 
   return (
+
+
+    
     <div className="space-y-6">
+
+
+{/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Total</p>
+                  <p className="text-2xl font-bold">{meetings.length}</p>
+                </div>
+                <VideoIcon className="w-8 h-8 text-blue-500" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Confirmés</p>
+                  <p className="text-2xl font-bold text-emerald-600">
+                    {meetings.filter((m: any) => m.status === 'confirmed').length}
+                  </p>
+                </div>
+                <CheckIcon className="w-8 h-8 text-emerald-500" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">En attente</p>
+                  <p className="text-2xl font-bold text-amber-600">
+                    {meetings.filter((m: any) => m.status === 'pending').length}
+                  </p>
+                </div>
+                <Clock className="w-8 h-8 text-amber-500" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Terminés</p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    {meetings.filter((m: any) => m.status === 'finished').length}
+                  </p>
+                </div>
+                <AlarmClockCheck className="w-8 h-8 text-blue-500" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+
+
       {/* Approbations en attente */}
       {pendingMeetings.length > 0 && (
       <Card>
