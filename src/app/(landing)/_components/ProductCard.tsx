@@ -39,7 +39,7 @@ export function PromotionCard({ tour }: { tour: any }) {
                 </div>
               </div>
             )}
-        <div className={`items-baseline mb-4 text-right absolute ${tour.showDiscount && tour.priceOriginal !== tour.priceDiscounted ? "py-1":"py-2"} z-50 -bottom-8 bg-[#4FA8FF] w-fit rounded-l-full px-8 right-0`}>
+        <div className={`items-baseline cardd mb-4 text-right absolute ${tour.showDiscount && tour.priceOriginal !== tour.priceDiscounted ? "py-1":"py-2"} z-50 -bottom-8  w-fit rounded-l-full px-8 right-0`}>
           {tour.showDiscount && tour.priceOriginal !== tour.priceDiscounted && (
             <h1 className="text-white line-through mr-2 text-xs">
               {tour?.priceOriginal} DH
@@ -81,13 +81,13 @@ export function PromotionCard({ tour }: { tour: any }) {
           <div className="flex justify-between items-center w-full gap-2">
             <div
               onClick={() => redirect(`/destination/national/t/${tour?.id}`)}
-              className="bg-[#8EBD22] rounded-lg cursor-pointer shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)] flex itce justify-between px-4 py-3 w-full text-white"
+              className="carddd rounded-lg cursor-pointer shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)] flex itce justify-between px-4 py-3 w-full text-white"
             >
               <Eye className="w-6 h-6" />
               <span className="text-white w-full text-center">Programme</span>
             </div>
             {tour.showDifficulty && 
-            <div className="w-16 h-full flex items-center justify-center flex-col rounded-lg text-white p-1 bg-[#4FA8FF]">
+            <div className="w-16 h-full flex items-center justify-center flex-col rounded-lg text-white p-1 cardd">
               <img src="/boot.png" alt="" className="w-4 h-4 -rotate-12" />
               <h1>{tour?.difficultyLevel}/5</h1>
             </div>}

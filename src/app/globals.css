@@ -114,10 +114,10 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50
+    @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground 
+    @apply bg-background text-foreground;
   }
 }
 
@@ -129,7 +129,7 @@
 .ProseMirror p {
   margin: 0 0 1rem 0;
 }
-.ProseMirror ul, 
+.ProseMirror ul,
 .ProseMirror ol {
   padding: 0 1rem;
 }
@@ -154,7 +154,7 @@
   font-style: italic;
 }
 
-.safe-html ul, 
+.safe-html ul,
 .safe-html ol {
   padding-left: 1.5rem;
   margin-bottom: 1rem;
@@ -166,9 +166,62 @@
 .ProseMirror {
   overflow: hidden !important;
   min-height: 100px; /* optional minimum height */
-  height: auto;       /* let it grow dynamically */
+  height: auto; /* let it grow dynamically */
 }
 
 .safe-html ol {
   list-style-type: decimal;
 }
+.cardd {
+  background: #4fa8ff;
+  box-shadow:
+    rgba(0, 0, 0, 0.092) 0px -23px 25px 0px inset,
+    rgba(0, 0, 0, 0.092) 0px -36px 30px 0px inset,
+    rgba(0, 0, 0, 0.034) 0px -79px 40px 0px inset,
+    rgba(0, 0, 0, 0.06) 0px 2px 1px,
+    rgba(0, 0, 0, 0.09) 0px 4px 2px,
+    rgba(0, 0, 0, 0.062) 0px 8px 4px,
+    rgba(0, 0, 0, 0.09) 0px 16px 8px,
+    rgba(0, 0, 0, 0.09) 0px 32px 16px;
+  transition: all 0.3s ease; /* Smooth transition for hover effects */
+}
+
+.cardddd{
+  background: #ffffff;
+    box-shadow:
+   
+    rgba(0, 0, 0, 0.06) 0px 2px 1px,
+    rgba(0, 0, 0, 0.09) 0px 4px 2px,
+    rgba(0, 0, 0, 0.062) 0px 8px 4px,
+    rgba(0, 0, 0, 0.09) 0px 16px 8px,
+    rgba(0, 0, 0, 0.09) 0px 32px 16px;
+}
+
+.carddd {
+  background: #9fe300;
+  box-shadow:
+    rgba(0, 0, 0, 0.092) 0px -23px 25px 0px inset,
+    rgba(0, 0, 0, 0.092) 0px -36px 30px 0px inset,
+    rgba(0, 0, 0, 0.034) 0px -79px 40px 0px inset,
+    rgba(0, 0, 0, 0.06) 0px 2px 1px,
+    rgba(0, 0, 0, 0.09) 0px 4px 2px,
+    rgba(0, 0, 0, 0.062) 0px 8px 4px,
+    rgba(0, 0, 0, 0.09) 0px 16px 8px,
+    rgba(0, 0, 0, 0.09) 0px 32px 16px;
+  transition: all 0.3s ease; /* Smooth transition for hover effects */
+}
+
+.carddd:hover {
+  background: #8bcc00; /* Slightly darker green on hover */
+  transform: translateY(-5px); /* Lift the card slightly */
+  box-shadow:
+    rgba(0, 0, 0, 0.092) 0px -23px 25px 0px inset,
+    rgba(0, 0, 0, 0.092) 0px -36px 30px 0px inset,
+    rgba(0, 0, 0, 0.034) 0px -79px 40px 0px inset,
+    rgba(0, 0, 0, 0.08) 0px 4px 2px,
+    rgba(0, 0, 0, 0.12) 0px 8px 4px,
+    rgba(0, 0, 0, 0.082) 0px 16px 8px,
+    rgba(0, 0, 0, 0.12) 0px 24px 12px,
+    rgba(0, 0, 0, 0.12) 0px 40px 20px; /* Enhanced shadow on hover */
+}
+

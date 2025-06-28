@@ -136,7 +136,7 @@ const DiscountTimer = ({ endDate }: { endDate: string }) => {
         {Object.values(timeLeft).every((v) => v === "00") ? null : (
           ["days", "hours", "minutes", "seconds"].map((unit) => (
             <div key={unit} className="flex flex-col items-center">
-              <div className="bg-white text-red-600 rounded-md px-2 py-1 text-sm font-extrabold min-w-[40px] text-center">
+              <div className="bg-white cardddd text-red-600 rounded-md px-2 py-1 text-sm font-extrabold min-w-[40px] text-center">
           {timeLeft[unit as keyof typeof timeLeft]}
               </div>
               <span className="text-[10px] uppercase mt-1 tracking-wider">

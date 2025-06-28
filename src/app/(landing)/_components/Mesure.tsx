@@ -1,5 +1,7 @@
+"use client"
 /* eslint-disable @next/next/no-img-element */
 import { MoveRight } from "lucide-react";
+import { redirect } from "next/navigation";
 import React from "react";
 
 const Mesure = () => {
@@ -28,25 +30,23 @@ const Mesure = () => {
           <h1 className="text-sm text-gray-400">
             Chez Happy Trip, chaque voyage est unique. Nous vous accompagnons
             pour créer un séjour 100% personnalisé, adapté à vos envies, votre
-            budget, et votre rythme. Que vous rêviez d&apos;aventures exotiques, de
-            détente en bord de mer, ou de découvertes culturelles, notre équipe
-            conçoit votre itinéraire sur mesure, avec vous et pour vous.
+            budget, et votre rythme. Que vous rêviez d&apos;aventures exotiques,
+            de détente en bord de mer, ou de découvertes culturelles, notre
+            équipe conçoit votre itinéraire sur mesure, avec vous et pour vous.
           </h1>
-            <div className="w-full lg:w-auto flex items-center justify-center lg:justify-start">
-              <button className="bg-[#8EBD22] rounded-full shadow-lg px-6 my-4  flex items-center justify-center text-white gap-2 ">
-                        <p className='py-4'>Composez votre voyage</p>
-                        <MoveRight />
-                        </button>
-            </div>
-           
+          <div  className="w-full lg:w-auto flex items-center justify-center lg:justify-start">
+            <button onClick={()=>redirect("/client")} className="carddd rounded-full cursor-pointer shadow-lg px-6 my-4  flex items-center justify-center text-white gap-2 ">
+              <p className="py-4">Composez votre voyage</p>
+              <MoveRight />
+            </button>
+          </div>
         </div>
-       
       </div>
       <img
-            src="/muse.jpg"
-            alt=""
-            className="w-full h-auto  place-content-center mt-4"
-          />
+        src="/muse.jpg"
+        alt=""
+        className="w-full h-auto  place-content-center mt-4"
+      />
     </div>
   );
 };

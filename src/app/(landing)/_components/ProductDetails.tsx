@@ -306,28 +306,34 @@ const TourDetails = ({ tour }: { tour: any }) => {
       <div className="bg-white">
         {/* Top Info Bar */}
         <div className="bg-[#8ebd21] text-white grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 lg:gap-8 mb-4">
-            <div className="flex items-center lg:px-0 px-8 justify-start lg:text-nowrap text-xl md:text-lg lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4 ">
-            <img src={"/icons/night-mode.png"} className="w-7 h-7 md:w-6 md:h-6" />{" "}
+          <div className="flex items-center lg:px-0 px-8 justify-start lg:text-nowrap text-xl md:text-lg lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4 ">
+            <img
+              src={"/icons/night-mode.png"}
+              className="w-7 h-7 md:w-6 md:h-6"
+            />{" "}
             {/* Replace with moon/duration icon */}
             <span className="md:text-lg text-xl">
               {tour.durationDays} Jours / {tour.durationNights} Nuités
             </span>
-            </div>
-            <div className="flex items-center lg:px-0 px-8 justify-start lg:text-nowrap text-xl md:text-lg lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4">
+          </div>
+          <div className="flex items-center lg:px-0 px-8 justify-start lg:text-nowrap text-xl md:text-lg lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4">
             <img src={"/icons/map-pin.png"} className="w-7 h-7 md:w-6 md:h-6" />{" "}
             {/* Replace with location/pin icon */}
             <span className="md:text-lg text-xl">{tour.accommodationType}</span>
-            </div>
+          </div>
           <div className="flex flex-col items-start lg:items-center lg:px-0 px-8 gap-1 justify-start lg:text-nowrap text-xl md:text-lg lg:justify-center py-4">
             <div className="flex items-center gap-2">
-              <img src={"/icons/calendar.png"} className="w-7 h-7 md:w-6 md:h-6" />
+              <img
+                src={"/icons/calendar.png"}
+                className="w-7 h-7 md:w-6 md:h-6"
+              />
               <span className="md:text-lg text-xl">Prochaine date</span>
             </div>
             <span className="md:text-base text-xl ml-9 lg:ml-0 font-semibold bg-white/20 px-4 py-1 rounded-full shadow text-white border border-white/30">
               {getNextTourDate(tour.dates)}
             </span>
           </div>
-          
+
           <div className="flex flex-col  items-center  px-2 lg:col-span-2 gap-4 bg-[#47663B] text-white py-4  font-semibold">
             {/* Price Section - Now shows price for selected date */}
             <div className="flex items-center gap-2">
@@ -369,7 +375,8 @@ const TourDetails = ({ tour }: { tour: any }) => {
                           value={date.id}
                           className="text-gray-900"
                         >
-                          {formatDate(date.startDate)} - {tour.priceDiscounted} MAD
+                          {formatDate(date.startDate)} - {tour.priceDiscounted}{" "}
+                          MAD
                         </option>
                       ))}
                   </select>
@@ -550,26 +557,27 @@ const TourDetails = ({ tour }: { tour: any }) => {
           {/* Left Column (Video & Itinerary) */}
           <div className="lg:col-span-2 space-y-4">
             {/* Video Section */}
-           {tour.videoUrl && 
-            <div className="bg-black rounded-lg overflow-hidden aspect-video relative">
-              {/* Placeholder for video player - replace with actual video embed */}
-              <img
-                src="/home/ubuntu/upload/image.png"
-                alt="Video placeholder showing pool area"
-                className="w-full h-full object-cover opacity-80"
-              />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <iframe
-                  className="absolute top-0 left-0 w-full h-full"
-                  src={tour.videoUrl || ""}
-                  title="YouTube video"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
+            {tour.videoUrl && (
+              <div className="bg-black rounded-lg overflow-hidden aspect-video relative">
+                {/* Placeholder for video player - replace with actual video embed */}
+                <img
+                  src="/home/ubuntu/upload/image.png"
+                  alt="Video placeholder showing pool area"
+                  className="w-full h-full object-cover opacity-80"
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <iframe
+                    className="absolute top-0 left-0 w-full h-full"
+                    src={tour.videoUrl || ""}
+                    title="YouTube video"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+                {/* Add controls overlay if needed */}
               </div>
-              {/* Add controls overlay if needed */}
-            </div>}
+            )}
 
             {/* Itinerary Section */}
             <div className="mt-8">
@@ -592,15 +600,16 @@ const TourDetails = ({ tour }: { tour: any }) => {
                         <SafeHTML html={prog.description || ""} />
                       </div>
                       <div className="col-span-1">
-                        {prog.imageUrl && 
-                        <img
-                          src={prog.imageUrl || ""} // Remplacez par le chemin réel ou l'URL de votre image
-                          alt="Randonnée Atlas Central"
-                          className="rounded-lg shadow-md w-full h-auto object-cover"
-                          // Pour Next.js, utilisez <Image />
-                          // import Image from 'next/image';
-                          // <Image src="/path/to/your/image.jpg" alt="..." width={600} height={400} className="rounded-lg shadow-md" />
-                        />}
+                        {prog.imageUrl && (
+                          <img
+                            src={prog.imageUrl || ""} // Remplacez par le chemin réel ou l'URL de votre image
+                            alt="Randonnée Atlas Central"
+                            className="rounded-lg shadow-md w-full h-auto object-cover"
+                            // Pour Next.js, utilisez <Image />
+                            // import Image from 'next/image';
+                            // <Image src="/path/to/your/image.jpg" alt="..." width={600} height={400} className="rounded-lg shadow-md" />
+                          />
+                        )}
                       </div>
                     </div>
                   </AccordionContent>
@@ -610,80 +619,81 @@ const TourDetails = ({ tour }: { tour: any }) => {
             <div className="bg-white p-6 lg:px-12 md:p-8 font-sans">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                 {/* Included Section */}
-               {includes.length > 0 && 
-                <div>
-                  <h2 className="text-xl font-bold text-gray-800 mb-1">
-                    Qu&apos;est-ce qui est inclus dans cet circuit?
-                  </h2>
-                  <p className="text-sm text-gray-500 mb-4 pb-2 border-b border-gray-200">
-                    Les éléments qui sont inclus dans le coût du prix de la
-                    tournée.
-                  </p>
-                  <ul className="list-none p-0 m-0">
-                    {includes.map((item: any, index: any) => (
-                      <div
-                        key={`inc-${index}`}
-                        className="flex items-start gap-2 mt-2"
-                      >
-                        <span className="pt-1 text-green-600">
-                          <BadgeCheck className="w-6.5 h-6.5 min-w-[20px] min-h-[20px] bg-green-100 rounded-full p-1" />
-                        </span>
-                        <p className="break-words">{item}</p>
-                      </div>
-                    ))}
-                  </ul>
-                </div>}
+                {includes.length > 0 && (
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-800 mb-1">
+                      Qu&apos;est-ce qui est inclus dans cet circuit?
+                    </h2>
+                    <p className="text-sm text-gray-500 mb-4 pb-2 border-b border-gray-200">
+                      Les éléments qui sont inclus dans le coût du prix de la
+                      tournée.
+                    </p>
+                    <ul className="list-none p-0 m-0">
+                      {includes.map((item: any, index: any) => (
+                        <div
+                          key={`inc-${index}`}
+                          className="flex items-start gap-2 mt-2"
+                        >
+                          <span className="pt-1 text-green-600">
+                            <BadgeCheck className="w-6.5 h-6.5 min-w-[20px] min-h-[20px] bg-green-100 rounded-full p-1" />
+                          </span>
+                          <p className="break-words">{item}</p>
+                        </div>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
                 {/* Excluded Section */}
-               {excludes.length > 0 &&
+                {excludes.length > 0 && (
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-800 mb-1">
+                      Qu&apos;est-ce qui n&apos;est pas inclus dans cet circuit?
+                    </h2>
+                    <p className="text-sm text-gray-500 mb-4 pb-2 border-b border-gray-200">
+                      Les éléments qui ne sont pas inclus dans le coût du prix
+                      de la tournée.
+                    </p>
+                    <ul className="list-none p-0 m-0">
+                      {excludes.map((item: any, index: any) => (
+                        <div
+                          key={`exc-${index}`}
+                          className="flex items-start gap-2 mt-2"
+                        >
+                          <span className="pt-1 text-red-600">
+                            <BadgeX className="w-6.5 h-6.5 min-w-[20px] min-h-[20px] bg-red-100 rounded-full p-1" />
+                          </span>
+                          <p className="break-words">{item}</p>
+                        </div>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+              {extract.length > 0 && (
                 <div>
-                  <h2 className="text-xl font-bold text-gray-800 mb-1">
-                    Qu&apos;est-ce qui n&apos;est pas inclus dans cet circuit?
+                  <h2 className="text-xl font-bold mt-3 text-gray-800 mb-1">
+                    Quels sont les suppléments ou extras pour cette tournée ?
                   </h2>
                   <p className="text-sm text-gray-500 mb-4 pb-2 border-b border-gray-200">
-                    Les éléments qui ne sont pas inclus dans le coût du prix de
-                    la tournée.
+                    Les éléments optionnels ou les frais supplémentaires qui
+                    peuvent s&apos;ajouter au prix de la tournée.
                   </p>
                   <ul className="list-none p-0 m-0">
-                    {excludes.map((item: any, index: any) => (
+                    {extract.map((item: any, index: any) => (
                       <div
                         key={`exc-${index}`}
                         className="flex items-start gap-2 mt-2"
                       >
-                        <span className="pt-1 text-red-600">
-                          <BadgeX className="w-6.5 h-6.5 min-w-[20px] min-h-[20px] bg-red-100 rounded-full p-1" />
+                        <span className="pt-1 text-blue-600">
+                          <BadgePlus className="w-6.5 h-6.5 min-w-[20px] min-h-[20px] bg-red-100 rounded-full p-1" />
                         </span>
                         <p className="break-words">{item}</p>
                       </div>
                     ))}
                   </ul>
-                </div>}
-              </div>
-              {
-                extract.length > 0 &&
-                <div>
-                <h2 className="text-xl font-bold mt-3 text-gray-800 mb-1">
-                  Quels sont les suppléments ou extras pour cette tournée ?
-                </h2>
-                <p className="text-sm text-gray-500 mb-4 pb-2 border-b border-gray-200">
-                  Les éléments optionnels ou les frais supplémentaires qui
-                  peuvent s&apos;ajouter au prix de la tournée.
-                </p>
-                <ul className="list-none p-0 m-0">
-                  {extract.map((item: any, index: any) => (
-                    <div
-                      key={`exc-${index}`}
-                      className="flex items-start gap-2 mt-2"
-                    >
-                      <span className="pt-1 text-blue-600">
-                          <BadgePlus className="w-6.5 h-6.5 min-w-[20px] min-h-[20px] bg-red-100 rounded-full p-1" />
-                        </span>
-                      <p className="break-words">{item}</p>
-                    </div>
-                  ))}
-                </ul>
-              </div>
-              }
+                </div>
+              )}
             </div>
           </div>
 
@@ -889,12 +899,12 @@ const TourDetails = ({ tour }: { tour: any }) => {
 
       <div id="reservation-form">
         <ReservationsForm
-        fields={tour.reservationForm[0]?.fields || []}
-        tourId={tour.id}
-        basePrice={tour.priceDiscounted}
-        travelDates={tour.dates || []}
-      />
-       {/* <ReservationSection
+          fields={tour.reservationForm[0]?.fields || []}
+          tourId={tour.id}
+          basePrice={tour.priceDiscounted}
+          travelDates={tour.dates || []}
+        />
+        {/* <ReservationSection
           availableDates={sampleAvailableDates}
           hotels={sampleHotels}
           tour={tour}
@@ -950,26 +960,27 @@ const TourDetails = ({ tour }: { tour: any }) => {
           ))}
         </div>
       </div>
-      {tour.googleMapsUrl && 
-      <div className="bg-white p-6 lg:px-12 rounded-lg shadow-sm">
-        <h2 className="text-2xl font-bold text-gray-800 mb-8 flex items-center gap-3 justify-center">
-          <MapPinHouse />
-          Votre Destination.
-        </h2>
-        {/* Map Placeholder - Replace with actual map embed or component */}
-        <div className="mb-3 rounded overflow-hidden border border-gray-200 w-full">
-          <iframe
-            className="w-full rounded-xl"
-            src={tour.googleMapsUrl}
-            width={600}
-            height={450}
-            style={{ border: 0 }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          />
+      {tour.googleMapsUrl && (
+        <div className="bg-white p-6 lg:px-12 rounded-lg shadow-sm">
+          <h2 className="text-2xl font-bold text-gray-800 mb-8 flex items-center gap-3 justify-center">
+            <MapPinHouse />
+            Votre Destination.
+          </h2>
+          {/* Map Placeholder - Replace with actual map embed or component */}
+          <div className="mb-3 rounded overflow-hidden border border-gray-200 w-full">
+            <iframe
+              className="w-full rounded-xl"
+              src={tour.googleMapsUrl}
+              width={600}
+              height={450}
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
         </div>
-      </div>}
+      )}
       <FaqSection faqData={sampleFaqData} />
     </div>
   );
@@ -1095,7 +1106,6 @@ const BookingSteps = ({ advance }: { advance: any }) => {
       <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-8">
         Comment faire la réservation
       </h2>
-
       <p className="text-center text-sm text-gray-600 mb-8">
         La réservation est ouverte à la limite des places disponibles.
       </p>
@@ -1196,8 +1206,94 @@ const BookingSteps = ({ advance }: { advance: any }) => {
         <p className="text-sm text-gray-600">Email: {email}</p>
       </div>
       <div className="text-center mt-6">
-        <WhatsappShare />
+        <CombinedButtons
+          whatsappProps={{
+            phoneNumber: "1234567890",
+            message: "Hello I want to make a reservation",
+          }}
+          reservationFormId="reservation-form"
+        />
       </div>
+    </div>
+  );
+};
+interface CombinedButtonsProps {
+  whatsappProps: any;
+  reservationFormId: string; // ID of your reservation form element
+}
+
+const CombinedButtons: React.FC<CombinedButtonsProps> = ({
+  whatsappProps,
+  reservationFormId,
+}) => {
+  const [showReservationButton, setShowReservationButton] = useState(true);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const formElement = document.getElementById(reservationFormId);
+      if (formElement) {
+        const formPosition = formElement.getBoundingClientRect().top;
+        // Hide reservation button when form is in view (with some threshold)
+        setShowReservationButton(formPosition > window.innerHeight);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [reservationFormId]);
+
+  const scrollToReservation = () => {
+    const formElement = document.getElementById(reservationFormId);
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  return (
+    <div className="fixed bottom-6 right-24 flex flex-col gap-4 items-end z-[1000]">
+      <WhatsappShare {...whatsappProps} />
+      {showReservationButton && (
+        <button
+          onClick={scrollToReservation}
+          className="reservation-btn bg-gradient-to-r from-[#9fe300] cursor-pointer to-[#7bc200] text-white font-medium rounded-full px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:scale-105 active:translate-y-0 active:scale-100 group"
+          aria-label="Scroll to reservation form"
+        >
+          <span className="relative flex items-center justify-center gap-2">
+            <span>Réservation</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="transition-transform duration-300 group-hover:translate-x-1"
+            >
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </span>
+        </button>
+      )}
+
+      <style jsx>{`
+        .reservation-scroll-btn {
+          width: 56px;
+          height: 56px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        @media (max-width: 600px) {
+          .reservation-scroll-btn {
+            width: 50px;
+            height: 50px;
+          }
+        }
+      `}</style>
     </div>
   );
 };

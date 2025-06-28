@@ -108,7 +108,7 @@ export default function ReservationsForm({
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-4 md:p-8 font-sans">
+    <div className="w-full max-w-6xl mx-auto p-4 md:p-8 font-sans" id="reservation-form">
       <div className="grid grid-cols-1 lg:grid-cols-1 gap-8 md:gap-12 items-start">
         <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg border border-gray-100">
           {/* Form Header */}
