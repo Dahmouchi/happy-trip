@@ -370,10 +370,12 @@ export function UpdateTourForm({
         setIsSubmitting(false);
         form.reset(values);
       } else {
+        console.log(result.error)
         toast.error("Erreur lors de la modification du circuit");
         setIsSubmitting(false);
       }
     } catch (error) {
+      console.log(error)
       toast.error("Erreur lors de la modification du circuit");
     } finally {
       setIsSubmitting(false);
@@ -1739,6 +1741,7 @@ export function UpdateTourForm({
                       title="Extras"
                       type="extracts"
                       description="Liste des éléments supplémentaires (facultatif)"
+                      value={form.watch("arrayExtras")}
                       onChange={(value) => {
                         form.setValue(
                           "arrayExtras",

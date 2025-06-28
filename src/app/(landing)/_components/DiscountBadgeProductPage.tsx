@@ -1,31 +1,42 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const DiscountTimerProduct = ({ endDate }: { endDate: string }) => {
+
   const [timeLeft, setTimeLeft] = useState({
     days: "00",
     hours: "00",
     minutes: "00",
     seconds: "00",
   });
+  const [hasTimeLeft, setHasTimeLeft] = useState(true);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!endDate) return;
 
+   const end = new Date(endDate).getTime();
+
     const updateCountdown = () => {
-      const end = new Date(endDate).getTime();
-      const now = new Date().getTime();
-      const diff = end - now;
+      const now = Date.now();
+      let diff = end - now;
 
       if (diff <= 0) {
         setTimeLeft({ days: "00", hours: "00", minutes: "00", seconds: "00" });
+        setHasTimeLeft(false);
+        if (intervalRef.current) clearInterval(intervalRef.current);
         return;
       }
 
+      setHasTimeLeft(true);
+
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((diff / (1000 * 60)) % 60);
-      const seconds = Math.floor((diff / 1000) % 60);
+      diff -= days * (1000 * 60 * 60 * 24);
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      diff -= hours * (1000 * 60 * 60);
+      const minutes = Math.floor(diff / (1000 * 60));
+      diff -= minutes * (1000 * 60);
+      const seconds = Math.floor(diff / 1000);
 
       setTimeLeft({
         days: String(days).padStart(2, "0"),
@@ -35,11 +46,21 @@ const DiscountTimerProduct = ({ endDate }: { endDate: string }) => {
       });
     };
 
-    updateCountdown(); // immediate run
-    const interval = setInterval(updateCountdown, 1000); // every second
+    updateCountdown();
 
-    return () => clearInterval(interval);
+    // Use setTimeout recursively for more accurate ticking
+    const tick = () => {
+      updateCountdown();
+      intervalRef.current = setTimeout(tick, 1000 - (Date.now() % 1000));
+    };
+    intervalRef.current = setTimeout(tick, 1000 - (Date.now() % 1000));
+
+    return () => {
+      if (intervalRef.current) clearTimeout(intervalRef.current);
+    };
   }, [endDate]);
+
+  if (!hasTimeLeft) return null;
 
   return (
     <div className="lg:absolute top-0 w-full lg:w-fit lg:right-0 px-5  space-y-2 z-10  bg-gradient-to-b from-red-500 via-red-500/70 to-red-500/0 py-2">

@@ -336,7 +336,7 @@ export async function deleteTour(tourId: string) {
   try {
     const deletedTour = await prisma.$transaction(async (tx) => {
       // Delete dependent child records (one-to-many)
-      await tx.reservation.deleteMany({ where: { tourId } });
+      await tx.reservations.deleteMany({ where: { tourId } });
       await tx.tourDate.deleteMany({ where: { tourId } });
       await tx.program.deleteMany({ where: { tourId } });
       await tx.file.deleteMany({ where: { tourId } }); // only works if relation is one-to-many

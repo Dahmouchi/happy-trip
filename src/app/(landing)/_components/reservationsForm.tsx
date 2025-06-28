@@ -215,7 +215,7 @@ export default function ReservationsForm({
                     >
                       {travelDates.map((d: any) => (
                         <option value={d.id} key={d.id}>
-                          {formatDate(d.startDate)}
+                          {formatDate(d.startDate)} - {formatDate(d.endDate)}
                         </option>
                       ))}
                     </select>

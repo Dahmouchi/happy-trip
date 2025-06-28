@@ -23,6 +23,7 @@ const [strings, setStrings] = useState<string[]>(value ?? []);
 
   useEffect(() => {
     onChange(strings);
+    console.log(value)
   }, [strings]);
 
   
@@ -89,7 +90,7 @@ const [strings, setStrings] = useState<string[]>(value ?? []);
                   key={index}
                   className="flex items-center justify-between p-2 rounded bg-white border"
                 >
-                  <span className="text-sm truncate flex-1 mr-2">{string}</span>
+                  <span className="text-sm flex-1 mr-2">{string}</span>
                     <div
                     onClick={() => removeString(index)}
                     className="h-6 w-6 flex items-center justify-center cursor-pointer text-red-500 hover:bg-gray-100 rounded"
