@@ -40,16 +40,58 @@ type TourData = Tour & {
 
 export const tourColumns = ({ refresh }: { refresh: () => void }): ColumnDef<TourData, unknown>[] => [
   { accessorKey: "title", header: "Titre", cell: ({ row }) => row.getValue("title") ?? "—" },
-  { accessorKey: "type", header: "Type" },
-  { accessorKey: "priceOriginal", header: "Prix d'origine", cell: ({ row }) => `${row.getValue("priceOriginal") ?? "—"} MAD` },
-  { accessorKey: "advancedPrice", header: "Acompte", cell: ({ row }) => row.getValue("advancedPrice") ?? "—" },
-  { accessorKey: "dateCard", header: "Date (carte)", cell: ({ row }) => row.getValue("dateCard") ?? "—" },
-  { accessorKey: "durationDays", header: "Jours", cell: ({ row }) => row.getValue("durationDays") ?? "—" },
-  { accessorKey: "accommodationType", header: "Hébergement", cell: ({ row }) => row.getValue("accommodationType") ?? "—" },
-  {
+  { 
+    accessorKey: "type", 
+    header: "Type",
+    cell: ({ row }) => {
+      const type = row.getValue("type") as string;
+      const isNational = type === "NATIONAL";
+      return (
+        <span
+          className={`inline-block px-3 py-1 rounded-full text-xs font-semibold shadow-sm
+            ${isNational
+              ? "border border-blue-500 bg-blue-100 text-blue-700"
+              : "border border-green-500 bg-green-100 text-green-700"
+            }`}
+        >
+          {type === "NATIONAL" ? "National" : "International"}
+        </span>
+      );
+    }
+    },
+    { accessorKey: "priceOriginal", header: "Prix d'origine", cell: ({ row }) => (
+      <span style={{ whiteSpace: "nowrap" }}>
+      {row.getValue("priceOriginal") ?? "—"} DH
+      </span>
+    ) },
+    { accessorKey: "priceDiscounted", header: "Prix réduit", cell: ({ row }) => (
+      <span style={{ whiteSpace: "nowrap" }}>
+      {row.getValue("priceDiscounted") ?? "—"} DH
+      </span>
+    ) },
+    { accessorKey: "advancedPrice", header: "Acompte", cell: ({ row }) => (
+      <span style={{ whiteSpace: "nowrap" }}>
+      {row.getValue("advancedPrice") ?? "—"} DH
+      </span>
+    ) },
+    { accessorKey: "dateCard", header: "Date (carte)", cell: ({ row }) => row.getValue("dateCard") ?? "—" },
+    { 
+    accessorKey: "durationDays", 
+    header: "Jours", 
+    cell: ({ row }) => {
+      const days = row.getValue("durationDays");
+      if (!days) return "—";
+      return (
+        <span className="inline-block px-2 py-1 rounded-full bg-yellow-100 text-yellow-800 font-semibold text-xs shadow">
+          {typeof days === "number" ? `${days}` : "—"}
+        </span>
+      );
+    }
+    },
+    { accessorKey: "accommodationType", header: "Hébergement", cell: ({ row }) => row.getValue("accommodationType") ?? "—" },
+    {
     id: "actions",
     cell: ({ row }) => {
-      // Use a React state to control AlertDialog open state
       const [open, setOpen] = React.useState(false);
 
       return (
@@ -79,7 +121,6 @@ export const tourColumns = ({ refresh }: { refresh: () => void }): ColumnDef<Tou
                 <DropdownMenuItem
                   className="p-2 font-medium rounded text-red-600 hover:bg-gray-100 hover:cursor-pointer focus-visible:outline-0"
                   onSelect={e => {
-                    // Prevent DropdownMenu from closing before AlertDialog opens
                     e.preventDefault();
                     setOpen(true);
                   }}

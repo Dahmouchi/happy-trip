@@ -222,6 +222,22 @@ const AdminDashboard = ({
                       </span>
                     </span>
                   )}
+                  {
+                    meeting.title && (
+                      <span className="flex items-center gap-1 break-all max-w-full">
+                        <span className="font-medium">Titre :</span> {meeting.title}
+                      </span>
+                    ) 
+                  }
+                  {meeting.description && (
+                    <span className="flex flex-col sm:flex-row items-start gap-1 break-all max-w-full">
+                      <span className="font-medium sm:hidden">Description :</span>
+                      <span className="hidden sm:inline">
+                        <strong>Description :</strong>
+                      </span>
+                      <span>{meeting.description}</span>
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="flex flex-col xs:flex-row gap-2 w-full md:w-auto">
@@ -398,7 +414,21 @@ const AdminDashboard = ({
               <strong>Téléphone :</strong> {meeting.clientPhone}
             </span>
               )}
-            </div>
+              {meeting.title && (
+            <span>
+              <strong>titre :</strong> {meeting.title}
+            </span>
+              )}
+              {meeting.description && (
+                <span className="flex flex-col sm:flex-row items-start gap-1 break-all max-w-full">
+                  <span className="font-medium sm:hidden">Description :</span>
+                  <span className="hidden sm:inline">
+                    <strong>Description :</strong>
+                  </span>
+                  <span>{meeting.description}</span>
+                </span>
+              )}
+              </div>
           </div>
           <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
             {/* Supprimer le créneau */}
