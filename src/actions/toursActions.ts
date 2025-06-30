@@ -423,7 +423,7 @@ export async function updateTour(tourId: string, formData: TourFormData) {
 
     // Avoid deleting dates used by reservations
     const usedDateIds = (
-      await prisma.reservation.findMany({
+      await prisma.reservations.findMany({
         where: { tourId },
         select: { travelDateId: true },
       })
