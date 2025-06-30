@@ -39,6 +39,18 @@ type TourData = Tour & {
 };
 
 export const tourColumns = ({ refresh }: { refresh: () => void }): ColumnDef<TourData, unknown>[] => [
+  {accessorKey: "active", header: "Statut", cell: ({ row }) => {
+    const status = row.getValue("active");
+    const isActive = status === true;
+    return (
+      <span
+        className={`inline-block px-3 py-1 rounded-full text-xs font-semibold shadow-sm
+          ${isActive ? "border border-green-500 bg-green-100 text-green-700" : "border border-red-500 bg-red-100 text-red-700"}`}
+      >
+        {isActive ? "Actif" : "Inactif"}
+      </span>
+    );
+  }},
   { accessorKey: "title", header: "Titre", cell: ({ row }) => row.getValue("title") ?? "—" },
   { 
     accessorKey: "type", 
