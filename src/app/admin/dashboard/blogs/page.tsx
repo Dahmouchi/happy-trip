@@ -48,7 +48,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { MoreVertical, Trash2, Edit, Plus } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import RichTextEditor from "@/components/ui/rich-text-editor";
+import RichTextEditor from "@/components/ui/rich-text-editor-blog";
 import { createBlog, deleteBlog, getBlogs, updateBlog } from "@/actions/blogs";
 import { Blog } from "@prisma/client";
 import SafeHTML from "@/components/SafeHTML";
@@ -405,7 +405,7 @@ export default function BlogManagementPage() {
                   <div className="flex justify-between items-start">
                     <div>
                       <CardTitle>{blog.title}</CardTitle>
-                      <CardDescription className="mt-2 line-clamp-2">
+                      <CardDescription className="mt-2 line-clamp-1">
                         <SafeHTML html={`${blog.description}`} />
                       </CardDescription>
                       {blog.category && (
