@@ -55,6 +55,7 @@ import { ReviewModal } from "./ReviewsForm";
 const TourDetails = ({ tour }: { tour: any }) => {
   const [selectedDate, setSelectedDate] = useState("");
   const [availableDates, setAvailableDates] = useState<any[]>(tour?.dates);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     // Filter and sort dates to only show future dates
@@ -271,16 +272,27 @@ const TourDetails = ({ tour }: { tour: any }) => {
             )}
 
             {/* Description */}
-            <div>
-              <h2 className="text-xl font-bold text-gray-800 mb-2">
-                Description
-              </h2>
+           <div>
+      <h2 className="text-xl font-bold text-gray-800 mb-2">Description</h2>
 
-              <SafeHTML
-                html={tour.description || ""}
-                className="text-gray-700 leading-relaxed"
-              />
-            </div>
+      <div
+        className={clsx(
+          "text-gray-700 leading-relaxed transition-all duration-300",
+          !expanded && "line-clamp-6"
+        )}
+      >
+        <SafeHTML html={tour.description || ""} />
+      </div>
+
+      {tour.description && (
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="mt-2 text-sm text-blue-600 hover:underline focus:outline-none"
+        >
+          {expanded ? "Voir moins" : "Voir plus"}
+        </button>
+      )}
+    </div>
           </div>
 
           {/* Colonne de droite : Image */}
@@ -992,6 +1004,7 @@ export default TourDetails;
 import { Rating } from "react-simple-star-rating";
 import WhatsappShare from "./whatsappShare";
 import ReservationsForm from "./reservationsForm";
+import clsx from "clsx";
 
 const StarRatingDisplay = ({ averageRating }: { averageRating: number }) => {
   return (
