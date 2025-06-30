@@ -2,7 +2,6 @@
 import prisma from "@/lib/prisma";
 import nodemailer from "nodemailer";
 
-
 export async function getAllMeetings()
 {
   try {
