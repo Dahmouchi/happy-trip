@@ -387,6 +387,7 @@ export async function getTourById(tourId: string) {
 }
 
 export async function updateTour(tourId: string, formData: TourFormData) {
+  // console.log("prodrams", formData.programs);
   if (!tourId) {
     return { success: false, error: "Tour ID is required" };
   }

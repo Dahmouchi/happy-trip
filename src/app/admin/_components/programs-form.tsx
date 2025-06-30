@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import RichTextEditor from "@/components/ui/rich-text-editor";
+import RichTextEditor from "@/components/ui/rich-text-editor-image";
 import SafeHTML from "@/components/SafeHTML";
 import { v4 as uuidv4 } from "uuid";
 
@@ -352,7 +352,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                 />
               </div>
 
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
                   Image du Programme
                 </label>
@@ -385,7 +385,7 @@ const ProgramForm: React.FC<ProgramFormProps> = ({ programs, onChange }) => {
                     </div>
                   )}
                 </div>
-              </div>
+              </div> */}
 
               <div className="flex gap-3 pt-2">
                 <Button
