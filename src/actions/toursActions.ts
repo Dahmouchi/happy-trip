@@ -182,7 +182,7 @@ export async function addTour(
         type: validatedData.type as TravelType,
         priceOriginal: validatedData.priceOriginal,
         priceDiscounted:
-          validatedData.priceDiscounted === 0
+          validatedData.priceDiscounted === 0 || validatedData.priceDiscounted === undefined || validatedData.priceDiscounted === null
             ? validatedData.priceOriginal
             : validatedData.priceDiscounted,
         discountEndDate: validatedData.discountEndDate
@@ -443,7 +443,7 @@ export async function updateTour(tourId: string, formData: TourFormData) {
         type: validatedData.type,
         priceOriginal: validatedData.priceOriginal,
         priceDiscounted:
-          validatedData.priceDiscounted === 0
+          validatedData.priceDiscounted === 0 || validatedData.priceDiscounted === undefined || validatedData.priceDiscounted === null
             ? validatedData.priceOriginal
             : validatedData.priceDiscounted,
         discountEndDate: validatedData.discountEndDate,
