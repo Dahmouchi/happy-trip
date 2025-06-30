@@ -1,20 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use server";
 
 import { PrismaClient, type TravelType } from "@prisma/client";
 import { z } from "zod";
-import { getFileUrl, uploadFile } from "@/lib/cloudeFlare";
-import sharp from "sharp";
-import { Video } from "lucide-react";
-import { act } from "react";
-import axios from "axios";
+
 import { getEmbedGoogleMapsUrl } from "@/utils/getEmbedGoogleMapsUrl";
 import { getYouTubeEmbedUrl } from "@/utils/getYouTubeEmbedUrl";
 import { uploadImage } from "@/utils/uploadImage";
-import { getHotels } from "./hotelsActions";
-import { updateProgram } from "./programsActions";
-import { id } from "zod/v4/locales";
+
 
 const prisma = new PrismaClient();
 
@@ -66,6 +59,10 @@ const tourSchema = z.object({
     .instanceof(File)
     .or(z.literal(""))
     .transform((val) => (val === "" ? undefined : val)),
+  imageUrl: z.string()
+    .url("URL de la vidéo invalide")
+    .optional()
+    .or(z.literal("")),
   groupType: z.string(),
   groupSizeMax: z.preprocess(
     (val) =>

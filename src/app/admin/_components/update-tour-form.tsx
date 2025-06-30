@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
@@ -64,7 +65,11 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { addTour, updateReservationTour, updateTour } from "@/actions/toursActions";
+import {
+  addTour,
+  updateReservationTour,
+  updateTour,
+} from "@/actions/toursActions";
 import {
   JSXElementConstructor,
   Key,
@@ -141,6 +146,11 @@ const tourSchema = z.object({
     .instanceof(File)
     .or(z.literal(""))
     .transform((val) => (val === "" ? undefined : val)),
+  imageUrl: z
+    .string()
+    .url("URL de la vidéo invalide")
+    .optional()
+    .or(z.literal("")),
   groupType: z.string(),
   groupSizeMax: z.preprocess(
     (val) =>
@@ -258,16 +268,19 @@ export function UpdateTourForm({
   );
   const router = useRouter();
   const handleUpdate = async (updatedFields: Field[]) => {
-    try{
-      const res = await updateReservationTour(initialData.reservationForm[0].id,updatedFields)
-      if(res?.success){
-        toast.success("la réservation est modifiér")
+    try {
+      const res = await updateReservationTour(
+        initialData.reservationForm[0].id,
+        updatedFields
+      );
+      if (res?.success) {
+        toast.success("la réservation est modifiér");
         router.refresh();
-      }else{
-        toast.error("un error dans la modification")
+      } else {
+        toast.error("un error dans la modification");
       }
-    }catch(err){
-      console.log("un error de modification")
+    } catch (err) {
+      console.log("un error de modification");
     }
   };
   const form = useForm<z.infer<typeof tourSchema>>({
@@ -279,6 +292,7 @@ export function UpdateTourForm({
       type: initialData.type ?? "NATIONAL",
       priceOriginal: initialData.priceOriginal ?? undefined,
       priceDiscounted: initialData.priceDiscounted ?? undefined,
+      imageUrl: initialData.imageUrl,
       discountEndDate: initialData.discountEndDate
         ? new Date(initialData.discountEndDate)
         : undefined,
@@ -328,7 +342,7 @@ export function UpdateTourForm({
 
   useEffect(() => {
     // Main image (imageURL)
-    console.log(initialData)
+    console.log(initialData);
     if (cardImage.length > 0) {
       // New image selected
       form.setValue("imageURL", cardImage[0]);
@@ -370,12 +384,12 @@ export function UpdateTourForm({
         setIsSubmitting(false);
         form.reset(values);
       } else {
-        console.log(result.error)
+        console.log(result.error);
         toast.error("Erreur lors de la modification du circuit");
         setIsSubmitting(false);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       toast.error("Erreur lors de la modification du circuit");
     } finally {
       setIsSubmitting(false);
@@ -973,30 +987,51 @@ export function UpdateTourForm({
                       render={() => (
                         <FormItem>
                           <FormLabel>
-                            Images du circuit
+                            Images du circuit{" "}
                             <span className="text-red-600">*</span>
                           </FormLabel>
                           <FormDescription>
-                            Ajoutez l&apos;URL de l&apos;image pour ce circuit
+                            Ajoutez l&apos;image pour ce circuit
                           </FormDescription>
+
+                          {/* Local preview if imageUrl is set */}
+                          {form.watch("imageUrl") && (
+                            <div className="w-44 h-44 rounded overflow-hidden border border-gray-200 shadow-sm mb-4">
+                              <img
+                                src={form.watch("imageUrl")}
+                                alt="Preview"
+                                className="object-cover w-full h-full"
+                              />
+                            </div>
+                          )}
 
                           <FileUploader
                             value={cardImage}
                             onValueChange={(value: File[] | null) => {
                               const files = value ?? [];
-                              setCardImage(files); // update state with selected files
+                              setCardImage(files);
+
                               if (files.length > 0) {
-                                form.setValue("imageURL", files[0]); // set form field
+                                const file = files[0];
+
+                                // 👇 Create a local preview URL
+                                const previewUrl = URL.createObjectURL(file);
+
+                                // Update local preview field
+                                form.setValue("imageUrl", previewUrl);
+
+                                // Store the actual file for when you save the form
+                                form.setValue("imageURL", file);
                               }
                             }}
                             dropzoneOptions={{
                               maxFiles: 1,
-                              maxSize: 2 * 1024 * 1024,
+                              maxSize: 3 * 1024 * 1024, // 3 MB
                               accept: {
                                 "image/*": [".jpg", ".jpeg", ".png", ".gif"],
                                 "application/pdf": [".pdf"],
                               },
-                              multiple: true,
+                              multiple: false,
                             }}
                             className="border border-gray-300 rounded-lg p-4 bg-white shadow-sm"
                             orientation="vertical"
@@ -1023,7 +1058,6 @@ export function UpdateTourForm({
                         </FormItem>
                       )}
                     />
-                    
                     {/* difficulty level of the tour */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 my-8">
                       <FormField
