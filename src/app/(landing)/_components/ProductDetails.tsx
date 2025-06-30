@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -57,6 +58,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
 
   useEffect(() => {
     // Filter and sort dates to only show future dates
+    console.log(tour)
     const now = new Date();
     const futureDates = tour.dates.filter(
       (date: any) => new Date(date.startDate) > now
@@ -619,7 +621,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
             <div className="bg-white p-6 lg:px-12 md:p-8 font-sans">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                 {/* Included Section */}
-                {includes.length > 0 && (
+                {tour.inclus !== "" && (
                   <div>
                     <h2 className="text-xl font-bold text-gray-800 mb-1">
                       Qu&apos;est-ce qui est inclus dans cet circuit?
@@ -632,7 +634,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
                       {includes.map((item: any, index: any) => (
                         <div
                           key={`inc-${index}`}
-                          className="flex items-start gap-2 mt-2"
+                          className="flex items-center gap-2 mt-2"
                         >
                           <span className="pt-1 text-green-600">
                             <BadgeCheck className="w-6.5 h-6.5 min-w-[20px] min-h-[20px] bg-green-100 rounded-full p-1" />
@@ -645,7 +647,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
                 )}
 
                 {/* Excluded Section */}
-                {excludes.length > 0 && (
+                {tour.exclus !== "" && (
                   <div>
                     <h2 className="text-xl font-bold text-gray-800 mb-1">
                       Qu&apos;est-ce qui n&apos;est pas inclus dans cet circuit?
@@ -658,7 +660,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
                       {excludes.map((item: any, index: any) => (
                         <div
                           key={`exc-${index}`}
-                          className="flex items-start gap-2 mt-2"
+                          className="flex items-center gap-2 mt-2"
                         >
                           <span className="pt-1 text-red-600">
                             <BadgeX className="w-6.5 h-6.5 min-w-[20px] min-h-[20px] bg-red-100 rounded-full p-1" />
@@ -670,7 +672,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
                   </div>
                 )}
               </div>
-              {extract.length > 0 && (
+              {tour.extracts !== "" && (
                 <div>
                   <h2 className="text-xl font-bold mt-3 text-gray-800 mb-1">
                     Quels sont les suppléments ou extras pour cette tournée ?
@@ -683,7 +685,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
                     {extract.map((item: any, index: any) => (
                       <div
                         key={`exc-${index}`}
-                        className="flex items-start gap-2 mt-2"
+                        className="flex items-center gap-2 mt-2"
                       >
                         <span className="pt-1 text-blue-600">
                           <BadgePlus className="w-6.5 h-6.5 min-w-[20px] min-h-[20px] bg-red-100 rounded-full p-1" />
