@@ -1023,6 +1023,7 @@ export function UpdateTourForm({
                         </FormItem>
                       )}
                     />
+                    
                     {/* difficulty level of the tour */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 my-8">
                       <FormField
