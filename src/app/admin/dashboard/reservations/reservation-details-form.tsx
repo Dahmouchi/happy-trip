@@ -23,40 +23,21 @@ import {
 } from "lucide-react";
 import { Hotel, Tour, TourDate } from "@prisma/client";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { Badge } from "@/components/ui/badge";
 
-// Simplified types for the component (removing AWS SDK dependencies)
-type ReservationDetailsProps = {
-  reservation: {
-    id: string;
-    nom: string;
-    prenom: string;
-    email: string;
-    phone: string;
-    tourTitle: string;
-    adultCount: number;
-    childCount: number;
-    infantCount: number;
-    singleRoom: boolean;
-    totalPrice: number;
-    specialRequests?: string | null;
-    status: string;
-    createdAt: Date;
-    travelDate: TourDate;
-    hotel?: Hotel;
-    tour: Tour;
-  };
-};
 
 const DetailRow = ({
   icon: Icon,
   label,
   value,
+  className = "",
 }: {
   icon: any;
   label: string;
-  value: string | number;
+  value: string | number | React.ReactNode;
+  className?: string;
 }) => (
-  <div className="flex items-center justify-between py-2">
+  <div className={`flex items-center justify-between py-2 ${className}`}>
     <div className="flex items-center gap-3">
       <Icon className="w-4 h-4 text-gray-500" />
       <span className="font-medium text-gray-600">{label}</span>
@@ -64,21 +45,33 @@ const DetailRow = ({
     <span className="text-gray-900 font-medium">{value}</span>
   </div>
 );
-const DetailRowI = ({
+
+const PriceBreakdownItem = ({
   label,
-  value,
+  price,
+  multiplier,
+  isMultiplied = false,
 }: {
   label: string;
-  value: string | number;
+  price: number;
+  multiplier?: number;
+  isMultiplied?: boolean;
 }) => (
-  <div className="flex items-center justify-between py-2">
-    <div className="flex items-center gap-3">
-      <Info className="w-4 h-4 text-gray-500" />
-      <span className="font-medium text-gray-600">{label}</span>
+  <div className="flex justify-between items-center py-1 text-sm">
+    <span className="text-gray-600">{label}</span>
+    <div className="flex items-center gap-1">
+      {isMultiplied && multiplier && multiplier > 1 ? (
+        <>
+          <span className="text-gray-500">+{price} × {multiplier}</span>
+          <span className="text-gray-700 font-medium">= {price * multiplier} MAD</span>
+        </>
+      ) : (
+        <span className="text-gray-700 font-medium">+{price} MAD</span>
+      )}
     </div>
-    <span className="text-gray-900 font-medium">{value}</span>
   </div>
 );
+
 export const ReservationDetails: React.FC<any> = ({ reservation }) => {
   const formatDate = (date: Date | string | null | undefined) => {
     if (!date) return "N/A";
@@ -89,163 +82,179 @@ export const ReservationDetails: React.FC<any> = ({ reservation }) => {
     });
   };
 
+  const numberOfAdults = reservation.data?.numberOfAdults || 1;
+
   return (
-    <Card
-      className="w-full  mx-auto border-none shadow-none bg-gradient-to-br from-white to-gray-50 px-2 sm:px-4 lg:px-8"
-      onClick={() => console.log(reservation)}
-    >
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-            <MapPin className="w-6 h-6 text-blue-600" />
-            Détails de la réservation
-          </CardTitle>
-        </div>
-        <div className="flex items-center justify-between mt-2">
-          <StatusBadge status={reservation.status} />
-        </div>
-        <div className="mt-2">
-          <p className="text-sm text-gray-500 mt-2">
-            Réservé le {formatDate(reservation.createdAt)}
-          </p>
-          <p className="text-sm text-gray-500">
-            ID de la réservation:{" "}
-            <span className="font-semibold">{reservation.id}</span>
-          </p>
+    <Card className="w-full mx-auto border-none shadow-none bg-white rounded-xl overflow-hidden">
+      <CardHeader className="bg-gray-50 px-6 py-5 border-b">
+        <div className="flex flex-col space-y-2">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+              <MapPin className="w-6 h-6 text-blue-600" />
+              Détails de la réservation
+            </CardTitle>
+            <StatusBadge status={reservation.status} />
+          </div>
+          
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Clock className="w-4 h-4" />
+              <span>Réservé le {formatDate(reservation.createdAt)}</span>
+            </div>
+            <Badge variant="outline" className="text-gray-600 font-mono">
+              ID: {reservation.id}
+            </Badge>
+          </div>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="p-6 space-y-6">
         {/* Personal Information Section */}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
             <User className="w-5 h-5 text-blue-600" />
             Informations personnelles
           </h3>
-          <div className="bg-white rounded-lg p-4 space-y-1 border border-gray-100">
+          <div className="bg-gray-50 rounded-lg p-4 space-y-2 border border-gray-200">
             <DetailRow
               icon={User}
               label="Nom complet"
-              value={reservation.nom + " " + reservation.prenom}
+              value={`${reservation.nom} ${reservation.prenom}`}
             />
             <DetailRow icon={Mail} label="Email" value={reservation.email} />
+            <DetailRow icon={Phone} label="Téléphone" value={reservation.phone} />
+          </div>
+        </div>
+
+        <Separator className="my-4" />
+
+        {/* Tour Information Section */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+            <MapPin className="w-5 h-5 text-green-600" />
+            Détails du voyage
+          </h3>
+          <div className="bg-gray-50 rounded-lg p-4 space-y-2 border border-gray-200">
             <DetailRow
-              icon={Phone}
-              label="Téléphone"
-              value={reservation.phone}
+              icon={Building2}
+              label="Tour"
+              value={reservation.tour.title}
+            />
+            <DetailRow
+              icon={Calendar}
+              label="Période"
+              value={
+                <span className="flex flex-col sm:flex-row sm:gap-1">
+                  <span>Du {formatDate(reservation.travelDate?.startDate)}</span>
+                  <span>au {formatDate(reservation.travelDate?.endDate)}</span>
+                </span>
+              }
+            />
+            <DetailRow
+              icon={Users}
+              label="Participants"
+              value={
+                <div className="flex gap-4">
+                  <span className="flex items-center gap-1">
+                    <Users className="w-4 h-4" /> {numberOfAdults} adultes
+                  </span>
+                  {reservation.data?.childCount > 0 && (
+                    <span className="flex items-center gap-1">
+                      <Baby className="w-4 h-4" /> {reservation.data.childCount} enfants
+                    </span>
+                  )}
+                </div>
+              }
             />
           </div>
         </div>
 
-        <Separator />
+        <Separator className="my-4" />
 
-        {/* Tour Information Section */}
-        <div>
-          <div className="bg-white rounded-lg p-4 space-y-1 border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-green-600" />
-              Détails du voyage
+        {/* Additional Information Section */}
+        {reservation.data && Object.keys(reservation.data).length > 0 && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+              <Settings className="w-5 h-5 text-purple-600" />
+              Informations supplémentaires
             </h3>
-            <div className="bg-white rounded-lg p-4 space-y-1 border border-gray-100">
-              <DetailRow
-                icon={MapPin}
-                label="Titre de tour"
-                value={reservation.tour.title}
-              />
-              <DetailRow
-                icon={Calendar}
-                label=" Période de voyage"
-                value={`de ${formatDate(
-                  reservation.travelDate?.startDate
-                )} à ${formatDate(reservation.travelDate?.endDate)}`}
-              />
+            <div className="bg-gray-50 rounded-lg p-4 space-y-2 border border-gray-200">
+              {Object.entries(reservation.data).map(([key, value]) => {
+                if (key === 'numberOfAdults' || key === 'childCount') return null;
+                return (
+                  <DetailRow
+                    key={key}
+                    icon={Info}
+                    label={key}
+                    value={String(value)}
+                    className="capitalize"
+                  />
+                );
+              })}
             </div>
           </div>
-        </div>
+        )}
 
-        <Separator />
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-            <Settings className="w-5 h-5 text-purple-600" />
-            Informations supplémentaires
-          </h3>
-          <div className="bg-white rounded-lg p-4 space-y-1 border border-gray-100">
-            {reservation.data &&
-              Object.entries(reservation.data).map(([key, value]) => (
-                <DetailRowI key={key} label={key} value={String(value)} />
-              ))}
-          </div>
-        </div>
-        <Separator />
+        <Separator className="my-4" />
 
         {/* Pricing Section */}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
             <DollarSign className="w-5 h-5 text-green-600" />
-            Prix
+            Détails du prix
           </h3>
-          <div className="bg-white rounded-lg p-4 space-y-1 border border-gray-100 text-sm text-gray-700">
-            <div className="mt-6 border border-gray-200 rounded-lg p-4 bg-gray-50 shadow-sm">
-              <div className="space-y-2 text-sm text-gray-600">
-                <div className="flex justify-between">
-                  <span>Prix de base</span>
-                  <span>{reservation.basePrice} MAD</span>
+          <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center pb-2 border-b border-gray-200">
+                <span className="font-medium text-gray-700">Prix de base</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-gray-500">{reservation.basePrice} × {numberOfAdults}</span>
+                  <span className="font-medium">= {reservation.basePrice * numberOfAdults} MAD</span>
                 </div>
               </div>
-              {reservation.tour.reservationForm && reservation.data && (
-                <div className="space-y-1">
-                 
-                  {reservation.tour.reservationForm[0].fields.map(
-                    (field: any) => {
-                      const value = reservation.data[field.name];
 
-                      // Checkbox avec supplément
-                      if (
-                        field.type === "checkbox" &&
-                        value === true &&
-                        field.price
-                      ) {
-                        return (
-                          <div
-                            key={field.name}
-                            className="flex justify-between text-gray-600"
-                          >
-                            <span>{field.label}</span>
-                            <span>+{field.price} MAD</span>
-                          </div>
-                        );
-                      }
+              {reservation.tour.reservationForm?.[0]?.fields?.map((field: any) => {
+                const value = reservation.data?.[field.name];
+                
+                // Checkbox fields (multiplied by number of adults)
+                if (field.type === "checkbox" && value === true && field.price) {
+                  return (
+                    <PriceBreakdownItem
+                      key={field.name}
+                      label={field.label}
+                      price={field.price}
+                      multiplier={numberOfAdults}
+                      isMultiplied={true}
+                    />
+                  );
+                }
 
-                      // Select avec prix sur l'option choisie
-                      if (field.type === "select" && value) {
-                        const selectedOption = field.options?.find(
-                          (opt: any) => opt.value === value
-                        );
-                        if (selectedOption && selectedOption.price) {
-                          return (
-                            <div
-                              key={field.name}
-                              className="flex justify-between text-gray-600"
-                            >
-                              <span>
-                                {field.label} ({selectedOption.label})
-                              </span>
-                              <span>+{selectedOption.price} MAD</span>
-                            </div>
-                          );
-                        }
-                      }
+                // Select fields (not multiplied)
+                if (field.type === "select" && value) {
+                  const selectedOption = field.options?.find(
+                    (opt: any) => opt.value === value
+                  );
+                  if (selectedOption?.price) {
+                    return (
+                      <PriceBreakdownItem
+                        key={field.name}
+                        label={`${field.label} (${selectedOption.label})`}
+                        price={selectedOption.price}
+                      />
+                    );
+                  }
+                }
 
-                      return null;
-                    }
-                  )}
+                return null;
+              })}
+
+              <div className="pt-3 mt-3 border-t border-gray-200">
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold text-gray-800">Total</span>
+                  <span className="text-xl font-bold text-green-600">
+                    {reservation.finalPrice} MAD
+                  </span>
                 </div>
-              )}
-             
-              <hr className="my-4" />
-              <div className="flex justify-between font-bold text-base text-gray-800">
-                <span>Total</span>
-                <span>{reservation.finalPrice} MAD</span>
               </div>
             </div>
           </div>

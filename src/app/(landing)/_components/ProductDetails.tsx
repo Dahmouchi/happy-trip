@@ -1265,12 +1265,12 @@ const CombinedButtons: React.FC<CombinedButtonsProps> = ({
   };
 
   return (
-    <div className="fixed bottom-6 right-24 flex flex-col gap-4 items-end z-[1000]">
+    <div className="fixed bottom-6 right-24 flex flex-col gap-4 items-end z-[1000] lg:w-auto w-full">
       <WhatsappShare {...whatsappProps} />
       {showReservationButton && (
         <button
           onClick={scrollToReservation}
-          className="reservation-btn bg-gradient-to-r from-[#9fe300] cursor-pointer to-[#7bc200] text-white font-medium rounded-full px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:scale-105 active:translate-y-0 active:scale-100 group"
+          className="reservation-btn bg-gradient-to-r from-[#9fe300] lg:w-auto w-1/2 cursor-pointer to-[#7bc200] text-white font-medium rounded-full px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:scale-105 active:translate-y-0 active:scale-100 group"
           aria-label="Scroll to reservation form"
         >
           <span className="relative flex items-center justify-center gap-2">

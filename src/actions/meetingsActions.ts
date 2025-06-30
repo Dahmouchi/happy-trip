@@ -96,7 +96,6 @@ const transporter = nodemailer.createTransport({
 });
 
 export async function sendEmailToClient(to: string, subject: string, html: string) {
-  to = "bouyzemyounes1@gmail.com";
   try {
     const info = await transporter.sendMail({
       from: `"HappyTrip" <bouyzemyounes2@gmail.com>`, 

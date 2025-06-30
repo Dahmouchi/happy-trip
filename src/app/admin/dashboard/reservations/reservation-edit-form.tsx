@@ -42,7 +42,7 @@ type ReservationFormData = {
     childCount: number;
     infantCount: number;
     singleRoom: boolean;
-    totalPrice: number;
+    finalPrice: number;
     specialRequests?: string | null;
     status: string;
     travelDate: TourDate;
@@ -369,8 +369,8 @@ export const ReservationEditForm: React.FC<ReservationEditFormProps> = ({
           <Input
           type="number"
           min="0"
-          value={formData.reservation.totalPrice}
-          onChange={(e) => handleInputChange('totalPrice', parseFloat(e.target.value) || 0)}
+          value={formData.reservation.finalPrice}
+          onChange={(e) => handleInputChange('finalPrice', parseFloat(e.target.value) || 0)}
           placeholder="Prix total"
           />
         </FormField>

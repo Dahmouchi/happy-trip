@@ -21,20 +21,29 @@ export default function ReservationsForm({
     phone: "",
     email: "",
     travelDateId: travelDates[0]?.id || "",
+    numberOfAdults: 1, // Add default number of adults
     customFields: {},
   });
-  const [finalPrice, setFinalPrice] = useState<any>(basePrice); // Initialize with basePrice
-  const [isSubmitted, setIsSubmitted] = useState(false); // Add this state
+  const [finalPrice, setFinalPrice] = useState<any>(basePrice);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  // Add this useEffect hook
   useEffect(() => {
     const newPrice = calculateFinalPrice();
     setFinalPrice(newPrice);
-  }, [formData, basePrice, fields]); // Recalculate when these dependencies change
+  }, [formData, basePrice, fields]);
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
-    if (["nom", "prenom", "phone", "email", "travelDateId"].includes(name)) {
+    if (
+      [
+        "nom",
+        "prenom",
+        "phone",
+        "email",
+        "travelDateId",
+        "numberOfAdults",
+      ].includes(name)
+    ) {
       setFormData((prev: any) => ({ ...prev, [name]: value }));
     } else {
       setFormData((prev: any) => ({
@@ -42,20 +51,22 @@ export default function ReservationsForm({
         customFields: { ...prev.customFields, [name]: value },
       }));
     }
-    // Removed the manual finalPrice calculation from here
   };
 
   const calculateFinalPrice = () => {
-    let total = basePrice;
+    let total = basePrice * formData.numberOfAdults; // Multiply base price by number of adults
+
     for (const field of fields) {
       if (field.type === "checkbox" && formData.customFields[field.name]) {
-        total += Number(field.price || 0);
+        // Multiply checkbox options by number of adults
+        total += Number(field.price || 0) * formData.numberOfAdults;
       }
       if (field.type === "select") {
         const selectedOption = field.options.find(
           (opt: any) => opt.value === formData.customFields[field.name]
         );
         if (selectedOption) {
+          // Don't multiply select options by number of adults
           total += Number(selectedOption?.price || 0);
         }
       }
@@ -74,9 +85,12 @@ export default function ReservationsForm({
         prenom: formData.prenom,
         phone: formData.phone,
         email: formData.email,
-        data: formData.customFields,
-        basePrice: basePrice, // assuming this is your base price
-        finalPrice:finalPrice,
+        data: {
+          ...formData.customFields,
+          numberOfAdults: formData.numberOfAdults, // Include number of adults in the data
+        },
+        basePrice: basePrice,
+        finalPrice: finalPrice,
       });
 
       toast.success("✅ Reservation sent!");
@@ -86,12 +100,12 @@ export default function ReservationsForm({
         phone: "",
         email: "",
         travelDateId: travelDates[0]?.id || "",
+        numberOfAdults: 1, // Reset to default
         customFields: {},
       });
       setFinalPrice(basePrice);
       setIsSubmitted(true);
 
-      // Hide success message after 5 seconds
       setTimeout(() => setIsSubmitted(false), 4000);
     } catch (error) {
       console.error("❌ Failed to submit reservation:", error);
@@ -108,7 +122,10 @@ export default function ReservationsForm({
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-4 md:p-8 font-sans" id="reservation-form">
+    <div
+      className="w-full max-w-6xl mx-auto p-4 md:p-8 font-sans"
+      id="reservation-form"
+    >
       <div className="grid grid-cols-1 lg:grid-cols-1 gap-8 md:gap-12 items-start">
         <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg border border-gray-100">
           {/* Form Header */}
@@ -198,6 +215,23 @@ export default function ReservationsForm({
                     placeholder="Email"
                     className="rounded-md border border-gray-300 text-sm p-2"
                     onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                {/* Number of adults */}
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="" className="text-black">
+                    Nombre d&apos;adultes{" "}
+                    <span className="text-red-600">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="numberOfAdults"
+                    min="1"
+                    value={formData.numberOfAdults}
+                    onChange={handleChange}
+                    className="rounded-md border border-gray-300 text-sm p-2"
                     required
                   />
                 </div>
@@ -306,15 +340,19 @@ export default function ReservationsForm({
               </div>
 
               {/* Résumé de la réservation */}
-              {/* Résumé de la réservation */}
               <div className="mt-6 border border-gray-200 rounded-lg p-4 bg-gray-50 shadow-sm">
                 <h3 className="text-lg font-semibold mb-4 text-gray-700">
                   🧾 Résumé de la réservation
                 </h3>
                 <div className="space-y-2 text-sm text-gray-600">
                   <div className="flex justify-between">
-                    <span>Prix de base</span>
-                    <span>{basePrice} MAD</span>
+                    <span>
+                      Prix de base ({formData.numberOfAdults} adultes)
+                    </span>
+                    <span>
+                      {basePrice} MAD × {formData.numberOfAdults} ={" "}
+                      {basePrice * formData.numberOfAdults} MAD
+                    </span>
                   </div>
                   {fields
                     .filter((field: any) => {
@@ -331,12 +369,15 @@ export default function ReservationsForm({
                         return (
                           <div className="flex justify-between" key={index}>
                             <span>{field.label}</span>
-                            <span>+{field.price || 0} MAD</span>
+                            <span>
+                              +{field.price || 0} MAD ×{" "}
+                              {formData.numberOfAdults} ={" "}
+                              {field.price * formData.numberOfAdults} MAD
+                            </span>
                           </div>
                         );
                       }
                       if (field.type === "select") {
-                        // Only display if at least one option has a price
                         const hasPricedOptions = field.options?.some(
                           (opt: any) =>
                             typeof opt.price === "number" && opt.price > 0
