@@ -228,8 +228,8 @@ const tourSchema = z.object({
   services: z.array(z.string()),
   natures: z.array(z.string()),
   hotels: z.array(z.string()).optional(),
-  inclus: z.string(),
-  exclus: z.string(),
+  inclus: z.string().optional(),
+  exclus: z.string().optional(),
   extracts: z.string().optional(),
   arrayInclus: z.array(z.string()),
   arrayExlus: z.array(z.string()),
@@ -314,8 +314,8 @@ export function UpdateTourForm({
       accommodationType: initialData.accommodationType ?? "",
       googleMapsUrl: initialData.googleMapsUrl ?? "",
       videoUrl: initialData.videoUrl ?? "",
-      inclus: initialData.inclus ?? "",
-      exclus: initialData.exclus ?? "",
+      inclus: initialData.inclus,
+      exclus: initialData.exclus,
       extracts: initialData.extracts ?? "",
       programs: initialData.programs || [],
       dates: initialData.dates || [],
@@ -378,13 +378,13 @@ export function UpdateTourForm({
       images,
       inclus: Array.isArray(values.arrayInclus)
         ? values.arrayInclus.join(";")
-        : "",
+        : undefined,
       exclus: Array.isArray(values.arrayExlus)
         ? values.arrayExlus.join(";")
-        : "",
+        : undefined,
       extracts: Array.isArray(values.arrayExtras)
         ? values.arrayExtras.join(";")
-        : "",
+        : undefined,
     };
 
     const result = await updateTour(tourId, formData);
@@ -1970,45 +1970,3 @@ export function UpdateTourForm({
   );
 }
 
-
-
-
-
-  // async function onSubmit(values: z.infer<typeof tourSchema>) {
-  //   try {
-  //     setIsSubmitting(true);
-
-  //     const { programs, dates, images, ...restValues } = values;
-  //     const formData = {
-  //       ...restValues,
-  //       programs,
-  //       dates: dates
-  //         ? dates.map((d: any) => ({
-  //             ...d,
-  //             visible: typeof d.visible === "boolean" ? d.visible : true,
-  //           }))
-  //         : undefined,
-  //       images,
-  //       inclus: values.arrayInclus.join(";"),
-  //       exclus: values.arrayExlus.join(";"),
-  //       extracts: values.arrayExtras ? values.arrayExtras.join(";") : "",
-  //     };
-
-  //     const result = await updateTour(tourId, formData);
-
-  //     if (result.success) {
-  //       toast.success("Le circuit a été modifié avec succès");
-  //       setIsSubmitting(false);
-  //       form.reset(values);
-  //     } else {
-  //       console.log(result.error);
-  //       toast.error("Erreur lors de la modification du circuit");
-  //       setIsSubmitting(false);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     toast.error("Erreur lors de la modification du circuit");
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // }

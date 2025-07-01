@@ -347,6 +347,7 @@ export function AddTourForm({
       form.reset(); // ✅ only reset here
       setCardImage(null);
       setGallery(null);
+      window.location.reload();
     } else {
       toast.error("Erreur lors de la création du circuit");
     }

@@ -139,8 +139,8 @@ const tourSchema = z.object({
   services: z.array(z.string()),
   natures: z.array(z.string()),
   hotels: z.array(z.string()).optional(),
-  inclus: z.string(),
-  exclus: z.string(),
+  inclus: z.string().optional(),
+  exclus: z.string().optional(),
   extracts: z.string().optional(),
   arrayInclus: z.array(z.string()),
   arrayExlus: z.array(z.string()),
@@ -456,7 +456,9 @@ export async function updateTour(tourId: string, formData: TourFormData) {
           validatedData.priceDiscounted === 0 || validatedData.priceDiscounted === undefined || validatedData.priceDiscounted === null
             ? validatedData.priceOriginal
             : validatedData.priceDiscounted,
-        discountEndDate: validatedData.discountEndDate,
+        discountEndDate: validatedData.discountEndDate
+          ? new Date(validatedData.discountEndDate)
+          : null,
         advancedPrice:
           validatedData.advancedPrice === 0
             ? validatedData.priceOriginal
