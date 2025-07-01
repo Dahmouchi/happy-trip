@@ -228,8 +228,8 @@ const tourSchema = z.object({
   services: z.array(z.string()),
   natures: z.array(z.string()),
   hotels: z.array(z.string()).optional(),
-  inclus: z.string(),
-  exclus: z.string(),
+  inclus: z.string().optional(),
+  exclus: z.string().optional(),
   extracts: z.string().optional(),
   arrayInclus: z.array(z.string()),
   arrayExlus: z.array(z.string()),
@@ -314,8 +314,8 @@ export function UpdateTourForm({
       accommodationType: initialData.accommodationType ?? "",
       googleMapsUrl: initialData.googleMapsUrl ?? "",
       videoUrl: initialData.videoUrl ?? "",
-      inclus: initialData.inclus ?? "",
-      exclus: initialData.exclus ?? "",
+      inclus: initialData.inclus,
+      exclus: initialData.exclus,
       extracts: initialData.extracts ?? "",
       programs: initialData.programs || [],
       dates: initialData.dates || [],
@@ -378,13 +378,13 @@ export function UpdateTourForm({
       images,
       inclus: Array.isArray(values.arrayInclus)
         ? values.arrayInclus.join(";")
-        : "",
+        : undefined,
       exclus: Array.isArray(values.arrayExlus)
         ? values.arrayExlus.join(";")
-        : "",
+        : undefined,
       extracts: Array.isArray(values.arrayExtras)
         ? values.arrayExtras.join(";")
-        : "",
+        : undefined,
     };
 
     const result = await updateTour(tourId, formData);

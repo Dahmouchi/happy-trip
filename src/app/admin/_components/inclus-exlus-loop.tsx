@@ -136,7 +136,8 @@ const StringLoop: React.FC<StringLoopProps> = ({
           </Button>
         </div>
 
-        {strings.length > 0 ? (
+        {(strings.length > 1 || (strings.length === 1 && strings[0].trim() !== '')) ? (
+          
           <div className="space-y-2">
             <h4 className="font-semibold text-sm my-2">
               {type} ({strings.length}):
@@ -152,8 +153,9 @@ const StringLoop: React.FC<StringLoopProps> = ({
                 strategy={verticalListSortingStrategy}
               >
                 <div className="max-h-60 overflow-y-auto space-y-1">
-                  {strings.map((string, index) => (
-                    <SortableItem
+                    {strings.map((string, index) =>
+                    string.trim() !== '' ? (
+                      <SortableItem
                       key={index}
                       id={index.toString()}
                       string={string}
@@ -164,8 +166,9 @@ const StringLoop: React.FC<StringLoopProps> = ({
                       saveEdit={saveEdit}
                       setEditValue={setEditValue}
                       removeString={removeString}
-                    />
-                  ))}
+                      />
+                    ) : null
+                    )}
                 </div>
               </SortableContext>
             </DndContext>
