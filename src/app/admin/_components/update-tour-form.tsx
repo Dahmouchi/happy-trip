@@ -20,6 +20,7 @@ import {
   Images,
   ImagesIcon,
   Info,
+  Loader2,
   Tag,
 } from "lucide-react";
 
@@ -359,47 +360,52 @@ export function UpdateTourForm({
     }
   }, [cardImage, gallery, form, initialData]);
 
-  async function onSubmit(values: z.infer<typeof tourSchema>) {
-    try {
-      setIsSubmitting(true);
 
-      const { programs, dates, images, ...restValues } = values;
-      const formData = {
-        ...restValues,
-        programs,
-        dates: dates
-          ? dates.map((d: any) => ({
-              ...d,
-              visible: typeof d.visible === "boolean" ? d.visible : true,
-            }))
-          : undefined,
-        images,
-        inclus: values.arrayInclus.join(";"),
-        exclus: values.arrayExlus.join(";"),
-        extracts: values.arrayExtras ? values.arrayExtras.join(";") : "",
-      };
+   async function onSubmit(values: z.infer<typeof tourSchema>) {
+  try {
+    setIsSubmitting(true);
 
-      const result = await updateTour(tourId, formData);
+    const { programs, dates, images, ...restValues } = values;
+    const formData = {
+      ...restValues,
+      programs,
+      dates: dates
+        ? dates.map((d: any) => ({
+            ...d,
+            visible: typeof d.visible === "boolean" ? d.visible : true,
+          }))
+        : undefined,
+      images,
+      inclus: Array.isArray(values.arrayInclus)
+        ? values.arrayInclus.join(";")
+        : "",
+      exclus: Array.isArray(values.arrayExlus)
+        ? values.arrayExlus.join(";")
+        : "",
+      extracts: Array.isArray(values.arrayExtras)
+        ? values.arrayExtras.join(";")
+        : "",
+    };
 
-      if (result.success) {
-        toast.success("Le circuit a été modifié avec succès");
-        setIsSubmitting(false);
-        form.reset(values);
-      } else {
-        console.log(result.error);
-        toast.error("Erreur lors de la modification du circuit");
-        setIsSubmitting(false);
-      }
-    } catch (error) {
-      console.log(error);
+    const result = await updateTour(tourId, formData);
+
+    if (result.success) {
+      toast.success("Le circuit a été modifié avec succès");
+      form.reset(); 
+      setCardImage([]); 
+      setGallery(null);  
+    } else {
+      console.log(result.error);
       toast.error("Erreur lors de la modification du circuit");
-    } finally {
-      setIsSubmitting(false);
     }
+  } catch (error) {
+    console.log(error);
+    toast.error("Erreur lors de la modification du circuit");
+  } finally {
+    setIsSubmitting(false);
   }
-  if (isSubmitting) {
-    return <Loading />;
-  }
+}
+
   return (
     <div>
       <div className="ml-6 p-6 bg-lime-50 rounded-xl">
@@ -1912,7 +1918,15 @@ export function UpdateTourForm({
                   form.watch("hotels")?.length === 0)
               }
             >
-              Modifier le circuit
+               {isSubmitting ? (
+                  <>
+                    <Loader2 className="animate-spin w-4 h-4 mr-2" />
+                    Modification en cours...
+                  </>
+                ) : (
+                  "Modifier le circuit"
+                )}
+             
             </Button>
           </div>{" "}
         </form>
@@ -1955,3 +1969,46 @@ export function UpdateTourForm({
     </div>
   );
 }
+
+
+
+
+
+  // async function onSubmit(values: z.infer<typeof tourSchema>) {
+  //   try {
+  //     setIsSubmitting(true);
+
+  //     const { programs, dates, images, ...restValues } = values;
+  //     const formData = {
+  //       ...restValues,
+  //       programs,
+  //       dates: dates
+  //         ? dates.map((d: any) => ({
+  //             ...d,
+  //             visible: typeof d.visible === "boolean" ? d.visible : true,
+  //           }))
+  //         : undefined,
+  //       images,
+  //       inclus: values.arrayInclus.join(";"),
+  //       exclus: values.arrayExlus.join(";"),
+  //       extracts: values.arrayExtras ? values.arrayExtras.join(";") : "",
+  //     };
+
+  //     const result = await updateTour(tourId, formData);
+
+  //     if (result.success) {
+  //       toast.success("Le circuit a été modifié avec succès");
+  //       setIsSubmitting(false);
+  //       form.reset(values);
+  //     } else {
+  //       console.log(result.error);
+  //       toast.error("Erreur lors de la modification du circuit");
+  //       setIsSubmitting(false);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     toast.error("Erreur lors de la modification du circuit");
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // }

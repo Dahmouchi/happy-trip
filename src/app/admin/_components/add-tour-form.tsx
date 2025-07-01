@@ -19,6 +19,7 @@ import {
   Images,
   ImagesIcon,
   Info,
+  Loader2,
 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { cn } from "@/lib/utils";
@@ -310,55 +311,53 @@ export function AddTourForm({
     console.log("gallery", gallery);
   }, [cardImage, gallery, form]);
 
+
+
   async function onSubmit(values: z.infer<typeof tourSchema>) {
-    try {
-      setIsSubmitting(true);
+  try {
+    setIsSubmitting(true);
 
-      const { programs, dates, images, ...restValues } = values;
-      const formData = {
-        ...restValues,
-        programs,
-        dates: dates
-          ? dates.map((d: any) => ({
-              ...d,
-              visible: d.visible !== undefined ? d.visible : true,
-            }))
-          : undefined,
-        images,
-        inclus: Array.isArray(values.arrayInclus)
-          ? values.arrayInclus.join(";")
-          : values.inclus,
-        exclus: Array.isArray(values.arrayExlus)
-          ? values.arrayExlus.join(";")
-          : values.exclus,
-        extracts: Array.isArray(values.arrayExtras)
-          ? values.arrayExtras.join(";")
-          : values.extracts,
-      };
+    const { programs, dates, images, ...restValues } = values;
 
-      const result = await addTour(formData, reservationFields);
+    const formData = {
+      ...restValues,
+      programs,
+      dates: dates
+        ? dates.map((d: any) => ({
+            ...d,
+            visible: d.visible !== undefined ? d.visible : true,
+          }))
+        : undefined,
+      images,
+      inclus: Array.isArray(values.arrayInclus)
+        ? values.arrayInclus.join(";")
+        : values.inclus,
+      exclus: Array.isArray(values.arrayExlus)
+        ? values.arrayExlus.join(";")
+        : values.exclus,
+      extracts: Array.isArray(values.arrayExtras)
+        ? values.arrayExtras.join(";")
+        : values.extracts,
+    };
 
-      if (result.success) {
-        toast.success("Circuit créé avec succès");
-        setIsSubmitting(false);
-        form.reset();
-        setCardImage(null);
-        setGallery(null);
-      } else {
-        toast.error("Erreur lors de la création du circuit");
-        setIsSubmitting(false);
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
+    const result = await addTour(formData, reservationFields);
+
+    if (result.success) {
+      toast.success("Circuit créé avec succès");
+      form.reset(); // ✅ only reset here
+      setCardImage(null);
+      setGallery(null);
+    } else {
       toast.error("Erreur lors de la création du circuit");
-    } finally {
-      setIsSubmitting(false);
     }
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    toast.error("Erreur lors de la création du circuit");
+  } finally {
+    setIsSubmitting(false);
   }
+}
 
-  if (isSubmitting) {
-    return <Loading />;
-  }
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -1891,7 +1890,14 @@ export function AddTourForm({
                 form.watch("hotels")?.length === 0)
             }
           >
-            Créer le circuit
+             {isSubmitting ? (
+                <>
+                  <Loader2 className="animate-spin w-4 h-4 mr-2" />
+                  Création en cours...
+                </>
+              ) : (
+                "Créer le circuit"
+              )}
           </Button>{" "}
         </div>
       </form>
