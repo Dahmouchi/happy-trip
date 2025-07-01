@@ -297,6 +297,7 @@ export default function RichTextEditor({
     fileInputRef.current?.click();
   };
 
+  
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
