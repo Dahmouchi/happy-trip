@@ -72,6 +72,7 @@ const tourSchema = z.object({
   showReviews: z.boolean().default(true),
   showDifficulty: z.boolean().default(true),
   showDiscount: z.boolean().default(true),
+  showHebergement: z.boolean().default(true),
   difficultyLevel: z
     .number()
     .min(1)
@@ -210,6 +211,7 @@ export async function addTour(
         groupType: validatedData.groupType,
         groupSizeMax: validatedData.groupSizeMax,
         showReviews: validatedData.showReviews,
+        showHebergement: validatedData.showHebergement,
         showDifficulty: validatedData.showDifficulty,
         showDiscount: validatedData.showDiscount,
         difficultyLevel: validatedData.difficultyLevel,
@@ -319,6 +321,9 @@ export async function getAllTours() {
         programs: true,
         images: true,
       },
+      orderBy:{
+        updatedAt:"asc",
+      }
     });
     return { success: true, data: tours };
   } catch (error) {
@@ -467,6 +472,7 @@ export async function updateTour(tourId: string, formData: TourFormData) {
         groupType: validatedData.groupType,
         groupSizeMax: validatedData.groupSizeMax,
         showReviews: validatedData.showReviews,
+        showHebergement: validatedData.showHebergement,
         showDifficulty: validatedData.showDifficulty,
         showDiscount: validatedData.showDiscount,
         difficultyLevel: validatedData.difficultyLevel,

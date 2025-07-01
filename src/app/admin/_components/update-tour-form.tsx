@@ -160,6 +160,7 @@ const tourSchema = z.object({
   showReviews: z.boolean().default(true),
   showDifficulty: z.boolean().default(true),
   showDiscount: z.boolean().default(true),
+  showHebergement : z.boolean().default(true),
   difficultyLevel: z
     .number()
     .min(1)
@@ -306,6 +307,7 @@ export function UpdateTourForm({
       showReviews: initialData.showReviews ?? true,
       showDifficulty: initialData.showDifficulty ?? true,
       showDiscount: initialData.showDiscount ?? true,
+      showHebergement: initialData.showHebergement ?? true,
       difficultyLevel: initialData.difficultyLevel ?? undefined,
       discountPercent: initialData.discountPercent ?? 0,
       accommodationType: initialData.accommodationType ?? "",
@@ -1863,6 +1865,26 @@ export function UpdateTourForm({
                           </FormItem>
                         )}
                       />
+                      <FormField
+                                            control={form.control}
+                                            name="showHebergement"
+                                            render={({ field }) => (
+                                              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                                                <FormControl>
+                                                  <Checkbox
+                                                    checked={field.value}
+                                                    onCheckedChange={field.onChange}
+                                                  />
+                                                </FormControl>
+                                                <div className="space-y-1 leading-none">
+                                                  <FormLabel>Afficher hébergement</FormLabel>
+                                                  <FormDescription>
+                                                    Afficher hébergement pour ce circuit
+                                                  </FormDescription>
+                                                </div>
+                                              </FormItem>
+                                            )}
+                                          />
                     </div>
                   </div>
                 </div>
@@ -1911,6 +1933,9 @@ export function UpdateTourForm({
                 <span className="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">
                   prenom (included)
                 </span>
+                <span className="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">
+                    Nombre d&apos;adultes (included)
+                  </span>
                 <span className="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">
                   phone (included)
                 </span>

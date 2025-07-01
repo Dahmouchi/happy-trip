@@ -1,23 +1,39 @@
 'use server'
-
+import { uploadImage } from "@/utils/uploadImage";
 import prisma  from '@/lib/prisma'
 
-export async function saveLandingConfig(sections: Record<string, boolean>) {
-  // First get the current landing page config
-  const current = await prisma.landing.findFirst()
-  
+export async function saveLandingConfig(
+  sections: Record<string, boolean>,
+  cardImage: File[] | null
+) {
+  // Get current landing config
+  const current = await prisma.landing.findFirst();
+
+  // Upload new image if provided, else keep current
+  const mainImageUrl = cardImage
+    ? await uploadImage(cardImage[0])
+    : current?.imageHero || '';
+
   if (!current) {
-    // Create if doesn't exist
+    // Create new landing config
     await prisma.landing.create({
-      data: sections
-    })
+      data: {
+        ...sections,
+        imageHero: mainImageUrl,
+      },
+    });
   } else {
-    // Update existing
-    await prisma.landing.updateMany({
-      data: sections
-    })
+    // Update existing landing config
+    await prisma.landing.update({
+      where: { id: current.id },
+      data: {
+        ...sections,
+        imageHero: mainImageUrl,
+      },
+    });
   }
 }
+
 
 // lib/landing.ts or wherever you define helpers
 import { Landing } from '@prisma/client' // Optional, if you want type support

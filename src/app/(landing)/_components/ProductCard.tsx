@@ -61,10 +61,10 @@ export function PromotionCard({ tour }: { tour: any }) {
         </div>
         <div className="mb-4 space-y-2 mt-2">
           <h3 className="font-bold text-lg mb-1 line-clamp-2">{tour?.title}</h3>
-          <div className="flex items-center gap-2">
+          {tour?.showHebergement && <div className="flex items-center gap-2">
             <img src="/hotel.png" alt="" className="w-6 h-6 " />
             <p className="text-gray-700 mb-1">{tour?.accommodationType}</p>
-          </div>
+          </div>}
           <div className="flex items-center gap-2">
             <img src="/calendrier.png" alt="" className="w-6 h-6 " />
             <div>

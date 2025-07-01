@@ -148,6 +148,7 @@ const tourSchema = z.object({
   showReviews: z.boolean().default(true),
   showDifficulty: z.boolean().default(true),
   showDiscount: z.boolean().default(true),
+  showHebergement: z.boolean().default(true),
   difficultyLevel: z
     .number()
     .min(1)
@@ -267,7 +268,8 @@ export function AddTourForm({
       groupType: "",
       groupSizeMax: undefined,
       showReviews: true, // Prisma default: true
-      showDifficulty: true, // Prisma default: true
+      showDifficulty: true,
+      showHebergement: true, // Prisma default: true
       showDiscount: true, // Prisma default: true
       difficultyLevel: undefined,
       discountPercent: 0,
@@ -334,7 +336,7 @@ export function AddTourForm({
           : values.extracts,
       };
 
-      const result = await addTour(formData,reservationFields);
+      const result = await addTour(formData, reservationFields);
 
       if (result.success) {
         toast.success("Circuit créé avec succès");
@@ -382,10 +384,12 @@ export function AddTourForm({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            ID du circuit{" "}
+                            Identifiant du circuit{" "}
                             <span className="text-red-600">*</span>{" "}
-                            <span className="text-red-600 font-semibold italic">
-                              (ID non modifiable après la création du circuit.)
+                            <span className="text-gray-600 text-sm">
+                              (Cet identifiant unique sera utilisé dans l&apos;URL de
+                              votre circuit et deviendra permanent après
+                              création)
                             </span>
                           </FormLabel>
                           <FormControl>
@@ -998,7 +1002,7 @@ export function AddTourForm({
                           onValueChange={setCardImage}
                           dropzoneOptions={{
                             maxFiles: 1,
-                            maxSize: 1 * 1024 * 1024,
+                            maxSize: 10 * 1024 * 1024,
                             accept: {
                               "image/*": [".jpg", ".jpeg", ".png", ".gif"],
                               "application/pdf": [".pdf"],
@@ -1784,6 +1788,26 @@ export function AddTourForm({
                         </FormItem>
                       )}
                     />
+                    <FormField
+                      control={form.control}
+                      name="showHebergement"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>Afficher hébergement</FormLabel>
+                            <FormDescription>
+                              Afficher hébergement pour ce circuit
+                            </FormDescription>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
 
                     <FormField
                       control={form.control}
@@ -1827,6 +1851,9 @@ export function AddTourForm({
                   </span>
                   <span className="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">
                     prenom (included)
+                  </span>
+                  <span className="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">
+                    Nombre d&apos;adultes (included)
                   </span>
                   <span className="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">
                     phone (included)

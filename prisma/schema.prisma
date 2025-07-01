@@ -57,6 +57,11 @@ model Landing {
   trust         Boolean @default(true)
   footer        Boolean @default(true)
   search        Boolean @default(true)
+  imageHero     String?
+  titleHero     String?
+  subTitleHero  String?
+  subTitleHero1 String?
+
 }
 
 model Blog {
@@ -148,6 +153,7 @@ model Tour {
   groupType         String?
   groupSizeMax      Int?
   showReviews       Boolean           @default(true)
+  showHebergement   Boolean           @default(true)
   showDifficulty    Boolean           @default(true)
   showDiscount      Boolean           @default(true)
   difficultyLevel   Int?

@@ -46,7 +46,7 @@ const LandigPage = async () => {
           </div>
         </div>
       } */}
-      {(sections?.hero ?? true) && <Hero inp={sections?.search} />}
+      {(sections?.hero ?? true) && <Hero inp={sections} />}
       {(sections?.national ?? true) && <ToursDisplay
                 tours={tourNational} 
                 displayMode={"carousel"}
