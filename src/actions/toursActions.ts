@@ -151,10 +151,15 @@ export type TourFormData = z.infer<typeof tourSchema>;
 
 function getCorrectId(id: string) {
   return id
-    .normalize("NFD")                    // Decompose accented letters into base + diacritic
-    .replace(/[\u0300-\u036f]/g, "")     // Remove diacritic marks
-    .replace(/\s+/g, "-")                // Replace spaces with dashes
-    .toLowerCase();                      // (optional) convert to lowercase
+    .normalize("NFD") // Decompose accented letters
+    .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
+    .replace(/[’‘]/g, "") // Remove curly apostrophes/quotes
+    .replace(/[–—]/g, "-") // Replace en-dash, em-dash with normal dash
+    .replace(/[.,;:!?"']/g, "") // Remove common punctuation
+    .replace(/\s+/g, "-") // Replace spaces with dashes
+    .toLowerCase()
+    .replace(/-+/g, "-") // Replace multiple dashes with single dash
+    .replace(/^-|-$/g, ""); // Remove leading/trailing dashes
 }
 
 

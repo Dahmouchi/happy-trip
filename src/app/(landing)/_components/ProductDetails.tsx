@@ -319,7 +319,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
       </div>
       <div className="bg-white">
         {/* Top Info Bar */}
-        <div className={`bg-[#8ebd21] text-white grid grid-cols-1 sm:grid-cols-2 ${tour?.showHebergement ? "lg:grid-cols-5": "lg:grid-cols-4"} lg:gap-8 mb-4`}>
+        <div className="bg-[#8ebd21] text-white grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 lg:gap-8 mb-4">
           <div className="flex items-center lg:px-0 px-8 justify-start lg:text-nowrap text-xl md:text-lg lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4 ">
             <img
               src={"/icons/night-mode.png"}
@@ -330,11 +330,11 @@ const TourDetails = ({ tour }: { tour: any }) => {
               {tour.durationDays} Jours / {tour.durationNights} Nuités
             </span>
           </div>
-          {tour?.showHebergement && <div className="flex items-center lg:px-0 px-8 justify-start lg:text-nowrap text-xl md:text-lg lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4">
+          <div className="flex items-center lg:px-0 px-8 justify-start lg:text-nowrap text-xl md:text-lg lg:justify-center gap-2 w-full lg:border-r-2 border-b-2 lg:border-b-0 py-4 border-white lg:my-4">
             <img src={"/icons/map-pin.png"} className="w-7 h-7 md:w-6 md:h-6" />{" "}
             {/* Replace with location/pin icon */}
             <span className="md:text-lg text-xl">{tour.accommodationType}</span>
-          </div>}
+          </div>
           <div className="flex flex-col items-start lg:items-center lg:px-0 px-8 gap-1 justify-start lg:text-nowrap text-xl md:text-lg lg:justify-center py-4">
             <div className="flex items-center gap-2">
               <img
@@ -522,7 +522,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
             </div>
 
             {/* Detail Item */}
-            {tour?.showHebergement && <div className="flex items-center gap-3 border-b pb-3 justify-between">
+            <div className="flex items-center gap-3 border-b pb-3 justify-between">
               <div className="flex items-center gap-2">
                 <Hotel className="w-6 h-6 text-gray-400" />{" "}
                 {/* Replace with accommodation icon */}
@@ -531,7 +531,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
                 </span>
               </div>
               <span className="text-gray-800">{tour.accommodationType}</span>
-            </div>}
+            </div>
 
             {/* Detail Item */}
             <div className="flex items-center gap-3 pb-3 justify-between">
@@ -1265,12 +1265,12 @@ const CombinedButtons: React.FC<CombinedButtonsProps> = ({
   };
 
   return (
-    <div className="fixed bottom-6 right-24 flex flex-col gap-4 items-end z-[1000] lg:w-auto w-full">
+    <div className="fixed bottom-6 right-24 flex flex-col gap-4 items-end z-[1000]">
       <WhatsappShare {...whatsappProps} />
       {showReservationButton && (
         <button
           onClick={scrollToReservation}
-          className="reservation-btn bg-gradient-to-r from-[#9fe300] lg:w-auto w-1/2 cursor-pointer to-[#7bc200] text-white font-medium rounded-full px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:scale-105 active:translate-y-0 active:scale-100 group"
+          className="reservation-btn bg-gradient-to-r from-[#9fe300] cursor-pointer to-[#7bc200] text-white font-medium rounded-full px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:scale-105 active:translate-y-0 active:scale-100 group"
           aria-label="Scroll to reservation form"
         >
           <span className="relative flex items-center justify-center gap-2">
