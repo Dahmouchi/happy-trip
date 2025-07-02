@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 import React, { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { redirect, useRouter } from "next/navigation"
 import { getAllTours } from "@/actions/toursActions"
 
 export function SearchInput() {
@@ -70,11 +70,7 @@ export function SearchInput() {
   }
 
   const handleSelect = (tour: any) => {
-    const path =
-      tour.type === "NATIONAL"
-        ? `/destination/national/t/${tour.id}`
-        : `/destination/international/t/${tour.id}`
-    router.push(path)
+    router.push(`/voyage/${tour.id}`)
     setShowSuggestions(false)
     setQuery("")
   }
@@ -109,8 +105,8 @@ export function SearchInput() {
             results.map((tour: any) => (
               <li
                 key={tour?.id}
-                onClick={() => handleSelect(tour)}
-                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                onClick={() => redirect(`/voyage/${tour.id}`)}
+                className="px-4 py-2 cursor-pointer hover:bg-gray-100 "
               >
                 {tour?.title}
               </li>
