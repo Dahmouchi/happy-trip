@@ -20,7 +20,7 @@ const LandigPage = async () => {
       reviews: true,
     },
     orderBy: {
-      createdAt: "asc",
+      createdAt: "desc",
     },
   });
   const tourInternational: Tour[] | null = await prisma.tour.findMany({
@@ -31,7 +31,7 @@ const LandigPage = async () => {
       reviews: true,
     },
     orderBy: {
-      createdAt: "asc",
+      createdAt: "desc",
     },
   });
 

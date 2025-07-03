@@ -342,7 +342,6 @@ export function AddTourForm({
   }, [cardImage, gallery, form]);
 
 
-
 async function onSubmit(values: z.infer<typeof tourSchema>) {
   try {
     setIsSubmitting(true);

@@ -177,15 +177,20 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+   isLoading?: boolean
+  isDeleting?: boolean
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+   isLoading = false,
+  isDeleting = false,
 }: DataTableProps<TData, TValue>) {
 
   const [pagination, setPagination] = useState({
@@ -206,7 +211,20 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="rounded-md border shadow-lg">
+       <div className="rounded-md border shadow-lg relative">
+      {/* Add overlay for loading states */}
+      {(isLoading || isDeleting) && (
+        <div className="absolute inset-0 bg-white bg-opacity-70 z-10 flex items-center justify-center">
+          <div className="flex flex-col items-center">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+            <span className="mt-2 text-sm text-gray-600">
+              {isDeleting ? "Suppression en cours..." : "Chargement des données..."}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Rest of your existing table code */}
       <div className="flex items-center py-4 px-4 bg-gradient-to-r from-blue-50 to-indigo-50">
        <Input
          placeholder="Filtrer par titre de tour..."
@@ -218,6 +236,7 @@ export function DataTable<TData, TValue>({
          className="max-w-sm border-2 border-blue-200 focus:border-blue-400 transition-colors"
        />
       </div>
+      
       <Table className="border-separate border-spacing-0">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (

@@ -19,15 +19,34 @@ type TourData = Tour & {
 
 export default function ReceptionPage() {
   const [tours, setTours] = useState<TourData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchTours = useCallback(async () => {
-    const response = await getAllTours();
-    if (response.success && Array.isArray(response.data)) {
-      setTours(response.data as unknown as TourData[]);
-    } else {
-      console.error("Failed to fetch tours", response.error);
+    setIsLoading(true);
+    try {
+      const response = await getAllTours();
+      if (response.success && Array.isArray(response.data)) {
+        setTours(response.data as unknown as TourData[]);
+      } else {
+        console.error("Failed to fetch tours", response.error);
+      }
+    } catch (error) {
+      console.error("Error fetching tours:", error);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
+
+  // Modify the refresh function passed to columns to handle deletion
+  const handleRefresh = useCallback(async () => {
+    setIsDeleting(true);
+    try {
+      await fetchTours();
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [fetchTours]);
 
   useEffect(() => {
     fetchTours();
@@ -37,8 +56,10 @@ export default function ReceptionPage() {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Page de Réception</h1>
       <DataTable<TourData, unknown>
-       columns={tourColumns({ refresh: fetchTours })}
+        columns={tourColumns({ refresh: handleRefresh })}
         data={tours}
+        isLoading={isLoading}
+        isDeleting={isDeleting}
       />
 
     </div>
