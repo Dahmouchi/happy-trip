@@ -68,11 +68,11 @@ const lastDay = endOfMonth(now);
             <h1 className="text-white text-xs lg:text-lg text-center">
               Nos packs SUMMER 2025 sont disponibles Dés Maintenant!
             </h1>
-          </div>
+          </div>(sections?.thisMount ?? true) &&  <MonthlyFeaturedTours tours={tourForThisMount} />
         </div>
       } */}
       {(sections?.hero ?? true) && <Hero inp={sections} />}
-      {(sections?.thisMount ?? true) &&  <MonthlyFeaturedTours tours={tourForThisMount} />}
+      
      
       {(sections?.national ?? true) && <ToursDisplay
                 tours={tourNational} 
