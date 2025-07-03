@@ -95,15 +95,19 @@ import { Switch } from "@radix-ui/react-switch";
 import ReservationFormBuilder from "./ReservationFormBuilder";
 
 const tourSchema = z.object({
-  id: z.string(),
+  id: z.string().min(1, "L'identifiant du circuit est requis"),
   active: z.boolean().default(true),
   title: z.string().min(1, "Le titre est requis"),
   description: z.string().min(1, "La description est requise"),
-  type: z.enum(["NATIONAL", "INTERNATIONAL"]),
+  type: z.enum(["NATIONAL", "INTERNATIONAL"], {
+    errorMap: () => ({ message: "Le type de circuit est requis" }),
+  }),
   priceOriginal: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(0, "Le prix doit être positif")
+    z.number().min(0, "Le prix doit être positif").refine((v) => v !== undefined, {
+      message: "Le prix original est requis",
+    })
   ),
   priceDiscounted: z.preprocess(
     (val) =>
@@ -120,16 +124,20 @@ const tourSchema = z.object({
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
     z.number().min(0, "Le prix doit être positif").optional()
   ),
-  dateCard: z.string(),
+  dateCard: z.string().min(1, "La date du circuit est requise"),
   durationDays: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(1, "Au moins 1 jour")
+    z.number().min(1, "Au moins 1 jour").refine((v) => v !== undefined, {
+      message: "Le nombre de jours est requis",
+    })
   ),
   durationNights: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(0, "Nuits >= 0")
+    z.number().min(0, "Nuits >= 0").refine((v) => v !== undefined, {
+      message: "Le nombre de nuits est requis",
+    })
   ),
   videoUrl: z
     .string()
@@ -137,33 +145,35 @@ const tourSchema = z.object({
     .optional()
     .or(z.literal("")),
   imageURL: z
-    .instanceof(File)
+    .instanceof(File, { message: "L'image du circuit est requise" })
     .or(z.literal(""))
     .transform((val) => (val === "" ? undefined : val)),
-  groupType: z.string(),
+  groupType: z.string().min(1, "Le type de groupe est requis"),
   groupSizeMax: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(1, "Taille min 1")
+    z.number().min(1, "Taille min 1").refine((v) => v !== undefined, {
+      message: "La taille du groupe est requise",
+    })
   ),
   showReviews: z.boolean().default(true),
   showDifficulty: z.boolean().default(true),
   showDiscount: z.boolean().default(true),
   showHebergement: z.boolean().default(true),
   difficultyLevel: z
-    .number()
-    .min(1)
-    .max(5)
+    .number({ invalid_type_error: "Le niveau de difficulté est requis" })
+    .min(1, "Le niveau de difficulté doit être entre 1 et 5")
+    .max(5, "Le niveau de difficulté doit être entre 1 et 5")
     .or(z.literal(""))
     .transform((val) => (val === "" ? undefined : val)),
   discountPercent: z
     .number()
-    .min(0)
-    .max(100)
+    .min(0, "Le pourcentage de réduction doit être positif")
+    .max(100, "Le pourcentage de réduction ne peut dépasser 100%")
     .optional()
     .or(z.literal(""))
     .transform((val) => (val === "" ? undefined : val)),
-  accommodationType: z.string(),
+  accommodationType: z.string().min(1, "Le type d'hébergement est requis"),
   googleMapsUrl: z
     .string()
     .url("Lien Google Maps invalide")
@@ -174,7 +184,7 @@ const tourSchema = z.object({
       z.object({
         title: z.string().min(1, "Titre requis"),
         orderIndex: z.number().optional(),
-        description: z.string(),
+        description: z.string().min(1, "Description requise"),
         image: z
           .union([z.instanceof(File), z.string(), z.null()])
           .optional()
@@ -190,8 +200,8 @@ const tourSchema = z.object({
   dates: z
     .array(
       z.object({
-        startDate: z.date(),
-        endDate: z.date(),
+        startDate: z.date({ required_error: "Date de début requise" }),
+        endDate: z.date({ required_error: "Date de fin requise" }),
         description: z.string().optional(),
         visible: z.boolean().default(true),
       })
@@ -211,16 +221,36 @@ const tourSchema = z.object({
     )
     .optional(),
 
-  destinations: z.array(z.string()),
-  categories: z.array(z.string()),
-  services: z.array(z.string()),
-  natures: z.array(z.string()),
+  destinations: z
+    .array(z.string().min(1, "La destination est requise"), {
+      required_error: "Au moins une destination est requise",
+    })
+    .min(1, "Au moins une destination est requise"),
+  categories: z
+    .array(z.string().min(1, "La catégorie est requise"), {
+      required_error: "Au moins une catégorie est requise",
+    })
+    .min(1, "Au moins une catégorie est requise"),
+  services: z
+    .array(z.string().min(1, "Le service est requis"), {
+      required_error: "Au moins un service est requis",
+    })
+    .min(1, "Au moins un service est requis"),
+  natures: z
+    .array(z.string().min(1, "La nature est requise"), {
+      required_error: "Au moins une nature est requise",
+    })
+    .min(1, "Au moins une nature est requise"),
   hotels: z.array(z.string()).optional(),
   inclus: z.string(),
   exclus: z.string(),
   extracts: z.string().optional(),
-  arrayInclus: z.array(z.string()),
-  arrayExlus: z.array(z.string()),
+  arrayInclus: z
+    .array(z.string().min(1, "L'élément inclus est requis"))
+    .min(1, "Au moins un élément inclus est requis"),
+  arrayExlus: z
+    .array(z.string().min(1, "L'élément exclus est requis"))
+    .min(1, "Au moins un élément exclus est requis"),
   arrayExtras: z.array(z.string()).optional(),
 });
 type FieldType = "text" | "checkbox" | "select";
@@ -313,7 +343,7 @@ export function AddTourForm({
 
 
 
-  async function onSubmit(values: z.infer<typeof tourSchema>) {
+async function onSubmit(values: z.infer<typeof tourSchema>) {
   try {
     setIsSubmitting(true);
 
@@ -344,20 +374,31 @@ export function AddTourForm({
 
     if (result.success) {
       toast.success("Circuit créé avec succès");
-      form.reset(); // ✅ only reset here
+      form.reset();
       setCardImage(null);
       setGallery(null);
       window.location.reload();
     } else {
-      toast.error("Erreur lors de la création du circuit");
+      const prismaError = result.error;
+
+      toast.error(
+        prismaError?.code
+          ? `Erreur Prisma (${prismaError.code}): ${prismaError.message}`
+          : prismaError?.message ?? "Erreur lors de la création du circuit"
+      );
+
+      if (prismaError?.meta) {
+        console.warn("Meta info:", prismaError.meta);
+      }
     }
   } catch (error) {
-    console.error("Error submitting form:", error);
-    toast.error("Erreur lors de la création du circuit");
+    console.error("Unexpected error submitting form:", error);
+    toast.error("Erreur inattendue lors de la création du circuit");
   } finally {
     setIsSubmitting(false);
   }
 }
+
 
   return (
     <Form {...form}>
@@ -1883,6 +1924,7 @@ export function AddTourForm({
               !form.watch("groupSizeMax") ||
               !form.watch("priceOriginal") ||
               !form.watch("dateCard") ||
+              !form.watch("imageURL") ||
               !form.watch("durationDays") ||
               !form.watch("durationNights") ||
               !form.watch("arrayInclus") ||

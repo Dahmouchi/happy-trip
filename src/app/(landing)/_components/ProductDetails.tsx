@@ -344,7 +344,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
               <span className="md:text-lg text-xl">Prochaine date</span>
             </div>
             <span className="md:text-base text-xl ml-9 lg:ml-0 font-semibold bg-white/20 px-4 py-1 rounded-full shadow text-white border border-white/30">
-              {getNextTourDate(tour.dates)}
+              {getNextTourDate(tour.dates) || "Aucune date à venir"}
             </span>
           </div>
 
