@@ -9,9 +9,34 @@ import Expert from "./_components/Expert";
 import Trust from "./_components/Trust";
 import { Landing, Tour } from "@prisma/client";
 import prisma from "@/lib/prisma";
+import { endOfMonth, startOfMonth } from "date-fns";
+import MonthlyFeaturedTours from "./_components/thisMount";
 
 const LandigPage = async () => {
+  const now = new Date();
+
+const firstDay = startOfMonth(now);
+const lastDay = endOfMonth(now);
   const sections: Landing | null = await prisma.landing.findFirst({ });
+  const tourForThisMount = await prisma.tour.findMany({
+  where: {
+    dates: {
+      some: {
+        startDate: {
+          gte: firstDay,
+          lte: lastDay,
+        },
+      },
+    },
+  },
+  include: {
+    reviews: true,
+    dates: true, // include matching TourDate entries
+  },
+  orderBy: {
+    createdAt: "desc",
+  },
+});
   const tourNational: Tour[] | null = await prisma.tour.findMany({
     where: {
       type: "NATIONAL",
@@ -47,6 +72,8 @@ const LandigPage = async () => {
         </div>
       } */}
       {(sections?.hero ?? true) && <Hero inp={sections} />}
+      {(sections?.thisMount ?? true) &&  <MonthlyFeaturedTours tours={tourForThisMount} />}
+     
       {(sections?.national ?? true) && <ToursDisplay
                 tours={tourNational} 
                 displayMode={"carousel"}

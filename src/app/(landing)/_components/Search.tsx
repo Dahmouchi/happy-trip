@@ -106,7 +106,7 @@ export function SearchInput() {
             results.map((tour: any) => (
               <li
                 key={tour?.id}
-                onClick={() => redirect(`/voyage/${tour.id}`)}
+                onClick={() => window.location.href = `/voyage/${tour.id}`}
                 className="px-4 py-2 cursor-pointer hover:bg-gray-100 "
               >
                 {tour?.title}

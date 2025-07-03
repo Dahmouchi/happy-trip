@@ -50,6 +50,7 @@ model Landing {
   hero          Boolean @default(true)
   national      Boolean @default(true)
   international Boolean @default(true)
+  thisMount     Boolean @default(true)
   mesure        Boolean @default(true)
   reviews       Boolean @default(true)
   meeting       Boolean @default(true)

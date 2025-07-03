@@ -211,6 +211,12 @@ export default function PageControl({ initialData }: { initialData: any }) {
           onToggle={handleToggle}
         />
         <SectionToggle
+          name="thisMount"
+          label="Voyage de ce mois"
+          enabled={sections?.thisMount}
+          onToggle={handleToggle}
+        />
+        <SectionToggle
           name="national"
           label="National Section"
           enabled={sections?.national}

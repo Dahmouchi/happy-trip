@@ -9,10 +9,6 @@ import { Rating } from "react-simple-star-rating";
 import { redirect } from "next/navigation";
 import { Review } from "@prisma/client";
 
-// Composant Badge de réduction avec animation
-
-// Composant d'affichage des étoiles avec animation
-
 const ModernTravelCard = ({ tour }: any) => {
   // Valeurs par défaut pour éviter les erreurs
   const approvedReviews =
