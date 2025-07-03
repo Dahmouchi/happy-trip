@@ -10,6 +10,7 @@ interface DateEntry {
   dateDebut: Date;
   dateFin: Date;
   description?: string;
+  price?: number;
   visible: boolean;
 }
 
@@ -25,6 +26,7 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
     dateDebut: undefined as unknown as Date,
     dateFin: undefined as unknown as Date,
     description: '',
+    price: 0,
     visible: true
   });
 
@@ -35,7 +37,7 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
         ...newDate
       };
       onChange([...dates, dateEntry]);
-      setNewDate({ dateDebut: undefined as unknown as Date, dateFin: undefined as unknown as Date, description: '', visible: true });
+      setNewDate({ dateDebut: undefined as unknown as Date, dateFin: undefined as unknown as Date, description: '', price: 0, visible: true });
       setShowAddForm(false);
     }
   };
@@ -50,6 +52,7 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
       dateDebut: dateEntry.dateDebut,
       dateFin: dateEntry.dateFin,
       description: dateEntry.description,
+      price: dateEntry.price ?? 0,
       visible: dateEntry.visible
     });
     setShowAddForm(false);
@@ -59,18 +62,18 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
     if (newDate.dateDebut && newDate.dateFin && (newDate.description ?? '').trim() && editingDateId) {
       const updatedDates = dates.map(date =>
         date.id === editingDateId
-          ? { ...date, dateDebut: newDate.dateDebut, dateFin: newDate.dateFin, description: newDate.description, visible: newDate.visible }
+          ? { ...date, dateDebut: newDate.dateDebut, dateFin: newDate.dateFin, description: newDate.description, price: newDate.price, visible: newDate.visible }
           : date
       );
       onChange(updatedDates);
       setEditingDateId(null);
-      setNewDate({ dateDebut: undefined as unknown as Date, dateFin: undefined as unknown as Date, description: '', visible: true });
+      setNewDate({ dateDebut: undefined as unknown as Date, dateFin: undefined as unknown as Date, description: '', price: 0, visible: true });
     }
   };
 
   const handleCancelEdit = () => {
     setEditingDateId(null);
-    setNewDate({ dateDebut: undefined as unknown as Date, dateFin: undefined as unknown as Date, description: '', visible : true });
+    setNewDate({ dateDebut: undefined as unknown as Date, dateFin: undefined as unknown as Date, description: '', price:0, visible : true });
   };
 
 
@@ -109,6 +112,11 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
                     </div>
                   </div>
                   <p className="text-gray-600 text-sm leading-relaxed">{dateEntry.description}</p>
+                  {dateEntry.price !== undefined && (
+                    <p className="text-gray-600 text-sm mt-2">
+                      <strong>Prix :</strong> {dateEntry.price.toLocaleString('fr-FR', { style: 'currency', currency: 'MAD' })}
+                    </p>
+                  )}
                 </div>
                 <div className="flex items-center gap-1">
                     <div
@@ -204,6 +212,18 @@ const DateForm: React.FC<DateFormProps> = ({ dates, onChange }) => {
                   value={newDate.description}
                   onChange={(e) => setNewDate(prev => ({ ...prev, description: e.target.value }))}
                   className="w-full min-h-[100px] resize-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Prix (MAD) <span className="text-red-600">*</span>
+                </label>
+                <Input
+                  type="number"
+                  value={newDate.price ?? ''}
+                  onChange={(e) => setNewDate(prev => ({ ...prev, price: e.target.value ? Number(e.target.value) : 0 }))}
+                  className="w-full"
+                  min={0}
                 />
               </div>
 

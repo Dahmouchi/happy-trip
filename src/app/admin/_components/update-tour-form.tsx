@@ -205,6 +205,13 @@ const tourSchema = z.object({
         startDate: z.date({ required_error: "La date de début est requise" }),
         endDate: z.date({ required_error: "La date de fin est requise" }),
         description: z.string().optional(),
+        price: z
+          .preprocess(
+            (val) =>
+              val === "" ? undefined : typeof val === "string" ? Number(val) : val,
+            z.number({ required_error: "Le prix est requis" }).min(0, "Le prix doit être positif")
+          )
+          .optional(),
         visible: z.boolean().default(true),
       })
     )
@@ -405,7 +412,7 @@ export function UpdateTourForm({
             ? (prismaError as { message: string }).message
             : typeof prismaError === "string"
               ? prismaError
-              : "Erreur lors de la création du circuit"
+              : "Erreur lors de la modification du circuit"
       );
 
       if (
@@ -418,7 +425,7 @@ export function UpdateTourForm({
     }
   } catch (error) {
     console.error("Unexpected error submitting form:", error);
-    toast.error("Erreur inattendue lors de la création du circuit");
+    toast.error("Erreur inattendue lors de la modification du circuit");
   } finally {
     setIsSubmitting(false);
   }
@@ -1716,6 +1723,7 @@ export function UpdateTourForm({
                                   d.startDate ?? d.dateDebut ?? new Date(),
                                 dateFin: d.endDate ?? d.dateFin ?? new Date(),
                                 description: d.description ?? "",
+                                price: d.price ?? 0,
                                 visible: d.visible ?? true,
                               })
                             )}
@@ -1734,6 +1742,7 @@ export function UpdateTourForm({
                                       ? d.dateFin
                                       : new Date(d.dateFin),
                                   description: d.description,
+                                  price: d.price ?? 0,
                                   visible: d.visible,
                                 }))
                               )
