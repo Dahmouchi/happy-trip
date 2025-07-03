@@ -1052,7 +1052,7 @@ export function UpdateTourForm({
                             }}
                             dropzoneOptions={{
                               maxFiles: 1,
-                              maxSize: 10 * 1024 * 1024, // 10 MB
+                              maxSize: 20 * 1024 * 1024, // 10 MB
                               accept: {
                                 "image/*": [".jpg", ".jpeg", ".png", ".gif"],
                                 "application/pdf": [".pdf"],

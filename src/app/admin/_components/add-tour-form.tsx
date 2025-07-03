@@ -1041,7 +1041,7 @@ async function onSubmit(values: z.infer<typeof tourSchema>) {
                           onValueChange={setCardImage}
                           dropzoneOptions={{
                             maxFiles: 1,
-                            maxSize: 10 * 1024 * 1024,
+                            maxSize: 20 * 1024 * 1024,
                             accept: {
                               "image/*": [".jpg", ".jpeg", ".png", ".gif"],
                               "application/pdf": [".pdf"],
