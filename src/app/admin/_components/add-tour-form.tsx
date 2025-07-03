@@ -1244,7 +1244,7 @@ async function onSubmit(values: z.infer<typeof tourSchema>) {
               </div>
 
               {/* Hotels Information */}
-              {form.watch("type") === "INTERNATIONAL" && (
+              {/* {form.watch("type") === "INTERNATIONAL" && (
                 <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
                   <h3 className="text-lime-600 text-l font-medium">
                     <BedDouble className="inline mr-2" />
@@ -1334,8 +1334,9 @@ async function onSubmit(values: z.infer<typeof tourSchema>) {
                             <FormDescription>
                               Sélectionnez tous les hôtels associés à ce circuit
                             </FormDescription>
+                            */}
                             {/* Show selected hotels with their prices */}
-                            {Array.isArray(field.value) &&
+                            {/* {Array.isArray(field.value) &&
                               field.value.length > 0 && (
                                 <div className="mt-2 flex flex-wrap gap-2">
                                   {hotels
@@ -1364,7 +1365,7 @@ async function onSubmit(values: z.infer<typeof tourSchema>) {
                     </div>{" "}
                   </div>
                 </div>
-              )}
+              )} */} 
 
               {/* programms information */}
               <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
@@ -1928,9 +1929,9 @@ async function onSubmit(values: z.infer<typeof tourSchema>) {
               !form.watch("durationDays") ||
               !form.watch("durationNights") ||
               !form.watch("arrayInclus") ||
-              !form.watch("arrayExlus") ||
-              (form.watch("type") === "INTERNATIONAL" &&
-                form.watch("hotels")?.length === 0)
+              !form.watch("arrayExlus") 
+              // (form.watch("type") === "INTERNATIONAL" &&
+              //   form.watch("hotels")?.length === 0)
             }
           >
              {isSubmitting ? (
