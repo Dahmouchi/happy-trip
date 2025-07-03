@@ -168,16 +168,12 @@ export async function addTour(
   reservationFormFields: any[],
 ) {
   try {
-    // Validate the form data
     const validatedData = tourSchema.parse(formData);
-
-    console.log(validatedData);
-    // Create the tour in the database
 
     const tour = await prisma.tour.create({
       data: {
-        id: getCorrectId(validatedData.id), // Use the provided ID
-        active: validatedData.active, // Default to true if not provided
+        id: getCorrectId(validatedData.id),
+        active: validatedData.active,
         title: validatedData.title,
         reservationForm: {
           create: {
@@ -188,7 +184,9 @@ export async function addTour(
         type: validatedData.type as TravelType,
         priceOriginal: validatedData.priceOriginal,
         priceDiscounted:
-          validatedData.priceDiscounted === 0 || validatedData.priceDiscounted === undefined || validatedData.priceDiscounted === null
+          validatedData.priceDiscounted === 0 ||
+          validatedData.priceDiscounted === undefined ||
+          validatedData.priceDiscounted === null
             ? validatedData.priceOriginal
             : validatedData.priceDiscounted,
         discountEndDate: validatedData.discountEndDate
@@ -206,10 +204,10 @@ export async function addTour(
           : "",
         videoUrl: validatedData.videoUrl
           ? (await getYouTubeEmbedUrl(validatedData.videoUrl)) || ""
-          : "", // Convert YouTube URL to embed format
+          : "",
         imageUrl: validatedData.imageURL
           ? await uploadImage(validatedData.imageURL)
-          : "", // Upload image and get URL
+          : "",
         inclus: validatedData.inclus,
         exclus: validatedData.exclus,
         extracts: validatedData.extracts,
@@ -223,14 +221,13 @@ export async function addTour(
         discountPercent: validatedData.discountPercent,
         accommodationType: validatedData.accommodationType,
 
-        // Relations
         dates: validatedData.dates
           ? {
               create: validatedData.dates.map((dateObj) => ({
                 startDate: dateObj.startDate,
                 endDate: dateObj.endDate,
                 description: dateObj.description,
-                visible: dateObj.visible ?? true, // Default to true if not provided
+                visible: dateObj.visible ?? true,
               })),
             }
           : undefined,
@@ -246,16 +243,19 @@ export async function addTour(
               connect: validatedData.services.map((id) => ({ id })),
             }
           : undefined,
+
         destinations: validatedData.destinations
           ? {
               connect: validatedData.destinations.map((id) => ({ id })),
             }
           : undefined,
+
         categories: validatedData.categories
           ? {
               connect: validatedData.categories.map((id) => ({ id })),
             }
           : undefined,
+
         natures: validatedData.natures
           ? {
               connect: validatedData.natures.map((id) => ({ id })),
@@ -296,25 +296,25 @@ export async function addTour(
           : undefined,
       },
     });
-    return { success: true, data: tour };
-  } catch (error) {
-    console.error("Error adding tour:", error);
-    if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: "Validation error",
-        details: error.errors,
-      };
-    }
 
-    return {
-      success: false,
-      error: "Failed to add tour",
-    };
-  } finally {
-    await prisma.$disconnect();
-  }
+    return { success: true, data: tour };
+  }  catch (error) {
+  console.error("Prisma error:", error);
+
+  return {
+    success: false,
+    error: {
+      message: error instanceof Error ? error.message : "Unknown error",
+      code: (error as any).code ?? null,
+      meta: (error as any).meta ?? null,
+      stack: (error as any).stack ?? null,
+    },
+  };
 }
+
+}
+
+
 
 export async function getAllTours() {
   try {
