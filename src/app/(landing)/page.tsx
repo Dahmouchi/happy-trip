@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import Hero from "./_components/Hero";
 import { ToursDisplay } from "./_components/National";
@@ -10,7 +11,7 @@ import Trust from "./_components/Trust";
 import { Landing, Tour } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { endOfMonth, startOfMonth } from "date-fns";
-import MonthlyFeaturedTours from "./_components/thisMount";
+//import MonthlyFeaturedTours from "./_components/thisMount";
 
 const LandigPage = async () => {
   const now = new Date();
