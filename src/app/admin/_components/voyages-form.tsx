@@ -548,7 +548,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
       </div>
 
       <Tabs defaultValue="destinations" className="w-full">
-        <TabsList className="grid w-full h-fit lg:grid-cols-5 gap-4 mb-6 ">
+        <TabsList className="grid w-full h-fit lg:grid-cols-4 gap-4 mb-6 ">
           <TabsTrigger
             value="destinations"
             className={`flex items-center gap-2 ${typeof destinations === "undefined" ? " opacity-50 pointer-events-none" : ""}`}
@@ -579,14 +579,14 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
             <Tag className="h-4 w-4" />
             Services ({Array.isArray(services) ? services.length : 0})
           </TabsTrigger>
-          <TabsTrigger
+          {/* <TabsTrigger
             value="hotels"
             className={`flex items-center gap-2 ${typeof hotels === "undefined" ? " opacity-50 pointer-events-none" : ""}`}
             disabled={typeof hotels === "undefined"}
           >
             <BedDouble className="h-4 w-4" />
             Hotels ({Array.isArray(hotels) ? hotels.length : 0})
-          </TabsTrigger>
+          </TabsTrigger> */}
          
         </TabsList>
 
@@ -839,7 +839,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
 
 
       {/* Hotel Modal */}
-       <TabsContent value="hotels" className="space-y-6">
+       {/* <TabsContent value="hotels" className="space-y-6">
           <Card>
             <CardHeader className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2">
               <div>
@@ -895,7 +895,8 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
               </Table>
             </CardContent>
           </Card>
-        </TabsContent>
+        </TabsContent> */}
+
       </Tabs>
 
 
@@ -1220,7 +1221,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
 
 
            {/*    hotel modal */}
-        {showHotelModal && (
+        {/* {showHotelModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
             <CardHeader>
@@ -1282,7 +1283,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
             </CardContent>
           </Card>
         </div>
-        )}
+        )} */}
     </div>
 
 

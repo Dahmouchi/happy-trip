@@ -102,91 +102,91 @@ import ReservationFormBuilder from "./ReservationFormBuilder";
 import { useRouter } from "next/navigation";
 
 const tourSchema = z.object({
-  id: z.string(),
+  id: z.string({ required_error: "L'ID du circuit est requis" }),
   active: z.boolean().default(true),
-  title: z.string().min(1, "Le titre est requis"),
-  description: z.string().min(1, "La description est requise"),
-  type: z.enum(["NATIONAL", "INTERNATIONAL"]),
+  title: z.string({ required_error: "Le titre est requis" }).min(1, "Le titre est requis"),
+  description: z.string({ required_error: "La description est requise" }).min(1, "La description est requise"),
+  type: z.enum(["NATIONAL", "INTERNATIONAL"], { required_error: "Le type de circuit est requis" }),
   priceOriginal: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(0, "Le prix doit être positif")
+    z.number({ required_error: "Le prix original est requis" }).min(0, "Le prix doit être positif")
   ),
   priceDiscounted: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(0, "Le prix doit être positif").optional()
+    z.number({ invalid_type_error: "Le prix doit être un nombre" }).min(0, "Le prix doit être positif").optional()
   ),
   discountEndDate: z
-    .date()
+    .date({ invalid_type_error: "Date invalide" })
     .optional()
     .or(z.literal(""))
     .transform((val) => (val === "" ? undefined : val)),
   advancedPrice: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(0, "Le prix doit être positif").optional()
+    z.number({ invalid_type_error: "Le prix doit être un nombre" }).min(0, "Le prix doit être positif").optional()
   ),
-  dateCard: z.string(),
+  dateCard: z.string({ required_error: "La date du circuit est requise" }),
   durationDays: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(1, "Au moins 1 jour")
+    z.number({ required_error: "Le nombre de jours est requis" }).min(1, "Au moins 1 jour")
   ),
   durationNights: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(0, "Nuits >= 0")
+    z.number({ required_error: "Le nombre de nuits est requis" }).min(0, "Nuits >= 0")
   ),
   videoUrl: z
-    .string()
+    .string({ invalid_type_error: "Lien vidéo invalide" })
     .url("URL de la vidéo invalide")
     .optional()
     .or(z.literal("")),
   imageURL: z
-    .instanceof(File)
+    .instanceof(File, { message: "Le fichier image est requis" })
     .or(z.literal(""))
     .transform((val) => (val === "" ? undefined : val)),
   imageUrl: z
-    .string()
-    .url("URL de la vidéo invalide")
+    .string({ invalid_type_error: "Lien image invalide" })
+    .url("URL de l'image invalide")
     .optional()
     .or(z.literal("")),
-  groupType: z.string(),
+  groupType: z.string({ required_error: "Le type de groupe est requis" }),
   groupSizeMax: z.preprocess(
     (val) =>
       val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(1, "Taille min 1")
+    z.number({ required_error: "La taille du groupe est requise" }).min(1, "Taille min 1")
   ),
   showReviews: z.boolean().default(true),
   showDifficulty: z.boolean().default(true),
   showDiscount: z.boolean().default(true),
-  showHebergement : z.boolean().default(true),
+  showHebergement: z.boolean().default(true),
   difficultyLevel: z
-    .number()
-    .min(1)
-    .max(5)
+    .number({ required_error: "Le niveau de difficulté est requis" })
+    .min(1, "Le niveau de difficulté doit être au moins 1")
+    .max(5, "Le niveau de difficulté doit être au plus 5")
     .or(z.literal(""))
     .transform((val) => (val === "" ? undefined : val)),
   discountPercent: z
-    .number()
-    .min(0)
-    .max(100)
+    .number({ invalid_type_error: "Le pourcentage de réduction doit être un nombre" })
+    .min(0, "Le pourcentage de réduction doit être positif")
+    .max(100, "Le pourcentage de réduction doit être au plus 100")
     .optional()
     .or(z.literal(""))
     .transform((val) => (val === "" ? undefined : val)),
-  accommodationType: z.string(),
+  accommodationType: z.string({ required_error: "Le type d'hébergement est requis" }),
   googleMapsUrl: z
-    .string()
+    .string({ invalid_type_error: "Lien Google Maps invalide" })
     .url("Lien Google Maps invalide")
     .optional()
     .or(z.literal("")),
   programs: z
     .array(
       z.object({
-        title: z.string().min(1, "Titre requis"),
+        title: z.string({ required_error: "Le titre du programme est requis" }).min(1, "Titre requis"),
         orderIndex: z.number().optional(),
-        description: z.string(),
+        description: z.string({ required_error: "La description du programme est requise" }),
         image: z
           .union([z.instanceof(File), z.string(), z.null()])
           .optional()
@@ -202,8 +202,8 @@ const tourSchema = z.object({
   dates: z
     .array(
       z.object({
-        startDate: z.date(),
-        endDate: z.date(),
+        startDate: z.date({ required_error: "La date de début est requise" }),
+        endDate: z.date({ required_error: "La date de fin est requise" }),
         description: z.string().optional(),
         visible: z.boolean().default(true),
       })
@@ -223,16 +223,16 @@ const tourSchema = z.object({
     )
     .optional(),
 
-  destinations: z.array(z.string()),
-  categories: z.array(z.string()),
-  services: z.array(z.string()),
-  natures: z.array(z.string()),
-  hotels: z.array(z.string()).optional(),
+  destinations: z.array(z.string({ required_error: "La destination est requise" }), { required_error: "Au moins une destination est requise" }),
+  categories: z.array(z.string({ required_error: "La catégorie est requise" }), { required_error: "Au moins une catégorie est requise" }),
+  services: z.array(z.string({ required_error: "Le service est requis" }), { required_error: "Au moins un service est requis" }),
+  natures: z.array(z.string({ required_error: "La nature est requise" }), { required_error: "Au moins une nature est requise" }),
+  hotels: z.array(z.string({ required_error: "L'hôtel est requis" })).optional(),
   inclus: z.string().optional(),
   exclus: z.string().optional(),
   extracts: z.string().optional(),
-  arrayInclus: z.array(z.string()),
-  arrayExlus: z.array(z.string()),
+  arrayInclus: z.array(z.string({ required_error: "L'inclus est requis" }), { required_error: "Au moins un inclus est requis" }),
+  arrayExlus: z.array(z.string({ required_error: "L'exclus est requis" }), { required_error: "Au moins un exclus est requis" }),
   arrayExtras: z.array(z.string()).optional(),
 });
 
@@ -390,17 +390,35 @@ export function UpdateTourForm({
     const result = await updateTour(tourId, formData);
 
     if (result.success) {
-      toast.success("Le circuit a été modifié avec succès");
-      form.reset(); 
-      setCardImage([]); 
-      setGallery(null);  
+      toast.success("Circuit créé avec succès");
+      form.reset();
+      setCardImage([]);
+      setGallery(null);
+      window.location.reload();
     } else {
-      console.log(result.error);
-      toast.error("Erreur lors de la modification du circuit");
+      const prismaError = result.error;
+
+      toast.error(
+        typeof prismaError === "object" && prismaError !== null && "code" in prismaError
+          ? `Erreur Prisma (${prismaError.code}): ${prismaError.message}`
+          : typeof prismaError === "object" && prismaError !== null && "message" in prismaError
+            ? (prismaError as { message: string }).message
+            : typeof prismaError === "string"
+              ? prismaError
+              : "Erreur lors de la création du circuit"
+      );
+
+      if (
+        typeof prismaError === "object" &&
+        prismaError !== null &&
+        "meta" in prismaError
+      ) {
+        console.warn("Meta info:", (prismaError as { meta: any }).meta);
+      }
     }
   } catch (error) {
-    console.log(error);
-    toast.error("Erreur lors de la modification du circuit");
+    console.error("Unexpected error submitting form:", error);
+    toast.error("Erreur inattendue lors de la création du circuit");
   } finally {
     setIsSubmitting(false);
   }
@@ -1238,7 +1256,7 @@ export function UpdateTourForm({
                 </div>
 
                 {/* Hotels Information */}
-                {form.watch("type") === "INTERNATIONAL" && (
+                {/* {form.watch("type") === "INTERNATIONAL" && (
                   <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
                     <h3 className="text-lime-600 text-l font-medium">
                       <BedDouble className="inline mr-2" />
@@ -1349,9 +1367,9 @@ export function UpdateTourForm({
                                 <FormDescription>
                                   Sélectionnez tous les hôtels associés à ce
                                   circuit
-                                </FormDescription>
+                                </FormDescription> */}
                                 {/* Show selected hotels with their prices */}
-                                {selectedHotels.length > 0 && (
+                                {/* {selectedHotels.length > 0 && (
                                   <div className="mt-2 flex flex-wrap gap-2">
                                     {selectedHotels.map((hotel: any) => (
                                       <span
@@ -1376,7 +1394,7 @@ export function UpdateTourForm({
                       </div>
                     </div>
                   </div>
-                )}
+                )} */}
 
                 {/* programms information */}
                 <div className="space-y-4 p-6 rounded-lg shadow-lg border border-gray-200">
@@ -1902,21 +1920,21 @@ export function UpdateTourForm({
               type="submit"
               size="lg"
               className="bg-lime-600 text-white hover:bg-lime-700 hover:cursor-pointer mr-8"
-              disabled={
-                !form.watch("title") ||
-                !form.watch("description") ||
-                !form.watch("type") ||
-                !form.watch("groupType") ||
-                !form.watch("groupSizeMax") ||
-                !form.watch("priceOriginal") ||
-                !form.watch("dateCard") ||
-                !form.watch("durationDays") ||
-                !form.watch("durationNights") ||
-                !form.watch("arrayInclus") ||
-                !form.watch("arrayExlus") ||
-                (form.watch("type") === "INTERNATIONAL" &&
-                  form.watch("hotels")?.length === 0)
-              }
+              // disabled={
+              //   !form.watch("title") ||
+              //   !form.watch("description") ||
+              //   !form.watch("type") ||
+              //   !form.watch("groupType") ||
+              //   !form.watch("groupSizeMax") ||
+              //   !form.watch("priceOriginal") ||
+              //   !form.watch("dateCard") ||
+              //   !form.watch("durationDays") ||
+              //   !form.watch("durationNights") ||
+              //   !form.watch("arrayInclus") ||
+              //   !form.watch("arrayExlus") 
+              //   // (form.watch("type") === "INTERNATIONAL" &&
+              //   //   form.watch("hotels")?.length === 0)
+              // }
             >
                {isSubmitting ? (
                   <>

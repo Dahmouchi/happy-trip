@@ -553,16 +553,18 @@ export async function updateTour(tourId: string, formData: TourFormData) {
     }
 
     return { success: true, data: updatedTour };
-  } catch (error) {
-    console.error("Error updating tour:", error);
-    if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: "Validation error",
-        details: error.errors,
-      };
-    }
-    return { success: false, error: "Failed to update tour" };
+  }  catch (error) {
+    console.error("Prisma error:", error);
+
+    return {
+      success: false,
+      error: {
+        message: error instanceof Error ? error.message : "Unknown error",
+        code: (error as any).code ?? null,
+        meta: (error as any).meta ?? null,
+        stack: (error as any).stack ?? null,
+      },
+    };
   }
 }
 
