@@ -151,16 +151,17 @@ export type TourFormData = z.infer<typeof tourSchema>;
 
 function getCorrectId(id: string) {
   return id
-    .normalize("NFD") // Decompose accented letters
+    .normalize("NFD")
+    .replace(/œ/g, "oe") // Replace oe ligature
+    .replace(/æ/g, "ae") // Replace ae ligature
     .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
-    .replace(/[’‘]/g, "") // Remove curly apostrophes/quotes
-    .replace(/[–—]/g, "-") // Replace en-dash, em-dash with normal dash
-    .replace(/[.,;:!?"']/g, "") // Remove common punctuation
-    .replace(/\s+/g, "-") // Replace spaces with dashes
-    .toLowerCase()
-    .replace(/-+/g, "-") // Replace multiple dashes with single dash
-    .replace(/^-|-$/g, ""); // Remove leading/trailing dashes
+    .replace(/\s+/g, "-") // Optional: spaces to dashes
+    .replace(/[^a-zA-Z0-9-]/g, "") // Keep only allowed chars
+    .replace(/-+/g, "-") // Collapse multiple dashes
+    .replace(/^-|-$/g, "") // Trim leading/trailing dash
+    .toLowerCase();
 }
+
 
 
 export async function addTour(
@@ -327,7 +328,7 @@ export async function getAllTours() {
         images: true,
       },
       orderBy:{
-        updatedAt:"asc",
+        updatedAt:"desc",
       }
     });
     return { success: true, data: tours };

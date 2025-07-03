@@ -43,7 +43,7 @@ export function InternationalCard({tour}:{tour:TourWithReviews}) {
                 <div className="flex items-center mr-2">
                  <StarRatingDisplay averageRating={tour.averageRating ?? 0} />
                  <span className="text-gray-600 text-sm ml-1">
-                  ({tour.reviewCount ?? 0} {(tour.reviewCount ?? 0) === 1 ? "avis" : "avis"}) •{" "}
+                  ({tour.reviewCount ?? 0} {(tour.reviewCount ?? 0) === 1 ? "avis" : "avis"})
                 </span>
                 </div>
               </div>
