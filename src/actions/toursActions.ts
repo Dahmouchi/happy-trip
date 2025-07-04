@@ -2,15 +2,31 @@
 "use server";
 
 import { PrismaClient, type TravelType } from "@prisma/client";
-
 import { getEmbedGoogleMapsUrl } from "@/utils/getEmbedGoogleMapsUrl";
 import { getYouTubeEmbedUrl } from "@/utils/getYouTubeEmbedUrl";
-import { uploadImage } from "@/utils/uploadImage";
+import sharp from "sharp";
+import { getFileUrl, uploadFile } from "@/lib/cloudeFlare";
 
+async function uploadImage(imageURL: File): Promise<string> {
+  const image = imageURL;
+  const quality = 80;
+
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const filename = `${timestamp}-${image.name}`;
+
+  const arrayBuffer = await image.arrayBuffer();
+  const compressedBuffer = await sharp(arrayBuffer)
+    .resize(1200)
+    .jpeg({ quality })
+    .toBuffer();
+
+  const fileContent = Buffer.from(compressedBuffer);
+  await uploadFile(fileContent, filename, image.type);
+
+  return getFileUrl(filename);
+}
 
 const prisma = new PrismaClient();
-
-// Schema for validating tour data
 
 function getCorrectId(id: string) {
   return id
@@ -25,11 +41,10 @@ function getCorrectId(id: string) {
     .toLowerCase();
 }
 
-
-
 export async function addTour(
   formData: any,
   reservationFormFields: any[],
+  
 ) {
   try {
     const validatedData = formData;
