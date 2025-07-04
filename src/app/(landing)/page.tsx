@@ -11,7 +11,7 @@ import Trust from "./_components/Trust";
 import { Landing, Tour } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { endOfMonth, startOfMonth } from "date-fns";
-//import MonthlyFeaturedTours from "./_components/thisMount";
+import MonthlyFeaturedTours from "./_components/thisMount";
 
 const LandigPage = async () => {
   const now = new Date();
@@ -69,12 +69,12 @@ const lastDay = endOfMonth(now);
             <h1 className="text-white text-xs lg:text-lg text-center">
               Nos packs SUMMER 2025 sont disponibles Dés Maintenant!
             </h1>
-          </div>(sections?.thisMount ?? true) &&  <MonthlyFeaturedTours tours={tourForThisMount} />
+          </div>
         </div>
       } */}
       {(sections?.hero ?? true) && <Hero inp={sections} />}
       
-     
+     {(sections?.thisMount ?? true) &&  <MonthlyFeaturedTours tours={tourForThisMount} />}
       {(sections?.national ?? true) && <ToursDisplay
                 tours={tourNational} 
                 displayMode={"carousel"}
