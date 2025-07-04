@@ -80,32 +80,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
         ) / reviewCount
       : 0;
 
-  // const sampleTestimonials = [
-  //   {
-  //     title: "Great Work",
-  //     rating: 5,
-  //     text: "I think Educrat is the best theme I ever seen this year. Amazing design, easy to customize and a design quality superlative account on its cloud platform for the optimized performance",
-  //     name: "Courtney Henry",
-  //     role: "Web Designer",
-  //     avatarUrl: "/home/ubuntu/upload/image.png", // Replace with actual avatar path
-  //   },
-  //   {
-  //     title: "Excellent Support",
-  //     rating: 5,
-  //     text: "The support team was incredibly helpful and responsive. They solved my issue within minutes! Highly recommend.",
-  //     name: "John Doe",
-  //     role: "Developer",
-  //     avatarUrl: "/home/ubuntu/upload/image.png", // Replace with actual avatar path
-  //   },
-  //   {
-  //     title: "Feature Rich",
-  //     rating: 4,
-  //     text: "Packed with features and very flexible. Took a little time to learn everything, but worth it.",
-  //     name: "Jane Smith",
-  //     role: "Project Manager",
-  //     avatarUrl: "/home/ubuntu/upload/image.png", // Replace with actual avatar path
-  //   },
-  // ];
+  
 
   const reviews =
     tour.reviews?.map((review: Review) => ({

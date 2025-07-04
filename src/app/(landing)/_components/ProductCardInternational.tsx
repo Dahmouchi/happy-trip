@@ -2,7 +2,6 @@
 "use client"
 import { Tour } from "@prisma/client";
 import { CalendarDays, Eye } from "lucide-react";
-import { redirect } from "next/navigation";
 import React from "react";
 import DiscountBadge from "./DiscountBadge";
 import { Rating } from "react-simple-star-rating";
@@ -88,7 +87,7 @@ export function InternationalCard({tour}:{tour:TourWithReviews}) {
 
         {/* Program Rating */}
         <div className="flex justify-between items-center w-full gap-2">
-          <div onClick={()=>redirect(`/voyage/${tour?.id}`)} className="bg-[#8EBD22] carddd rounded-lg cursor-pointer shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)] flex itce justify-between px-4 py-3 w-full text-white">
+          <div onClick={()=> window.location.href = `/voyage/${tour?.id}`} className="bg-[#8EBD22] carddd rounded-lg cursor-pointer shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)] flex itce justify-between px-4 py-3 w-full text-white">
             <Eye className="w-6 h-6" />
             <span className="text-white w-full text-center">Programme</span>
           </div>

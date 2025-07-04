@@ -6,7 +6,6 @@ import React from "react";
 import { CalendarDays, Eye } from "lucide-react";
 import { motion } from "framer-motion";
 import { Rating } from "react-simple-star-rating";
-import { redirect } from "next/navigation";
 import { Review } from "@prisma/client";
 
 const ModernTravelCard = ({ tour }: any) => {
@@ -174,7 +173,7 @@ const ModernTravelCard = ({ tour }: any) => {
         <div className="">
           <div className="flex justify-between items-center w-full gap-2">
             <div
-              onClick={() => redirect(`/voyage/${tour?.id}`)}
+              onClick={() => window.location.href = `/voyage/${tour?.id}`}
               className="bg-[#8EBD22] carddd rounded-lg cursor-pointer shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)] flex items-center justify-between px-4 py-3 w-full text-white hover:bg-[#7DA91D] transition-colors"
             >
               <Eye className="w-6 h-6" />
