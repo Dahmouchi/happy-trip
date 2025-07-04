@@ -116,7 +116,15 @@ const tourSchema = z.object({
         startDate: z.date(),
         endDate: z.date(),
         description: z.string().optional(),
+        price: z
+          .preprocess(
+            (val) =>
+              val === "" ? undefined : typeof val === "string" ? Number(val) : val,
+            z.number().min(0, "Le prix doit être positif")
+          )
+          .optional(),
         visible: z.boolean().default(true),
+
       })
     )
     .optional(),
@@ -228,6 +236,7 @@ export async function addTour(
                 startDate: dateObj.startDate,
                 endDate: dateObj.endDate,
                 description: dateObj.description,
+                price: dateObj.price ?? 0,
                 visible: dateObj.visible ?? true,
               })),
             }
@@ -496,6 +505,7 @@ export async function updateTour(tourId: string, formData: TourFormData) {
                 startDate: d.startDate,
                 endDate: d.endDate,
                 description: d.description,
+                price: d.price ?? 0,
                 visible: d.visible ?? true, // Default to true if not provided
               })),
             }

@@ -203,6 +203,13 @@ const tourSchema = z.object({
         startDate: z.date({ required_error: "Date de début requise" }),
         endDate: z.date({ required_error: "Date de fin requise" }),
         description: z.string().optional(),
+        price: z
+          .preprocess(
+            (val) =>
+              val === "" ? undefined : typeof val === "string" ? Number(val) : val,
+            z.number().min(0, "Le prix doit être positif")
+          )
+          .optional(),
         visible: z.boolean().default(true),
       })
     )
@@ -1679,6 +1686,7 @@ async function onSubmit(values: z.infer<typeof tourSchema>) {
                                 d.startDate ?? d.dateDebut ?? new Date(),
                               dateFin: d.endDate ?? d.dateFin ?? new Date(),
                               description: d.description ?? "",
+                              price: d.price ?? 0,
                               visible: d.visible ?? true,
                             })
                           )}
@@ -1697,6 +1705,7 @@ async function onSubmit(values: z.infer<typeof tourSchema>) {
                                     ? d.dateFin
                                     : new Date(d.dateFin),
                                 description: d.description,
+                                price: d.price,
                                 visible: d.visible,
                               }))
                             )

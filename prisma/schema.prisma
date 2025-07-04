@@ -237,6 +237,7 @@ model TourDate {
   startDate       DateTime?
   endDate         DateTime?
   description     String?
+  price            Float?
   visible         Boolean        @default(true)
   tour            Tour           @relation(fields: [tourId], references: [id])
   reservationForm Reservations[]
