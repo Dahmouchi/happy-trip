@@ -40,7 +40,7 @@ export function ReviewCard({
           <p className="text-blue-600 text-sm mt-1">Google</p>          
         </div>
 
-        <div className="pt-2 w-ful rounded-xl bg-center bg-cover h-[30vh]" style={{backgroundImage:`url(${image})`}}>
+        <div className="pt-2 w-ful rounded-xl bg-center bg-cover h-[30vh]" style={{backgroundImage:`url("${image}")`}}>
            
         </div>
       </CardContent>

@@ -40,7 +40,8 @@ const ModernTravelCard = ({ tour }: any) => {
         <motion.div
           className="absolute inset-0 bg-cover bg-center w-full h-full transition-transform duration-700"
           style={{
-            backgroundImage: `url(${tour?.imageUrl || "/images/product.jpg"})`,
+
+            backgroundImage: `url("${tour?.imageUrl || "/images/product.jpg"}")`,
           }}
           whileHover={{ scale: 1.05 }}
         />

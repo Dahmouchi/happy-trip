@@ -29,7 +29,7 @@ export function InternationalCard({tour}:{tour:TourWithReviews}) {
         <div
           className="absolute inset-0 bg-cover bg-center transition-transform duration-500 "
           style={{
-            backgroundImage: `url(${tour?.imageUrl || "/images/product.jpg"})`,
+            backgroundImage: `url("${tour?.imageUrl || "/images/product.jpg"}")`,
           }}
         >
 
