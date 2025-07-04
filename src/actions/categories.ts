@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use server"
 
 import prisma from "@/lib/prisma"
@@ -23,7 +24,7 @@ export async function createCategory(formData: FormData) {
     const fileContent = Buffer.from(test);
 
     const uploadResponse = await uploadFile(fileContent, filename, image.type);
-    const imageUrl = getFileUrl(uploadResponse.Key); // Assuming Key contains the file name
+    const imageUrl = getFileUrl(filename); // Assuming Key contains the file name
 
     const category = await prisma.category.create({
       data: {
@@ -61,7 +62,7 @@ export async function updateCategory(id: string, formData: FormData) {
       const fileContent = Buffer.from(test);
 
       const uploadResponse = await uploadFile(fileContent, filename, image.type);
-      imageUrl = getFileUrl(uploadResponse.Key); // Assuming Key contains the file name
+      imageUrl = getFileUrl(filename); // Assuming Key contains the file name
     }
 
     const category = await prisma.category.update({

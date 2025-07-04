@@ -25,8 +25,8 @@ export async function createBlog(formData: FormData) {
 
     const fileContent = Buffer.from(test);
 
-    const uploadResponse = await uploadFile(fileContent, filename, image.type);
-    const imageUrl = getFileUrl(uploadResponse.Key); // Assuming Key contains the file name
+    await uploadFile(fileContent, filename, image.type);
+    const imageUrl = getFileUrl(filename); // Assuming Key contains the file name
 
     const blog = await prisma.blog.create({
       data: {
@@ -74,8 +74,8 @@ export async function updateBlog(id: string, formData: FormData) {
         .jpeg({ quality })
         .toBuffer();
 
-      const uploadResponse = await uploadFile(optimizedImage, filename, imageFile.type);
-      imageUrl = getFileUrl(uploadResponse.Key);
+      await uploadFile(optimizedImage, filename, imageFile.type);
+      imageUrl = getFileUrl(filename);
 
       // TODO: Add logic to delete old image if needed
     }

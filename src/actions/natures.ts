@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use server"
 
 import prisma from "@/lib/prisma"
@@ -23,7 +24,7 @@ export async function createNature(formData: FormData) {
         const fileContent = Buffer.from(test);
     
         const uploadResponse = await uploadFile(fileContent, filename, image.type);
-        const imageUrl = getFileUrl(uploadResponse.Key); // Assuming Key contains the file name
+        const imageUrl = getFileUrl(filename); // Assuming Key contains the file name
     
     const nature = await prisma.nature.create({
       data: {
@@ -62,7 +63,7 @@ export async function updateNature(id: string, formData: FormData) {
       const fileContent = Buffer.from(test);
 
       const uploadResponse = await uploadFile(fileContent, filename, image.type);
-      imageUrl = getFileUrl(uploadResponse.Key); // Assuming Key contains the file name
+      imageUrl = getFileUrl(filename); // Assuming Key contains the file name
     }
 
     const nature = await prisma.nature.update({

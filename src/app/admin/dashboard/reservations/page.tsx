@@ -9,15 +9,13 @@ import { toast } from 'react-toastify';
 import { reservationColumns } from './reservation-columns';
 import { GetAllReservations } from '@/actions/reservationsActions';
 import { DataTable } from './reservations-data-table';
-import { DateTime } from 'aws-sdk/clients/devicefarm';
-import { Float } from 'aws-sdk/clients/batch';
 import { hasUncaughtExceptionCaptureCallback } from 'process';
 
 type ReservationData = Reservation & {
     tourTitle: string;
     hotel:Hotel;
     travelDate:TourDate;
-    createdAt: DateTime;
+    createdAt: Date;
 };
 
 export default function ReservationsPage() {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
@@ -30,8 +31,7 @@ import {
   Tour,
   TourDate,
 } from "@prisma/client";
-import { DateTime } from "aws-sdk/clients/devicefarm";
-import { Float } from "aws-sdk/clients/batch";
+
 import { ReservationDetails } from "./reservation-details-form";
 import TourDetails from "@/app/(landing)/_components/ProductDetails";
 import { ReservationEditForm } from "./reservation-edit-form";
@@ -42,7 +42,7 @@ type ReservationData = Reservation & {
   hotel: Hotel;
   tour: Tour;
   travelDate: TourDate;
-  createdAt: DateTime;
+  createdAt: Date;
 };
 
 export const reservationColumns = ({
@@ -85,8 +85,8 @@ export const reservationColumns = ({
     header: "Date de voyage",
     cell: ({ row }) => {
       const travelDate = row.original.travelDate as {
-        startDate?: DateTime;
-        endDate?: DateTime;
+        startDate?: Date;
+        endDate?: Date;
       };
       if (travelDate?.startDate && travelDate?.endDate) {
         return (
@@ -103,7 +103,7 @@ export const reservationColumns = ({
     accessorKey: "finalPrice",
     header: "Prix total",
     cell: ({ row }) => {
-      const totalPrice = row.getValue("finalPrice") as Float;
+      const totalPrice = row.getValue("finalPrice") as any;
       return (
         <span className="px-2 py-0.5 rounded bg-green-100 text-green-800 text-xs font-semibold">
           {totalPrice.toLocaleString("fr-FR", {
