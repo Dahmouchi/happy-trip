@@ -225,3 +225,8 @@
     rgba(0, 0, 0, 0.12) 0px 40px 20px; /* Enhanced shadow on hover */
 }
 
+.accordion-content {
+  overflow-anchor: none; /* Prevents scroll position from being maintained */
+  max-height: 60vh; /* Or whatever height works for you */
+  overflow-y: auto;
+}
