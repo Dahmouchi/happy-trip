@@ -929,7 +929,7 @@ const TourDetails = ({ tour }: { tour: any }) => {
               </div>
               <div className="text-sm font-bold text-gray-800">
                 <span className="md:hidden font-semibold">Prix: </span>
-                {tour.priceDiscounted} DH
+                {item.price !== 0 ? item.price : tour.priceDiscounted}DH
               </div>
               <div className="mt-2 md:mt-0">
                 <button

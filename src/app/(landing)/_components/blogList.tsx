@@ -79,13 +79,13 @@ const BlogCard = ({ blog }: any) => {
             </div>
           </div>
 
-          <Link
+            <Link
             href={`/blogs/${blog.id}`}
             className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center transition-colors"
-          >
-            Read More
+            >
+            Lire la suite
             <ArrowRight className="ml-1 h-4 w-4" />
-          </Link>
+            </Link>
         </div>
       </div>
     </motion.div>
@@ -97,25 +97,25 @@ const SearchBar = ({ searchQuery, setSearchQuery }: any) => {
   return (
     <div className="relative ">
       <input
-        type="text"
-        placeholder="Search articles..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className="w-full px-4 py-3 pl-10 rounded-lg border bg-white border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
+      type="text"
+      placeholder="Rechercher des articles..."
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      className="w-full px-4 py-3 pl-10 rounded-lg border bg-white border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
       />
       <svg
-        className="absolute left-3 top-3.5 h-5 w-5 text-gray-400"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
+      className="absolute left-3 top-3.5 h-5 w-5 text-gray-400"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
       >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-        />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+      />
       </svg>
     </div>
   );
@@ -127,16 +127,16 @@ const Newsletter = () => {
     <div className="bg-blue-50 rounded-xl p-6 md:p-8 my-12">
       <div className="text-center mb-6">
         <h3 className="text-2xl font-bold text-gray-800 mb-2">
-          Subscribe to our newsletter
+          Abonnez-vous à notre newsletter
         </h3>
         <p className="text-gray-600">
-          Get the latest articles and news delivered to your inbox
+          Recevez les derniers articles et actualités directement dans votre boîte mail
         </p>
       </div>
       <form className="flex flex-col md:flex-row gap-3">
         <input
           type="email"
-          placeholder="Your email address"
+          placeholder="Votre adresse e-mail"
           className="flex-grow px-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           required
         />
@@ -144,7 +144,7 @@ const Newsletter = () => {
           type="submit"
           className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg transition-colors"
         >
-          Subscribe
+          S&apos;abonner
         </button>
       </form>
     </div>
@@ -210,25 +210,24 @@ const BlogPage = ({ blogs: initialBlogs }: any) => {
           {/* Load More Button */}
           {hasMore && (
             <div className="text-center mt-12">
-              <button
+                <button
                 onClick={loadMore}
                 className="bg-white hover:bg-gray-50 text-blue-600 font-medium px-6 py-3 rounded-lg border border-blue-200 shadow-sm transition-colors"
-              >
-                Load More Articles
-              </button>
+                >
+                Charger plus d&apos;articles
+                </button>
             </div>
           )}
 
           {/* No Results Message */}
           {filteredBlogs.length === 0 && (
             <div className="text-center py-12">
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                No articles found
-              </h3>
-              <p className="text-gray-500">
-                Try adjusting your search or filter to find what you&apos;re
-                looking for.
-              </p>
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                Aucun article trouvé
+                </h3>
+                <p className="text-gray-500">
+                Essayez de modifier votre recherche ou vos filtres pour trouver ce que vous cherchez.
+                </p>
             </div>
           )}
 

@@ -19,14 +19,13 @@ const BlogDetails = async ({ params }: { params: Promise<{ id: string }> }) => {
   return (
     <div>
       <HeroSub
-        title={`Our Blog`}
-        description={`Discover the latest insights, tips, and news from our team of experts`}
-        breadcrumbLinks={breadcrumbLinks}
+      title="Notre Blog"
+      description="Découvrez les dernières actualités, conseils et nouveautés de notre équipe d'experts"
+      breadcrumbLinks={breadcrumbLinks}
       />
-       <BlogDetailPage
-       blog={blog} 
-       
-     />
+      <BlogDetailPage
+      blog={blog}
+      />
     </div>
   );
 };
