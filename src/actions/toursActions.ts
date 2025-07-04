@@ -577,6 +577,7 @@ function getCorrectId(id: string) {
     .toLowerCase();
 }
 
+
 export async function addTour(
   formData: any,
   reservationFormFields: any[],
