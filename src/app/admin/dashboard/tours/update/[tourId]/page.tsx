@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { getTourById } from "@/actions/toursActions";
 import { UpdateTourForm } from "@/app/admin/_components/update-tour-form";
@@ -8,8 +7,14 @@ import { getNatures } from "@/actions/natures";
 import { getServices } from "@/actions/services";
 import { getHotels } from "@/actions/hotelsActions";
 
-export default async function UpdateTourPage(params:any) {
-  const result = await getTourById(params.params.tourId);
+export default async function UpdateTourPage({
+  params,
+}: {
+  params: Promise<{ tourId: string }>;
+}) {
+  // ⚠️ Await params before destructuring
+  const { tourId } = await params;
+  const result = await getTourById(tourId);
   const nationalDestinations = await getNationalDestinations();
   const internationalDestinations = await getInternationalDestinations();
   const categories = await getCategories();
@@ -28,7 +33,7 @@ export default async function UpdateTourPage(params:any) {
 
   return (
     <div>
-      <UpdateTourForm initialData={tour} nationalDestinations={nationalDestinations} internationalDestinations={internationalDestinations} categories={categories} natures={natures} services={services} hotels={hotels} tourId={params.params.tourId} ></UpdateTourForm>
+      <UpdateTourForm initialData={tour} nationalDestinations={nationalDestinations} internationalDestinations={internationalDestinations} categories={categories} natures={natures} services={services} hotels={hotels} tourId={tourId} ></UpdateTourForm>
     </div>
   );
 }
