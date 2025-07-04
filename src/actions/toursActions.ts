@@ -2,7 +2,6 @@
 "use server";
 
 import { PrismaClient, type TravelType } from "@prisma/client";
-import { z } from "zod";
 
 import { getEmbedGoogleMapsUrl } from "@/utils/getEmbedGoogleMapsUrl";
 import { getYouTubeEmbedUrl } from "@/utils/getYouTubeEmbedUrl";
@@ -12,150 +11,6 @@ import { uploadImage } from "@/utils/uploadImage";
 const prisma = new PrismaClient();
 
 // Schema for validating tour data
-
-const tourSchema = z.object({
-  id: z.string(),
-  active: z.boolean().default(true),
-  title: z.string().min(1, "Le titre est requis"),
-  description: z.string().min(1, "La description est requise"),
-  type: z.enum(["NATIONAL", "INTERNATIONAL"]),
-  priceOriginal: z.preprocess(
-    (val) =>
-      val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(0, "Le prix doit être positif")
-  ),
-  priceDiscounted: z.preprocess(
-    (val) =>
-      val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(0, "Le prix doit être positif").optional()
-  ),
-  discountEndDate: z
-    .date()
-    .optional()
-    .or(z.literal(""))
-    .transform((val) => (val === "" ? undefined : val)),
-  advancedPrice: z.preprocess(
-    (val) =>
-      val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(0, "Le prix doit être positif").optional()
-  ),
-  dateCard: z.string(),
-  durationDays: z.preprocess(
-    (val) =>
-      val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(1, "Au moins 1 jour")
-  ),
-  durationNights: z.preprocess(
-    (val) =>
-      val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(0, "Nuits >= 0")
-  ),
-  videoUrl: z
-    .string()
-    .url("URL de la vidéo invalide")
-    .optional()
-    .or(z.literal("")),
-  imageURL: z
-    .instanceof(File)
-    .or(z.literal(""))
-    .transform((val) => (val === "" ? undefined : val)),
-  imageUrl: z.string()
-    .url("URL de la vidéo invalide")
-    .optional()
-    .or(z.literal("")),
-  groupType: z.string(),
-  groupSizeMax: z.preprocess(
-    (val) =>
-      val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-    z.number().min(1, "Taille min 1")
-  ),
-  showReviews: z.boolean().default(true),
-  showDifficulty: z.boolean().default(true),
-  showDiscount: z.boolean().default(true),
-  showHebergement: z.boolean().default(true),
-  difficultyLevel: z
-    .number()
-    .min(1)
-    .max(5)
-    .or(z.literal(""))
-    .transform((val) => (val === "" ? undefined : val)),
-  discountPercent: z
-    .number()
-    .min(0)
-    .max(100)
-    .optional()
-    .or(z.literal(""))
-    .transform((val) => (val === "" ? undefined : val)),
-  accommodationType: z.string(),
-  googleMapsUrl: z
-    .string()
-    .url("Lien Google Maps invalide")
-    .optional()
-    .or(z.literal("")),
-  programs: z
-    .array(
-      z.object({
-        title: z.string().min(1, "Titre requis"),
-        orderIndex: z.number().optional(),
-        description: z.string(),
-        image: z
-          .union([z.instanceof(File), z.string(), z.null()])
-          .optional()
-          .transform((val) => {
-            if (val === "" || val === undefined || val === null)
-              return undefined;
-            return val;
-          }),
-      })
-    )
-    .optional(),
-
-  dates: z
-    .array(
-      z.object({
-        startDate: z.date(),
-        endDate: z.date(),
-        description: z.string().optional(),
-        price: z
-          .preprocess(
-            (val) =>
-              val === "" ? undefined : typeof val === "string" ? Number(val) : val,
-            z.number().min(0, "Le prix doit être positif")
-          )
-          .optional(),
-        visible: z.boolean().default(true),
-
-      })
-    )
-    .optional(),
-  images: z
-    .array(
-      z.object({
-        link: z
-          .union([z.instanceof(File), z.string(), z.any()])
-          .optional()
-          .transform((val) => {
-            if (!val || val === "") return undefined;
-            return val;
-          }),
-      })
-    )
-    .optional(),
-
-  destinations: z.array(z.string()),
-  categories: z.array(z.string()),
-  services: z.array(z.string()),
-  natures: z.array(z.string()),
-  hotels: z.array(z.string()).optional(),
-  inclus: z.string().optional(),
-  exclus: z.string().optional(),
-  extracts: z.string().optional(),
-  arrayInclus: z.array(z.string()),
-  arrayExlus: z.array(z.string()),
-  arrayExtracts: z.array(z.string()).optional(),
-});
-
-export type TourFormData = z.infer<typeof tourSchema>;
 
 function getCorrectId(id: string) {
   return id
@@ -173,11 +28,11 @@ function getCorrectId(id: string) {
 
 
 export async function addTour(
-  formData: TourFormData,
+  formData: any,
   reservationFormFields: any[],
 ) {
   try {
-    const validatedData = tourSchema.parse(formData);
+    const validatedData = formData;
 
     const tour = await prisma.tour.create({
       data: {
@@ -206,8 +61,8 @@ export async function addTour(
             ? validatedData.priceOriginal
             : validatedData.advancedPrice || validatedData.priceOriginal,
         dateCard: validatedData.dateCard,
-        durationDays: validatedData.durationDays,
-        durationNights: validatedData.durationNights,
+        durationDays: parseInt(validatedData.durationDays),
+        durationNights: parseInt(validatedData.durationNights),
         googleMapsUrl: validatedData.googleMapsUrl
           ? (await getEmbedGoogleMapsUrl(validatedData.googleMapsUrl)) ?? ""
           : "",
@@ -221,7 +76,7 @@ export async function addTour(
         exclus: validatedData.exclus,
         extracts: validatedData.extracts,
         groupType: validatedData.groupType,
-        groupSizeMax: validatedData.groupSizeMax,
+        groupSizeMax: parseInt(validatedData.groupSizeMax),
         showReviews: validatedData.showReviews,
         showHebergement: validatedData.showHebergement,
         showDifficulty: validatedData.showDifficulty,
@@ -232,7 +87,7 @@ export async function addTour(
 
         dates: validatedData.dates
           ? {
-              create: validatedData.dates.map((dateObj) => ({
+              create: validatedData.dates.map((dateObj:any) => ({
                 startDate: dateObj.startDate,
                 endDate: dateObj.endDate,
                 description: dateObj.description,
@@ -244,38 +99,38 @@ export async function addTour(
 
         hotels: validatedData.hotels
           ? {
-              connect: validatedData.hotels.map((id) => ({ id })),
+              connect: validatedData.hotels.map((id:any) => ({ id })),
             }
           : undefined,
 
         services: validatedData.services
           ? {
-              connect: validatedData.services.map((id) => ({ id })),
+              connect: validatedData.services.map((id:any) => ({ id })),
             }
           : undefined,
 
         destinations: validatedData.destinations
           ? {
-              connect: validatedData.destinations.map((id) => ({ id })),
+              connect: validatedData.destinations.map((id:any) => ({ id })),
             }
           : undefined,
 
         categories: validatedData.categories
           ? {
-              connect: validatedData.categories.map((id) => ({ id })),
+              connect: validatedData.categories.map((id:any) => ({ id })),
             }
           : undefined,
 
         natures: validatedData.natures
           ? {
-              connect: validatedData.natures.map((id) => ({ id })),
+              connect: validatedData.natures.map((id:any) => ({ id })),
             }
           : undefined,
 
         images: validatedData.images
           ? {
               create: await Promise.all(
-                validatedData.images.map(async (image) => ({
+                validatedData.images.map(async (image:any) => ({
                   url: image.link ? await uploadImage(image.link) : "",
                 }))
               ),
@@ -285,7 +140,7 @@ export async function addTour(
         programs: validatedData.programs
           ? {
               create: await Promise.all(
-                validatedData.programs.map(async (program) => {
+                validatedData.programs.map(async (program:any) => {
                   let imageUrl = "";
 
                   if (program.image instanceof File) {
@@ -406,7 +261,7 @@ export async function getTourById(tourId: string) {
   }
 }
 
-export async function updateTour(tourId: string, formData: TourFormData) {
+export async function updateTour(tourId: string, formData: any) {
   // console.log("prodrams", formData.programs);
   if (!tourId) {
     return { success: false, error: "Tour ID is required" };
@@ -422,13 +277,13 @@ export async function updateTour(tourId: string, formData: TourFormData) {
       return { success: false, error: "Tour not found" };
     }
 
-    const validatedData = tourSchema.parse(formData);
+    const validatedData = formData;
 
     let newImages: { url: string }[] | undefined;
 
     if (validatedData.images && validatedData.images.length > 0) {
       newImages = await Promise.all(
-        validatedData.images.map(async (image) => ({
+        validatedData.images.map(async (image:any) => ({
           url: image.link ? await uploadImage(image.link) : "",
         }))
       );
@@ -474,8 +329,8 @@ export async function updateTour(tourId: string, formData: TourFormData) {
             ? validatedData.priceOriginal
             : validatedData.advancedPrice || validatedData.priceOriginal,
         dateCard: validatedData.dateCard,
-        durationDays: validatedData.durationDays,
-        durationNights: validatedData.durationNights,
+        durationDays:  parseInt(validatedData.durationDays),
+        durationNights:  parseInt(validatedData.durationNights),
         googleMapsUrl: validatedData.googleMapsUrl
           ? (await getEmbedGoogleMapsUrl(validatedData.googleMapsUrl)) ?? ""
           : "",
@@ -487,7 +342,7 @@ export async function updateTour(tourId: string, formData: TourFormData) {
         exclus: validatedData.exclus,
         extracts: validatedData.extracts,
         groupType: validatedData.groupType,
-        groupSizeMax: validatedData.groupSizeMax,
+        groupSizeMax:  parseInt(validatedData.groupSizeMax),
         showReviews: validatedData.showReviews,
         showHebergement: validatedData.showHebergement,
         showDifficulty: validatedData.showDifficulty,
@@ -501,7 +356,7 @@ export async function updateTour(tourId: string, formData: TourFormData) {
               deleteMany: {
                 id: { in: deletableDateIds },
               },
-              create: validatedData.dates.map((d) => ({
+              create: validatedData.dates.map((d:any) => ({
                 startDate: d.startDate,
                 endDate: d.endDate,
                 description: d.description,
@@ -514,35 +369,35 @@ export async function updateTour(tourId: string, formData: TourFormData) {
         destinations: validatedData.destinations
           ? {
               set: [],
-              connect: validatedData.destinations.map((id) => ({ id })),
+              connect: validatedData.destinations.map((id:any) => ({ id })),
             }
           : undefined,
 
         categories: validatedData.categories
           ? {
               set: [],
-              connect: validatedData.categories.map((id) => ({ id })),
+              connect: validatedData.categories.map((id:any) => ({ id })),
             }
           : undefined,
 
         natures: validatedData.natures
           ? {
               set: [],
-              connect: validatedData.natures.map((id) => ({ id })),
+              connect: validatedData.natures.map((id:any) => ({ id })),
             }
           : undefined,
 
         services: validatedData.services
           ? {
               set: [],
-              connect: validatedData.services.map((id) => ({ id })),
+              connect: validatedData.services.map((id:any) => ({ id })),
             }
           : undefined,
 
         hotels: validatedData.hotels
           ? {
               set: [],
-              connect: validatedData.hotels.map((id) => ({ id })),
+              connect: validatedData.hotels.map((id:any) => ({ id })),
             }
           : undefined,
 
@@ -556,7 +411,7 @@ export async function updateTour(tourId: string, formData: TourFormData) {
     });
 
     if (validatedData.programs) {
-      const normalizedPrograms = validatedData.programs.map((program) => ({
+      const normalizedPrograms = validatedData.programs.map((program:any) => ({
         ...program,
         image: program.image === undefined ? null : program.image,
       }));
