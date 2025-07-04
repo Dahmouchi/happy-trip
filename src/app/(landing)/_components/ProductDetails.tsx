@@ -572,39 +572,35 @@ const TourDetails = ({ tour }: { tour: any }) => {
             <div className="mt-8">
               <h1 className="text-2xl font-bold">Programme : </h1>
             </div>
-            <Accordion
-              type="single"
-              collapsible
-              className="space-y-3"
-              defaultValue={tour.programs[0]?.id}
-            >
-              {tour.programs.map((prog: Program) => (
-                <AccordionItem value={prog.id} key={prog.id}>
-                  <AccordionTrigger className="bg-[#8ebd21] rounded-t-lg cursor-pointer px-4 py-3 text-white">
-                    {prog.title}
-                  </AccordionTrigger>
-                  <AccordionContent className=" p-2 border border-slate-200 shadow-xs rounded-b-lg ">
-                    <div className="grid lg:grid-cols-3 grid-cols-1 lg:p-4 p-2 gap-2">
-                      <div className="col-span-2">
-                        <SafeHTML html={prog.description || ""} />
-                      </div>
-                      <div className="col-span-1">
-                        {prog.imageUrl && (
-                          <img
-                            src={prog.imageUrl || ""} // Remplacez par le chemin réel ou l'URL de votre image
-                            alt="Randonnée Atlas Central"
-                            className="rounded-lg shadow-md w-full h-auto object-cover"
-                            // Pour Next.js, utilisez <Image />
-                            // import Image from 'next/image';
-                            // <Image src="/path/to/your/image.jpg" alt="..." width={600} height={400} className="rounded-lg shadow-md" />
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
+           <Accordion
+  type="multiple"  // Allows multiple items to stay open
+  className="space-y-3"
+  defaultValue={[tour.programs[0]?.id]}  // Initial open item (as array)
+>
+  {tour.programs.map((prog: Program) => (
+    <AccordionItem value={prog.id} key={prog.id}>
+      <AccordionTrigger className="bg-[#8ebd21] rounded-t-lg cursor-pointer px-4 py-3 text-white">
+        {prog.title}
+      </AccordionTrigger>
+      <AccordionContent className="p-2 border border-slate-200 shadow-xs rounded-b-lg">
+        <div className="grid lg:grid-cols-3 grid-cols-1 lg:p-4 p-2 gap-2">
+          <div className="col-span-2">
+            <SafeHTML html={prog.description || ""} />
+          </div>
+          <div className="col-span-1">
+            {prog.imageUrl && (
+              <img
+                src={prog.imageUrl || ""}
+                alt={prog.title || "Program image"}
+                className="rounded-lg shadow-md w-full h-auto object-cover"
+              />
+            )}
+          </div>
+        </div>
+      </AccordionContent>
+    </AccordionItem>
+  ))}
+</Accordion>
             <div className="bg-white p-6 lg:px-12 md:p-8 font-sans">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                 {/* Included Section */}

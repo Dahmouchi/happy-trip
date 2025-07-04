@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import Hero from "./_components/Hero";
 import { ToursDisplay } from "./_components/National";

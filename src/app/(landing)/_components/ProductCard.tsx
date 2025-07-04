@@ -3,7 +3,7 @@
 "use client";
 
 import React from "react";
-import { CalendarDays, Eye } from "lucide-react";
+import { CalendarDays, Eye, Users2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Rating } from "react-simple-star-rating";
 import { Review } from "@prisma/client";
@@ -23,7 +23,8 @@ const ModernTravelCard = ({ tour }: any) => {
       : 0;
   return (
     <motion.div
-      className="w-full h-full max-w-sm rounded-xl overflow-hidden shadow-xl bg-white border border-gray-100 hover:border-gray-200 transition-all duration-300 flex flex-col"
+      onClick={() => window.location.href = `/voyage/${tour?.id}`}
+      className="w-full h-full max-w-sm rounded-xl overflow-hidden cursor-pointer shadow-xl bg-white border border-gray-100 hover:border-gray-200 transition-all duration-300 flex flex-col"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -63,9 +64,10 @@ const ModernTravelCard = ({ tour }: any) => {
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            <img src="/boot.png" alt="" className="w-4 h-4 mr-1 -rotate-12" />
+            
+            <Users2 className="w-4 h-4 mr-1 text-white" />
             <span className="text-gray-50">
-              Niveau {tour?.difficultyLevel}/5
+              {tour?.groupSizeMax}
             </span>
           </motion.div>
         )}
