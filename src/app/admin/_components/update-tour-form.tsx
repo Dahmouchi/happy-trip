@@ -266,7 +266,6 @@ export function UpdateTourForm({
   categories,
   natures,
   services,
-  hotels,
   tourId,
 }: any) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -397,7 +396,7 @@ export function UpdateTourForm({
     const result = await updateTour(tourId, formData);
 
     if (result.success) {
-      toast.success("Circuit créé avec succès");
+      toast.success("Circuit modifier avec succès");
       form.reset();
       setCardImage([]);
       setGallery(null);
@@ -425,7 +424,7 @@ export function UpdateTourForm({
     }
   } catch (error) {
     console.error("Unexpected error submitting form:", error);
-    toast.error("Erreur inattendue lors de la modification du circuit");
+    toast.error(`Erreur inattendue lors de la modification du circuit , ${error}`);
   } finally {
     setIsSubmitting(false);
   }
