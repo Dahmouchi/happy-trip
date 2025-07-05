@@ -25,6 +25,7 @@ model Destination {
   name     String         @unique
   type     DestinaionType @default(NATIONAL)
   imageUrl String
+  visible  Boolean        @default(true)
   tours    Tour[]         @relation("TourDestinations")
 }
 
@@ -33,6 +34,7 @@ model Category {
   name        String  @unique
   description String?
   imageUrl    String
+  visible     Boolean @default(true)
   tours       Tour[]  @relation("CategoryTours")
 }
 
@@ -41,6 +43,7 @@ model Nature {
   name        String  @unique
   description String?
   imageUrl    String
+  visible     Boolean @default(true)
   tours       Tour[]  @relation("NatureTours")
 }
 

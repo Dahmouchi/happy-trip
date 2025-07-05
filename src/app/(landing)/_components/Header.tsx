@@ -109,27 +109,30 @@ export function Navbar({
                     International
                   </Button>
                 </div>
-                <ul className="flex flex-col gap-2">
-                  {(selectedDestinationType === "national"
-                    ? nationalDestinations
-                    : internationalDestinations
-                  ).map((destination) => (
-                    <li key={destination.id}>
-                      <NavigationMenuLink asChild>
-                        <Link
-                          href={`/destination/${selectedDestinationType}?destinations=${destination.id}`}
-                          className={cn(
-                            "block select-none rounded-md p-2 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          )}
-                        >
-                          <div className="text-sm font-medium leading-none">
-                            {destination.name}
-                          </div>
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                  ))}
-                </ul>
+                  <ul className="flex flex-col gap-2">
+                    {(selectedDestinationType === "national"
+                      ? nationalDestinations
+                      : internationalDestinations
+                    )
+                      .filter((destination) => destination.visible)
+                      .map((destination) => (
+                        <li key={destination.id}>
+                          <NavigationMenuLink asChild>
+                            <Link
+                              href={`/destination/${selectedDestinationType}?destinations=${destination.id}`}
+                              className={cn(
+                                "block select-none rounded-md p-2 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                              )}
+                            >
+                              <div className="text-sm font-medium leading-none">
+                                {destination.name}
+                              </div>
+                            </Link>
+                          </NavigationMenuLink>
+                        </li>
+                      ))}
+                  </ul>
+
               </div>
             </NavigationMenuContent>
           </NavigationMenuItem>
@@ -138,26 +141,29 @@ export function Navbar({
             <NavigationMenuContent className="w-[500px] md:w-[600px] lg:w-[800px]">
               <div className="flex justify-center">
                 <div className="grid grid-cols-4 gap-4 p-4 w-[500px] md:w-[500px] lg:w-[800px]">
-                  {voyage?.map((voyage) => (
-                    <NavigationMenuLink asChild key={voyage.id}>
-                      <Link
-                        href={`/category?categorys=${voyage.id}`}
-                        className="flex flex-col items-center rounded-md p-3 hover:bg-accent transition-colors"
-                      >
-                        <img
-                          src={voyage.imageUrl}
-                          alt={voyage.name}
-                          className="w-56 h-40 object-cover rounded mb-2"
-                        />
-                        <span className="text-sm font-medium text-center">
-                          {voyage.name}
-                        </span>
-                        <p className="line-clamp-2 text-xs text-muted-foreground">
-                          {voyage.description}
-                        </p>
-                      </Link>
-                    </NavigationMenuLink>
+                  {voyage
+                    ?.filter((v) => v.visible)
+                    .map((voyage) => (
+                      <NavigationMenuLink asChild key={voyage.id}>
+                        <Link
+                          href={`/category?categorys=${voyage.id}`}
+                          className="flex flex-col items-center rounded-md p-3 hover:bg-accent transition-colors"
+                        >
+                          <img
+                            src={voyage.imageUrl}
+                            alt={voyage.name}
+                            className="w-56 h-40 object-cover rounded mb-2"
+                          />
+                          <span className="text-sm font-medium text-center">
+                            {voyage.name}
+                          </span>
+                          <p className="line-clamp-2 text-xs text-muted-foreground">
+                            {voyage.description}
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
                   ))}
+
                 </div>
               </div>
             </NavigationMenuContent>
@@ -167,26 +173,29 @@ export function Navbar({
             <NavigationMenuContent className="w-[500px] md:w-[600px] lg:w-[800px]">
               <div className="flex justify-center">
                 <div className="grid grid-cols-4 gap-4 p-4 w-[500px] md:w-[500px] lg:w-[800px]">
-                  {nature?.map((voyage) => (
-                    <NavigationMenuLink asChild key={voyage.name}>
-                      <Link
-                        href={`/nature?natures=${voyage.id}`}
-                        className="flex flex-col items-center rounded-md p-3 hover:bg-accent transition-colors"
-                      >
-                        <img
-                          src={voyage.imageUrl}
-                          alt={voyage.id}
-                          className="w-56 h-40 object-cover rounded mb-2"
-                        />
-                        <span className="text-sm font-medium text-center">
-                          {voyage.name}
-                        </span>
-                        <p className="line-clamp-2 text-xs text-muted-foreground">
-                          {voyage.description}
-                        </p>
-                      </Link>
-                    </NavigationMenuLink>
+                  {nature
+                    ?.filter((voyage) => voyage.visible)
+                    .map((voyage) => (
+                      <NavigationMenuLink asChild key={voyage.name}>
+                        <Link
+                          href={`/nature?natures=${voyage.id}`}
+                          className="flex flex-col items-center rounded-md p-3 hover:bg-accent transition-colors"
+                        >
+                          <img
+                            src={voyage.imageUrl}
+                            alt={voyage.id}
+                            className="w-56 h-40 object-cover rounded mb-2"
+                          />
+                          <span className="text-sm font-medium text-center">
+                            {voyage.name}
+                          </span>
+                          <p className="line-clamp-2 text-xs text-muted-foreground">
+                            {voyage.description}
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
                   ))}
+
                 </div>
               </div>
             </NavigationMenuContent>

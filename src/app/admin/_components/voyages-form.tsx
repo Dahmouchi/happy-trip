@@ -28,6 +28,7 @@ import { createService, updateService, deleteService} from "@/actions/services"
 import RichTextEditor from "@/components/ui/rich-text-editor"
 import SafeHTML from "@/components/SafeHTML"
 import { createHotel, deleteHotel, updateHotel } from "@/actions/hotelsActions"
+import { Switch } from "@/components/ui/switch"
 
 // Enum for destination types
 const DESTINATION_TYPES = [
@@ -40,6 +41,7 @@ interface Destination {
   name: string
   type: DestinaionType
   imageUrl?: File | null
+  visible?: boolean
 }
 
 interface Category {
@@ -47,6 +49,7 @@ interface Category {
   name: string
   description?: string 
   imageUrl?: File | null
+  visible?: boolean
 }
 
 interface Nature {
@@ -54,6 +57,7 @@ interface Nature {
   name: string
   description?: string 
   imageUrl?: File | null
+  visible?: boolean
 }
 
 interface Service {
@@ -88,6 +92,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
     name: "",
     type: "NATIONAL" as DestinaionType,
     imageUrl: null,
+    visible: true,
   })
 
   const [categoryForm, setCategoryForm] = useState<Category>({
@@ -95,6 +100,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
     name: "",
     description: "",
     imageUrl: null,
+    visible: true,
   })
 
   const [natureForm, setNatureForm] = useState<Nature>({
@@ -102,6 +108,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
     name: "",
     description: "",
     imageUrl: null,
+    visible: true,
   })
 
   const [serviceForm, setServiceForm] = useState<Service>({
@@ -146,11 +153,13 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
       toast.error("L'image est requise");
       return
     }
+    formData.append("visible", destinationForm.visible ? "true" : "false")
 
     startTransition(async () => {
       try {
         let result: { success: boolean; data?: any; error?: string }
         if (isEditMode.destination) {
+          console.log("Updating destination:", destinationForm.id, formData)
           result = await updateDestination(destinationForm.id, formData)
           if (result.success) {
             setDestinations((prev) => prev.map((dest) => (dest.id === destinationForm.id ? result.data : dest)))
@@ -165,7 +174,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
         }
 
         if (result.success) {
-          setDestinationForm({ id: "", name: "", type: "NATIONAL", imageUrl: null })
+          setDestinationForm({ id: "", name: "", type: "NATIONAL", imageUrl: null, visible: true })
           setIsEditMode((prev) => ({ ...prev, destination: false }))
           setShowDestinationModal(false)
         } else {
@@ -178,7 +187,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
   }
 
   const openAddDestinationModal = () => {
-    setDestinationForm({ id: "", name: "", type: "NATIONAL", imageUrl: null })
+    setDestinationForm({ id: "", name: "", type: "NATIONAL", imageUrl: null, visible: true })
     setIsEditMode((prev) => ({ ...prev, destination: false }))
     setShowDestinationModal(true)
   }
@@ -189,6 +198,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
       name: destination.name,
       type: destination.type,
       imageUrl: destination.imageUrl || null,
+      visible: destination.visible,
     })
     setIsEditMode((prev) => ({ ...prev, destination: true }))
     setShowDestinationModal(true)
@@ -207,7 +217,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
   }
 
   const cancelDestinationEdit = () => {
-    setDestinationForm({ id: "", name: "", type: "NATIONAL", imageUrl: null })
+    setDestinationForm({ id: "", name: "", type: "NATIONAL", imageUrl: null, visible: true })
     setIsEditMode((prev) => ({ ...prev, destination: false }))
     setShowDestinationModal(false)
   }
@@ -225,6 +235,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
       toast.error("L'image est requise")
       return
     }
+    formData.append("visible", categoryForm.visible ? "true" : "false")
 
     startTransition(async () => {
       try {
@@ -244,7 +255,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
         }
 
         if (result.success) {
-          setCategoryForm({ id: "", name: "", description: "", imageUrl: null })
+          setCategoryForm({ id: "", name: "", description: "", imageUrl: null, visible: true })
           setIsEditMode((prev) => ({ ...prev, category: false }))
           setShowCategoryModal(false)
         } else {
@@ -257,7 +268,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
   }
 
   const openAddCategoryModal = () => {
-    setCategoryForm({ id: "", name: "", description: "", imageUrl: null })
+    setCategoryForm({ id: "", name: "", description: "", imageUrl: null, visible: true })
     setIsEditMode((prev) => ({ ...prev, category: false }))
     setShowCategoryModal(true)
   }
@@ -268,6 +279,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
       name: category.name,
       description: category.description || "",
       imageUrl: category.imageUrl || null,
+      visible: category.visible ?? true,
     })
     setIsEditMode((prev) => ({ ...prev, category: true }))
     setShowCategoryModal(true)
@@ -286,7 +298,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
   }
 
   const cancelCategoryEdit = () => {
-    setCategoryForm({ id: "", name: "", description: "", imageUrl: null })
+    setCategoryForm({ id: "", name: "", description: "", imageUrl: null, visible: true })
     setIsEditMode((prev) => ({ ...prev, category: false }))
     setShowCategoryModal(false)
   }
@@ -306,6 +318,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
       toast.error("L'image est requise");
       return
     }
+    formData.append("visible", natureForm.visible ? "true" : "false")
 
     startTransition(async () => {
       try {
@@ -325,7 +338,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
         }
 
         if (result.success) {
-          setNatureForm({ id: "", name: "", description: "", imageUrl: null })
+          setNatureForm({ id: "", name: "", description: "", imageUrl: null, visible: true })
           setIsEditMode((prev) => ({ ...prev, nature: false }))
           setShowNatureModal(false)
         } else {
@@ -338,7 +351,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
   }
 
   const openAddNatureModal = () => {
-    setNatureForm({ id: "", name: "", description: "", imageUrl: null })
+    setNatureForm({ id: "", name: "", description: "", imageUrl: null, visible: true })
     setIsEditMode((prev) => ({ ...prev, nature: false }))
     setShowNatureModal(true)
   }
@@ -349,6 +362,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
       name: nature.name,
       description: nature.description || "",
       imageUrl: nature.imageUrl || null,
+      visible: nature.visible ?? true,
     })
     setIsEditMode((prev) => ({ ...prev, nature: true }))
     setShowNatureModal(true)
@@ -367,7 +381,7 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
   }
 
   const cancelNatureEdit = () => {
-    setNatureForm({ id: "", name: "", description: "", imageUrl: null })
+    setNatureForm({ id: "", name: "", description: "", imageUrl: null, visible: true })
     setIsEditMode((prev) => ({ ...prev, nature: false }))
     setShowNatureModal(false)
   }
@@ -633,6 +647,14 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
+                          <div className="flex items-center gap-2">
+                            {destination.visible ? (  
+                              <Badge variant="default" className="bg-lime-600">Visible</Badge>
+                            ) : (
+                              <Badge variant="destructive">Caché</Badge>
+                            )  
+                            }
+                          </div>
                           <Button
                             variant="outline"
                             size="sm"
@@ -697,6 +719,15 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
                       <TableCell className="max-w-xs truncate">{category.description}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
+                          <div className="flex items-center gap-2">
+                            {category.visible ? (  
+                              <Badge variant="default" className="bg-lime-600">Visible</Badge>
+                            ) : (
+                              <Badge variant="destructive" >Caché</Badge>
+                            )  
+                            }
+                          </div>
+
                           <Button
                             variant="outline"
                             size="sm"
@@ -761,6 +792,14 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
                       <TableCell className="max-w-xs truncate">{nature.description}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
+                          <div className="flex items-center gap-2">
+                            {nature.visible ? (  
+                              <Badge variant="default" className="bg-lime-600">Visible</Badge>
+                            ) : (
+                              <Badge variant="destructive" >Caché</Badge>
+                            )  
+                            }
+                          </div>
                           <Button variant="outline" size="sm" onClick={() => editNature(nature)} disabled={isPending}>
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -917,6 +956,21 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
             </CardHeader>
             <CardContent>
               <form onSubmit={handleDestinationSubmit} className="space-y-6">
+                <div>
+                  <Label htmlFor="dest-visible">  
+                    Visible sur le site 
+                  </Label>
+                  <Switch
+                    id="dest-visible"
+                    checked={destinationForm.visible}
+                    onCheckedChange={(checked) => setDestinationForm((prev) => ({ ...prev, visible: checked }))}
+                    disabled={isPending}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    {destinationForm.visible ? "Cette destination sera visible sur le site" : "Cette destination sera cachée"}
+                  </p>
+                
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="dest-name">Nom *</Label>
                   <Input
@@ -1009,6 +1063,21 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
             </CardHeader>
             <CardContent>
               <form onSubmit={handleCategorySubmit} className="space-y-6">
+                <div className="space-y-2"> 
+                  <Label htmlFor="cat-visible">  
+                    Visible sur le site 
+                  </Label>
+                  <Switch
+                    id="cat-visible"
+                    checked={categoryForm.visible}
+                    onCheckedChange={(checked) => setCategoryForm((prev) => ({ ...prev, visible: checked }))}
+                    disabled={isPending}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    {categoryForm.visible ? "Cette catégorie sera visible sur le site" : "Cette catégorie sera cachée"}
+                  </p>
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="cat-name">Nom *</Label>
                   <Input
@@ -1093,6 +1162,20 @@ export default function VoyagesComponent({ initialDestinations, initialCategorie
             </CardHeader>
             <CardContent>
               <form onSubmit={handleNatureSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="nature-visible">  
+                    Visible sur le site 
+                  </Label>
+                  <Switch
+                    id="nature-visible"
+                    checked={natureForm.visible}
+                    onCheckedChange={(checked) => setNatureForm((prev) => ({ ...prev, visible: checked }))}
+                    disabled={isPending}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    {natureForm.visible ? "Ce type de nature sera visible sur le site" : "Ce type de nature sera caché"}
+                  </p>
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="nature-name">Nom *</Label>
                   <Input

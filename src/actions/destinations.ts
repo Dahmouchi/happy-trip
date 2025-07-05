@@ -5,12 +5,14 @@ import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import sharp from "sharp";
 import { getFileUrl, uploadFile } from "@/lib/cloudeFlare";
+import { Destination, Prisma } from "@prisma/client";
 
 export async function createDestination(formData: FormData) {
   try {
     const name = formData.get("name") as string;
     const type = formData.get("type") as "NATIONAL" | "INTERNATIONAL";
     const image = formData.get("imageUrl") as File;
+    const visible = formData.get("visible") === "true" ? true : false;
     const quality = 80;
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
@@ -31,6 +33,7 @@ export async function createDestination(formData: FormData) {
         name,
         type,
         imageUrl: imageUrl || "",
+        visible,
       },
     });
 
@@ -47,39 +50,49 @@ export async function updateDestination(id: string, formData: FormData) {
     const name = formData.get("name") as string;
     const type = formData.get("type") as "NATIONAL" | "INTERNATIONAL";
     const image = formData.get("imageUrl") as File;
+
+    const visibleRaw = formData.get("visible");
+    const visible = visibleRaw === null ? undefined : visibleRaw === "true";
+
     const quality = 80;
     let imageUrl: string | null = null;
-    
-    if (image) {
+
+    if (image && typeof image.arrayBuffer === "function") {
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
       const filename = `${timestamp}-${image.name}`;
       const arrayBuffer = await image.arrayBuffer();
-      const test = await sharp(arrayBuffer)
+      const buffer = Buffer.from(arrayBuffer);
+
+      const resizedImage = await sharp(buffer)
         .resize(1200)
-        .jpeg({ quality }) // or .png({ compressionLevel: 9 })
+        .jpeg({ quality })
         .toBuffer();
 
-      const fileContent = Buffer.from(test);
-
-      const uploadResponse = await uploadFile(fileContent, filename, image.type);
-      imageUrl = getFileUrl(filename); // Assuming Key contains the file name
+      await uploadFile(resizedImage, filename, image.type);
+      imageUrl = getFileUrl(filename);
     }
+
+    const updateData: Prisma.DestinationUpdateInput = {
+      name,
+      type,
+      ...(typeof visible !== "undefined" && { visible }),
+      ...(imageUrl && { imageUrl }),
+    };
+
     const destination = await prisma.destination.update({
       where: { id },
-      data: {
-        name,
-        type,
-        imageUrl: imageUrl || "", // Use the new image URL if provided, otherwise keep it null
-      },
-    })
+      data: updateData,
+    });
+
     revalidatePath("/");
-    return { success: true, data: destination }
-  }
-  catch (error) {
+
+    return { success: true, data: destination };
+  } catch (error) {
     console.error("Error updating destination:", error);
     return { success: false, error: "Failed to update destination" };
   }
 }
+
 
 export async function deleteDestination(id: string) {
   try {
